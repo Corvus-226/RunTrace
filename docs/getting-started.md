@@ -248,9 +248,9 @@ installed version.
 
 RunTrace v0.1.0 is a release candidate, not a published PyPI release. The core
 local workflow and collision-free public names are tested on Windows and
-covered by an offline two-order install/uninstall audit. Pull request CI must
-also validate supported Python versions on Linux before publication. After
-publication, snapshot schemas and CLI behavior may still evolve during the
-0.x series. Track changes in the repository's
+covered by an offline two-order install/uninstall audit. Pull request CI also
+passes on supported Python versions on Linux. Final release review is still
+required before publication. After publication, snapshot schemas and CLI
+behavior may still evolve during the 0.x series. Track changes in the repository's
 [issues](https://github.com/Corvus-226/RunTrace/issues) and
 [changelog](../CHANGELOG.md).

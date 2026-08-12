@@ -96,8 +96,8 @@ review, CI, or release safety.
   synthetic distribution that owns the `runtrace` import and command.~~
 - ~~Repeat the two-order and both-uninstall audit against the real PyPI
   `runtrace==0.3.2` wheel.~~
-- [ ] Obtain green Linux CI for the migrated package on Python 3.10–3.12 and
-  the packaging smoke job.
+- ~~Obtain green Linux CI for the migrated package on Python 3.10–3.12 and
+  the packaging smoke job.~~
 - [ ] Configure the protected `pypi` environment and pending trusted publisher
   with maintainer-controlled deployment approval.
 - ~~Freeze the v0.1.0 feature scope and keep publication outside automatic
@@ -1256,6 +1256,17 @@ review, CI, or release safety.
   paths, private-key blocks, PyPI tokens, GitHub tokens, or credential
   assignments. The two untracked maintainer references were explicitly
   excluded and remained outside the candidate.
+- GitHub Actions run
+  [`31624906406`](https://github.com/Corvus-226/RunTrace/actions/runs/31624906406)
+  passed all four jobs for implementation commit `2005035`: Linux Python
+  3.10, 3.11, and 3.12 plus the package smoke job.
+- The package job completed in 26 seconds. It built both artifacts, passed the
+  offline two-order/both-uninstall audit, passed Twine, and installed the
+  exact wheel in a clean environment with the approved command, module, and
+  no legacy `runtrace` import or executable.
+- CI recorded these implementation-candidate hashes:
+  - wheel: `53b292f3ba08f4b5b26cd6a233e55aff75d357d0ada87a9378253fb565745d82`
+  - sdist: `6d28f2b2405fb3cbeeefcd6dcedc10f8b759a0e83d730e2ba0f8509049e00370`
 
 ### Result
 
@@ -1268,4 +1279,14 @@ review, CI, or release safety.
 - [x] Synthetic offline two-order and both-uninstall audit passed
 - [x] Real `runtrace==0.3.2` two-order and both-uninstall audit passed
 - [x] Final full quality, artifact, clean-install, and privacy validation
-- [ ] Commit, push, and Linux CI evidence
+- [x] Commit, push, and Linux CI evidence
+
+### Submission record
+
+- Created commit `2005035` (`fix: resolve public name collision`) and pushed
+  it to the existing `codex/issue-12-release-preparation` branch and draft PR
+  #23. Both local maintainer reference documents remained untracked.
+- Posted the explicit strategy A decision, implementation details, local
+  evidence, and unchanged publication boundary to Issue #24.
+- PR #23 remained Draft while the implementation CI ran. No merge, trusted
+  publisher, tag, PyPI upload, or GitHub Release action was performed.

@@ -10,9 +10,8 @@ It stores transparent YAML snapshots in the current Git repository, without a
 server or account.
 
 > **Project status:** v0.1.0 release candidate. It has not been published to
-> PyPI. The collision-free candidate is verified locally on Windows; pull
-> request CI must validate it on Linux with Python 3.10–3.12. The public names
-> approved in
+> PyPI. The collision-free candidate is verified locally on Windows and by
+> pull request CI on Linux with Python 3.10–3.12. The public names approved in
 > [Issue #24](https://github.com/Corvus-226/RunTrace/issues/24) are now part of
 > the candidate and remain subject to final release review.
 
