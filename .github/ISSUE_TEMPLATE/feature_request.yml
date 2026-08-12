@@ -1,0 +1,31 @@
+name: Feature request
+description: Propose a focused reproducibility improvement
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: RunTrace keeps its v0.x scope intentionally small and local-first.
+  - type: textarea
+    attributes:
+      label: Problem
+      description: What reproducibility task is difficult today?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed behavior
+      description: Describe the smallest useful outcome, including a CLI example.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+  - type: checkboxes
+    attributes:
+      label: Scope check
+      options:
+        - label: This request directly helps record, inspect, or compare experiment reproducibility information.
+          required: true

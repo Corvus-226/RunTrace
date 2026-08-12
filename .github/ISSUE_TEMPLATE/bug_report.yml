@@ -1,0 +1,46 @@
+name: Bug report
+description: Report a reproducible problem in RunTrace
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve RunTrace. Please avoid including secrets.
+  - type: checkboxes
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues for duplicates.
+          required: true
+        - label: I removed credentials and sensitive paths from the report.
+          required: true
+  - type: input
+    attributes:
+      label: RunTrace version
+      placeholder: "runtrace --version"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Python and operating system
+      placeholder: "Python 3.12.7 on Windows 11"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction steps
+      description: Provide the smallest sequence that demonstrates the problem.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Actual behavior and logs
+      description: Paste sanitized terminal output or a traceback.
+      render: shell
+    validations:
+      required: true
