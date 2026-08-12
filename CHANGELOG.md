@@ -33,5 +33,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Sectioned `runtrace show` output for complete stored snapshots selected by
   full or unique abbreviated run ID, with explicit missing-value display and
   deterministic JSON formatting for captured config values.
+- Deterministic `runtrace diff` output for two full or uniquely abbreviated run
+  IDs, including recursive configuration, Git, runtime, platform, and Python
+  dependency changes grouped into readable terminal sections.
 
 [Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...HEAD
