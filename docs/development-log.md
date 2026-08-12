@@ -814,5 +814,10 @@ review, CI, or release safety.
 
 ### Submission record
 
-- Pending maintainer commit, push, pull request, and GitHub Actions results.
+- Created commit `bdaca0a` (`feat: compare experiment snapshots`) and pushed
+  `codex/issue-9-experiment-diff` to `origin`.
+- Opened [pull request #21](https://github.com/Corvus-226/RunTrace/pull/21)
+  against `main`. The pull request closes #9, uses the `enhancement` label, is
+  assigned to the maintainer, and belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31594849751` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.
