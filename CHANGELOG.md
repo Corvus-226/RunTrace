@@ -36,5 +36,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Deterministic `runtrace diff` output for two full or uniquely abbreviated run
   IDs, including recursive configuration, Git, runtime, platform, and Python
   dependency changes grouped into readable terminal sections.
+- Complete README and Getting Started documentation for installation, the
+  init-to-diff workflow, terminal output, local storage, privacy, project
+  maturity, and RunTrace's scope relative to full tracking platforms.
 
 [Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...HEAD
