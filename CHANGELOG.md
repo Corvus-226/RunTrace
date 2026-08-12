@@ -27,5 +27,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `runtrace snapshot` capture for Git state, Python runtime, platform,
   dependencies, optional GPU/CUDA metadata, and optional run name, command,
   and validated YAML config values, path, and SHA-256 hash.
+- Compact newest-first `runtrace list` output for local run IDs, names, short
+  commits, dirty states, and UTC creation times, including friendly empty-state
+  and actionable corrupt-record handling.
 
 [Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...HEAD

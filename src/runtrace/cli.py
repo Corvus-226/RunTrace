@@ -4,13 +4,19 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
+from rich.console import Console
 
 from runtrace import __version__
 from runtrace.config import ConfigLoadError
 from runtrace.git import GitMetadataError
-from runtrace.project import ProjectInitializationError, initialize_project
+from runtrace.presentation import print_snapshot_list
+from runtrace.project import (
+    ProjectInitializationError,
+    initialize_project,
+    require_initialized_project,
+)
 from runtrace.snapshot import SnapshotCaptureError, create_snapshot
-from runtrace.storage import SnapshotStorageError
+from runtrace.storage import SnapshotStorageError, SnapshotStore
 
 app = typer.Typer(
     help=(
@@ -91,6 +97,19 @@ def snapshot_command(
 
     typer.echo(f"Created snapshot {saved.snapshot.run_id}.")
     typer.echo(f"Path: {saved.path}")
+
+
+@app.command("list")
+def list_command() -> None:
+    """List locally recorded experiment runs, newest first."""
+    try:
+        project_root = require_initialized_project(Path.cwd())
+        snapshots = SnapshotStore(project_root).list_snapshots()
+    except (ProjectInitializationError, SnapshotStorageError) as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(code=1) from error
+
+    print_snapshot_list(snapshots, Console(highlight=False))
 
 
 def main() -> None:
