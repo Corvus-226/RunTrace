@@ -3,9 +3,9 @@
 RunTrace is a lightweight CLI for capturing and comparing the code,
 configuration, environment, and metadata behind machine-learning experiments.
 
-> Project status: early development. `runtrace init`, `runtrace snapshot`, and
-> `runtrace list` are available; the first complete experiment workflow is
-> planned as v0.1.0.
+> Project status: early development. `runtrace init`, `runtrace snapshot`,
+> `runtrace list`, and `runtrace show` are available; the first complete
+> experiment workflow is planned as v0.1.0.
 
 The project and CLI are named RunTrace. The planned PyPI distribution name is
 `ml-runtrace` because the `runtrace` distribution is already owned by an
@@ -38,9 +38,9 @@ runtrace show <run-id>
 runtrace diff <run-id-a> <run-id-b>
 ```
 
-`runtrace init`, `runtrace snapshot`, and `runtrace list` are implemented. The
-remaining commands are the v0.1.0 target and will be delivered incrementally.
-See the repository issues for current implementation status.
+`runtrace init`, `runtrace snapshot`, `runtrace list`, and `runtrace show` are
+implemented. The remaining commands are the v0.1.0 target and will be delivered
+incrementally. See the repository issues for current implementation status.
 
 ## Development setup
 

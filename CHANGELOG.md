@@ -30,5 +30,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Compact newest-first `runtrace list` output for local run IDs, names, short
   commits, dirty states, and UTC creation times, including friendly empty-state
   and actionable corrupt-record handling.
+- Sectioned `runtrace show` output for complete stored snapshots selected by
+  full or unique abbreviated run ID, with explicit missing-value display and
+  deterministic JSON formatting for captured config values.
 
 [Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...HEAD
