@@ -491,3 +491,75 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
   assigned to the maintainer, and belongs to the `v0.1.0` milestone.
 - GitHub Actions run `31591666159` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.
+
+## 2026-08-12 — Issue #7 local run listing
+
+### Coordination
+
+- Merged [pull request #18](https://github.com/Corvus-226/RunTrace/pull/18)
+  into `main` as `ec5e476`; Issue #6 closed automatically.
+- Assigned Issue #7 to the maintainer and started from the updated `main`
+  branch on `codex/issue-7-list-command`.
+
+### Scope
+
+- Add `runtrace list` for a fast local summary without a service.
+- Display run ID, optional name, short commit, dirty state, and creation time.
+- Preserve the storage layer's deterministic newest-first ordering.
+- Provide a friendly success state when no snapshots exist and actionable
+  errors when stored records are corrupt.
+
+### Decisions
+
+- Keep snapshot reading and validation in `SnapshotStore`; add a focused
+  `runtrace.presentation` module for terminal rendering and keep the CLI layer
+  responsible only for project lookup, error translation, and orchestration.
+- Display the full 12-character run ID so every row can be copied without
+  relying on prefix uniqueness. Display seven commit characters, `yes`/`no`
+  dirty values, and UTC times in `YYYY-MM-DD HH:MM UTC` form.
+- Render missing names as an em dash. Collapse whitespace and constrain names
+  to 24 terminal columns for a compact table, while preserving stored values.
+- Construct user-supplied names as Rich `Text` rather than markup so names such
+  as `[bold]...[/bold]` remain literal and cannot affect terminal styling.
+- Return success with guidance to run `runtrace snapshot` when storage is empty.
+  Let existing schema and YAML validation errors identify the corrupt filename
+  and recommend repair or removal without exposing a traceback.
+
+### Implemented
+
+- [x] `runtrace list` command and initialized-project validation
+- [x] Compact Rich table with run ID, name, commit, dirty, and created columns
+- [x] Deterministic newest-first output from validated storage records
+- [x] Clear em-dash fallback for missing names
+- [x] Literal, single-line, width-bounded user-name rendering
+- [x] Friendly empty state with next-command guidance
+- [x] Actionable corrupt-record and uninitialized-project failures
+- [x] Empty, single-run, multiple-run, literal-name, and corruption CLI tests
+
+### Verification
+
+- `uv run pytest -p no:cacheprovider`: 67 tests passed on Windows with Python
+  3.12.7.
+- `uv run ruff check . --no-cache`: passed.
+- `uv run ruff format --check . --no-cache`: 27 files already formatted.
+- `uv lock --check`: passed with the existing 22-package lock graph; no new
+  dependency was introduced.
+- A real console-script smoke test initialized and committed a temporary Git
+  project, recorded a clean snapshot, modified a tracked file, recorded a dirty
+  snapshot, and listed both. The dirty run appeared first with `yes`; the clean
+  run appeared second with `no`. The temporary repository was removed.
+- `uv build`: produced both `ml_runtrace-0.1.0.dev0.tar.gz` and the universal
+  `ml_runtrace-0.1.0.dev0-py3-none-any.whl` in a temporary verification
+  directory, which was removed after validation.
+- `uv run runtrace list --help`: described newest-first local run listing.
+- `git diff --check`: passed.
+
+### Submission record
+
+- Created commit `e74d3eb` (`feat: list local experiment snapshots`) and
+  pushed `codex/issue-7-list-command` to `origin`.
+- Opened [pull request #19](https://github.com/Corvus-226/RunTrace/pull/19)
+  against `main`. The pull request closes #7, uses the `enhancement` label, is
+  assigned to the maintainer, and belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31592402274` passed on Python 3.10, 3.11, and 3.12.
+- The original planning document remains untracked and excluded.
