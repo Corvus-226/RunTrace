@@ -553,3 +553,13 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
   directory, which was removed after validation.
 - `uv run runtrace list --help`: described newest-first local run listing.
 - `git diff --check`: passed.
+
+### Submission record
+
+- Created commit `e74d3eb` (`feat: list local experiment snapshots`) and
+  pushed `codex/issue-7-list-command` to `origin`.
+- Opened [pull request #19](https://github.com/Corvus-226/RunTrace/pull/19)
+  against `main`. The pull request closes #7, uses the `enhancement` label, is
+  assigned to the maintainer, and belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31592402274` passed on Python 3.10, 3.11, and 3.12.
+- The original planning document remains untracked and excluded.
