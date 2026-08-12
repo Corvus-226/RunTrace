@@ -308,3 +308,13 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
   `ml_runtrace-0.1.0.dev0-py3-none-any.whl` in a temporary verification
   directory.
 - `git diff --check`: passed.
+
+### Submission record
+
+- Created commit `b320dd1` (`feat: persist validated experiment snapshots`)
+  and pushed `codex/issue-4-snapshot-persistence` to `origin`.
+- Opened [pull request #16](https://github.com/Corvus-226/RunTrace/pull/16)
+  against `main`. The pull request closes #4, uses the `enhancement` label, is
+  assigned to the maintainer, and belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31588934022` passed on Python 3.10, 3.11, and 3.12.
+- The original planning document remains untracked and excluded.
