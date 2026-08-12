@@ -81,7 +81,7 @@ review, CI, or release safety.
   environment.~~
 - ~~Run the full test and quality suite on Windows.~~
 - ~~Run CI on Linux with Python 3.10, 3.11, and 3.12.~~
-- [ ] Perform the final scope, packaging metadata, and release-readiness audit.
+- ~~Perform the final scope, packaging metadata, and release-readiness audit.~~
 
 ### Day 6 — 2026-08-17 — v0.1.0 release
 
@@ -992,7 +992,8 @@ review, CI, or release safety.
 - [x] Release metadata/workflow guardrail tests compatible with Python 3.10+
 - [x] Explicit source-distribution exclusion for the private planning document
 - [x] Final wheel and sdist metadata, contents, hashes, and Windows wheel smoke
-- [ ] Reviewed pull request and green Linux matrix/package CI
+- [x] Release-preparation pull request and first green Linux matrix/package CI
+- [ ] Explicit maintainer approval of the release-preparation pull request
 - [ ] Protected environment, pending publisher, signed or annotated tag,
   trusted publication, and post-publication verification
 
@@ -1029,4 +1030,26 @@ review, CI, or release safety.
 - `uv lock --check`: passed with the 48-package locked graph, including Twine
   and its release-checking dependencies.
 - Both GitHub Actions YAML files parsed successfully and `git diff --check`
-  passed. Linux pull-request CI remains required before review completion.
+  passed.
+- [Pull request #23](https://github.com/Corvus-226/RunTrace/pull/23) opened
+  against `main`, references Issue #12 without closing it, is assigned to the
+  maintainer, carries the `enhancement` label, and belongs to the `v0.1.0`
+  milestone.
+- GitHub Actions run `31599053386` passed all four checks: the Linux Python
+  3.10, 3.11, and 3.12 matrix plus the new package smoke job. The package job
+  built commit `0895cf7`, passed Twine and clean-wheel installation, and
+  recorded these first-review hashes:
+  - wheel: `28519f89c21658b0fe0a55dc3aae67fd708b064ec97cb7a8bb249ddd788d189b`
+  - sdist: `407ea4fd632dc257609f33ef520a527e101881f195a1f5fdd634a61e32bfef6f`
+- The first package job reported a non-failing cache-save warning because it
+  raced the Python 3.12 job for the same uv cache key. Distinct `package` and
+  `release-candidate` cache suffixes now prevent cross-job cache contention;
+  this follows setup-uv's documented guidance for jobs with different roles.
+
+### Submission record
+
+- Created commit `0895cf7` (`chore: prepare v0.1.0 release`) and pushed
+  `codex/issue-12-release-preparation` to `origin`.
+- Opened [pull request #23](https://github.com/Corvus-226/RunTrace/pull/23)
+  with an explicit publication boundary. The PR remains open and Issue #12
+  remains open; neither a merge nor any release action has been performed.
