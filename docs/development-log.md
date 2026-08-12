@@ -103,3 +103,66 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
 2. Merge Issue #1 only after the final CI run passes.
 3. Record how the CI work in #10 is resolved, then start Git metadata work in
    #2 on a new branch.
+
+## 2026-08-12 — Issue #2 Git metadata
+
+### Coordination
+
+- The maintainer authorized continued implementation after the final Issue #1
+  CI run passed.
+- Merged [pull request #13](https://github.com/Corvus-226/RunTrace/pull/13)
+  into `main` as `0eb9da6`; Issue #1 closed automatically.
+- Recorded the implementation and successful Python 3.10–3.12 CI runs on
+  [Issue #10](https://github.com/Corvus-226/RunTrace/issues/10), then closed
+  that issue as completed.
+- Started Issue #2 from the updated `main` branch on
+  `codex/issue-2-git-metadata`.
+
+### Scope
+
+- Capture the full commit SHA, current branch, detached-HEAD state, and dirty
+  working-tree state.
+- Count tracked modifications and untracked files as dirty.
+- Keep the implementation read-only and based on the installed Git CLI.
+- Do not inspect or retain remotes, patches, source contents, credentials, or
+  environment-variable values.
+
+### Decisions
+
+- Use a frozen, slotted `GitMetadata` dataclass with explicit `branch: None`
+  and `detached: true` values for detached HEADs.
+- Invoke Git with argument lists and `git -C <path>` rather than a shell, so
+  repository paths containing spaces work on Windows and Linux.
+- Disable optional Git locks and terminal prompts, and bound each local Git
+  command to ten seconds.
+- Raise `GitMetadataError` with concise recovery guidance for missing paths,
+  non-repositories, repositories without a readable commit, missing Git, and
+  failed metadata commands.
+- Keep Git fixture identity local to each commit command and disable global and
+  system Git configuration in tests; no contributor Git identity is required.
+
+### Implemented
+
+- [x] Focused `runtrace.git` metadata module with no new dependency
+- [x] Clean branch and full commit SHA capture
+- [x] Tracked and untracked dirty-tree detection
+- [x] Explicit detached-HEAD representation
+- [x] Paths-with-spaces coverage
+- [x] Actionable non-repository and command-failure errors
+- [x] Changelog entry for the new capture capability
+
+### Verification
+
+- `uv run pytest -p no:cacheprovider`: 11 tests passed on Windows with Python
+  3.12.7, including 8 focused Git tests.
+- `uv run ruff check . --no-cache`: passed.
+- `uv run ruff format --check . --no-cache`: 15 files already formatted.
+- An initial non-repository test exposed that the system temporary directory
+  sits below another Git working tree. The fixture now sets a Git ceiling for
+  that case, preserving intentional support for collecting metadata from a
+  repository subdirectory while making the failure test isolated.
+
+### Submission record
+
+- Pending final diff review, commit, push, pull request creation, and GitHub CI.
+- The original planning document remains untracked and excluded.
