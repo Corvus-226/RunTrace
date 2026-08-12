@@ -14,5 +14,7 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Local development workflow using uv, pytest, and Ruff.
 - Linux CI matrix for Python 3.10, 3.11, and 3.12.
 - Repository contribution, security, issue, and pull request guidance.
+- Git metadata capture for the full commit SHA, branch or detached-HEAD state,
+  and dirty working trees, including untracked files.
 
 [Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...HEAD
