@@ -24,6 +24,36 @@ class GitMetadata:
     dirty: bool
 
 
+def find_git_root(path: Path) -> Path:
+    """Return the work-tree root containing ``path``, including empty repos."""
+    repository = Path(path).expanduser()
+    if not repository.exists():
+        raise GitMetadataError(f"Git repository path does not exist: {repository}")
+    if not repository.is_dir():
+        raise GitMetadataError(f"Git repository path is not a directory: {repository}")
+
+    root_result = _run_git(repository, "rev-parse", "--show-toplevel")
+    root_text = root_result.stdout.strip()
+    if root_result.returncode != 0 or not root_text:
+        raise GitMetadataError(
+            f"Not a Git repository: {repository}. "
+            "Run this command inside an initialized Git working tree."
+        )
+
+    root = Path(root_text)
+    try:
+        resolved_root = root.resolve(strict=True)
+    except OSError as error:
+        raise GitMetadataError(
+            f"Could not resolve the Git repository root {root}: {error}"
+        ) from error
+    if not resolved_root.is_dir():
+        raise GitMetadataError(
+            f"Git repository root is not a directory: {resolved_root}"
+        )
+    return resolved_root
+
+
 def collect_git_metadata(path: Path) -> GitMetadata:
     """Collect commit, branch, detached-HEAD, and dirty-tree information.
 

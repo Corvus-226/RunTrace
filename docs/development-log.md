@@ -318,3 +318,78 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
   assigned to the maintainer, and belongs to the `v0.1.0` milestone.
 - GitHub Actions run `31588934022` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.
+
+## 2026-08-12 — Issue #5 project initialization
+
+### Coordination
+
+- Merged [pull request #16](https://github.com/Corvus-226/RunTrace/pull/16)
+  into `main` as `41aba97`; Issue #4 closed automatically.
+- Assigned Issue #5 to the maintainer and started from the updated `main`
+  branch on `codex/issue-5-init-command`.
+
+### Scope
+
+- Add the `runtrace init` command.
+- Locate the Git work-tree root even when invoked from a nested directory or
+  an empty repository without a commit.
+- Create `.runtrace/runs/` and a minimal `runtrace.toml` at the repository root.
+- Preserve existing configuration and stored runs on repeated invocation.
+- Fail without writing files when the current directory is not in a Git
+  repository or an initialization path is unsafe.
+
+### Decisions
+
+- Keep Git discovery in `runtrace.git` and project initialization in a focused
+  `runtrace.project` module; the CLI only translates domain results into output
+  and exit codes.
+- Use `git rev-parse --show-toplevel` through the existing bounded, non-shell
+  Git runner. Unlike snapshot Git capture, initialization does not require an
+  existing commit.
+- Always initialize the resolved work-tree root rather than the process's
+  nested working directory. Print both the required success sentence and the
+  resolved project location.
+- Create a minimal, stable `[runtrace]` configuration with schema version 1.
+  Use exclusive file creation and never parse, replace, or normalize a user's
+  existing `runtrace.toml` during initialization.
+- Treat existing directories and files as state to preserve. Validate their
+  types and resolved locations, rejecting metadata, run, or configuration
+  paths that escape their allowed project boundary.
+- Keep initialization local-only. It reads only Git's work-tree location and
+  does not capture metadata, environment values, credentials, source code, or
+  network state.
+
+### Implemented
+
+- [x] `runtrace init` CLI command and concise non-zero error handling
+- [x] Git-root discovery from repository roots and nested directories
+- [x] Support for empty Git repositories without a commit
+- [x] `.runtrace/runs/` creation using `pathlib.Path`
+- [x] Minimal `runtrace.toml` creation with an explicit schema version
+- [x] Idempotent preservation of custom configuration and stored runs
+- [x] File-type, symlink, and project-boundary validation
+- [x] Updated snapshot-storage guidance to recommend `runtrace init`
+- [x] CLI coverage for first use, repeated use, non-Git paths, invalid paths,
+  and escaped run directories
+
+### Verification
+
+- Focused `uv run pytest` coverage for CLI, Git, and storage: 33 tests passed
+  on Windows with Python 3.12.7.
+- `uv run ruff check` on the changed Python files: passed.
+- `uv run ruff format --check` on the changed Python files: all 6 files were
+  already formatted.
+- A real console-script smoke test initialized an empty Git repository twice,
+  printed the resolved project path both times, preserved the generated
+  configuration, and kept `.runtrace/runs/` intact.
+- `uv run pytest -p no:cacheprovider`: 43 tests passed on Windows with Python
+  3.12.7.
+- `uv run ruff check . --no-cache`: passed.
+- `uv run ruff format --check . --no-cache`: 21 files already formatted.
+- `uv lock --check`: passed with the existing 22-package lock graph; no new
+  dependency was introduced.
+- `uv build`: produced both `ml_runtrace-0.1.0.dev0.tar.gz` and the universal
+  `ml_runtrace-0.1.0.dev0-py3-none-any.whl` in a temporary verification
+  directory, which was removed after validation.
+- `uv run runtrace --help`: listed `init` with its Git-repository description.
+- `git diff --check`: passed.

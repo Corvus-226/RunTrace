@@ -21,5 +21,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Versioned Pydantic snapshot models and readable local YAML persistence with
   atomic saves, duplicate-ID protection, newest-first listing, and full or
   unique abbreviated run-ID lookup.
+- Idempotent `runtrace init` support that locates the current Git root, creates
+  `.runtrace/runs/` and a minimal `runtrace.toml`, and preserves existing
+  configuration and stored runs.
 
 [Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...HEAD

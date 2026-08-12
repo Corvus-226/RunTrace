@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 import runtrace.git as git_module
-from runtrace.git import GitMetadataError, collect_git_metadata
+from runtrace.git import GitMetadataError, collect_git_metadata, find_git_root
 
 
 def _git(repository: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
@@ -43,6 +43,16 @@ def _committed_repository(repository: Path) -> tuple[Path, str]:
     )
     commit = _git(repository, "rev-parse", "HEAD").stdout.strip()
     return repository, commit
+
+
+def test_finds_root_from_nested_directory_in_empty_repository(tmp_path: Path) -> None:
+    repository = tmp_path / "repository"
+    nested = repository / "experiments" / "baseline"
+    repository.mkdir()
+    _git(repository, "init", "--quiet", "--initial-branch=main")
+    nested.mkdir(parents=True)
+
+    assert find_git_root(nested) == repository.resolve()
 
 
 def test_collects_clean_branch_metadata_from_path_with_spaces(tmp_path: Path) -> None:
