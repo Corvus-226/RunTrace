@@ -87,6 +87,8 @@ review, CI, or release safety.
 
 - ~~Recheck `ml-runtrace` availability through PyPI's JSON and Simple API
   endpoints.~~
+- [ ] Resolve the Python import and console-command collision with the
+  unrelated PyPI `runtrace` distribution (blocked by Issue #24).
 - [ ] Configure the protected `pypi` environment and pending trusted publisher
   with maintainer-controlled deployment approval.
 - ~~Freeze the v0.1.0 feature scope and keep publication outside automatic
@@ -945,8 +947,8 @@ review, CI, or release safety.
 ### Scope
 
 - Freeze the first-release scope and change the package version to `0.1.0`.
-- Finalize changelog, release notes, public installation guidance, support
-  status, and an auditable maintainer runbook.
+- Finalize changelog, release notes, release-candidate installation guidance,
+  support status, and an auditable maintainer runbook.
 - Harden CI action references and add Linux package-build and clean-wheel smoke
   coverage.
 - Add a manually dispatched, read-only candidate workflow that builds and
@@ -984,7 +986,8 @@ review, CI, or release safety.
 
 - [x] Package and runtime version changed from `0.1.0.dev0` to `0.1.0`
 - [x] Alpha classifier, documentation URL, changelog release, and v0.1.0 notes
-- [x] Public v0.1.0 install, maturity, contributor, and support documentation
+- [x] Truthful release-candidate install, maturity, contributor, and support
+  documentation that does not claim PyPI publication
 - [x] Maintainer release runbook with one-time trusted-publisher prerequisites
 - [x] Read-only manual release-candidate workflow with SHA-pinned actions
 - [x] SHA-pinned CI actions and separate Linux package smoke job
@@ -1053,3 +1056,105 @@ review, CI, or release safety.
 - Opened [pull request #23](https://github.com/Corvus-226/RunTrace/pull/23)
   with an explicit publication boundary. The PR remains open and Issue #12
   remains open; neither a merge nor any release action has been performed.
+
+## 2026-08-13 — Gate 0 public-name coexistence audit
+
+### Coordination
+
+- Used the v0.1.0 release-progress guide to start at Gate 0 before any PR
+  approval, trusted-publisher configuration, merge, tag, or publication.
+- Confirmed through PyPI's JSON and Simple APIs that the unrelated `runtrace`
+  distribution is currently published at version 0.3.2 and requires Python
+  3.11 or newer; `ml-runtrace` still returned HTTP 404 on both endpoints.
+- Opened [Issue #24](https://github.com/Corvus-226/RunTrace/issues/24) as the
+  release-blocking public-name decision, assigned it to the maintainer, added
+  the `bug` label, and placed it in the `v0.1.0` milestone.
+- Added the evidence and stop condition to
+  [pull request #23](https://github.com/Corvus-226/RunTrace/pull/23), then
+  converted that pull request to draft.
+
+### Scope
+
+- Test the published `runtrace==0.3.2` distribution and the local
+  `ml_runtrace-0.1.0` candidate wheel in both installation orders.
+- Compare import resolution, console-command behavior, distribution RECORD
+  ownership, and `pip check` results.
+- Uninstall one distribution from each combined environment and verify whether
+  the remaining distribution still imports and runs.
+- Stop release work on any package or command collision; do not choose or
+  implement a new public name without maintainer review.
+
+### Decisions
+
+- Treat distribution names, Python import packages, and console scripts as
+  separate public namespaces. The available `ml-runtrace` distribution name
+  does not mitigate collisions in the other two namespaces.
+- Treat this as a release blocker rather than a documentation caveat. A warning
+  cannot prevent pip from overwriting or deleting files owned by another
+  distribution.
+- Keep the current package and command unchanged until Issue #24 records a
+  maintainer-approved naming decision. Do not start Trusted Publishing setup
+  while the publishable artifact identity remains unresolved.
+- Correct release-preparation documentation immediately so an open or merged
+  candidate never claims that v0.1.0 is already available from PyPI.
+- Exclude both untracked maintainer reference documents from local sdists so a
+  developer-machine build matches a clean-clone build more closely.
+
+### Experiment
+
+- Environment A installed `runtrace==0.3.2` first. Its import reported version
+  0.3.2 and its `runtrace --help` identified an unrelated AI-agent black-box
+  tool. Installing the candidate second changed the same import and executable
+  to RunTrace v0.1.0.
+- Environment B installed the candidate first. Its import and executable
+  reported RunTrace v0.1.0. Installing `runtrace==0.3.2` second changed both to
+  the unrelated project.
+- The two distribution RECORD files claim the same six paths:
+  - `Scripts/runtrace.exe`
+  - `runtrace/__init__.py`
+  - `runtrace/__main__.py`
+  - `runtrace/cli.py`
+  - `runtrace/config.py`
+  - `runtrace/models.py`
+- In Environment A, uninstalling `runtrace` left `ml-runtrace==0.1.0` metadata
+  installed but removed the `runtrace` import and executable.
+- In Environment B, uninstalling `ml-runtrace` left `runtrace==0.3.2` metadata
+  installed but removed the `runtrace` import and executable.
+- `pip check` returned success at every checkpoint, demonstrating that normal
+  dependency validation does not detect cross-distribution file ownership.
+- Both temporary environments and the candidate wheel directory were removed
+  after the audit.
+- After the documentation and packaging corrections, all 88 tests passed on
+  Windows with Python 3.12.7. Ruff lint passed, 35 files were already
+  formatted, `uv lock --check` passed, and both Actions YAML files parsed.
+- Three focused release guardrail tests passed. Both candidate distributions
+  passed Twine; the sdist contained 45 files and excluded both untracked
+  maintainer reference documents.
+- Tracked-file audits found no machine-specific user paths, private-key blocks,
+  PyPI tokens, or API-key assignments. `runtrace --version` and `--help`
+  continued to pass for the unchanged source candidate.
+
+### Result
+
+- [x] Both installation orders tested in clean Python 3.12 environments
+- [x] Python import ownership collision reproduced
+- [x] Console-script ownership collision reproduced
+- [x] Six shared RECORD paths identified
+- [x] Both uninstall directions shown to break the remaining distribution
+- [x] False-negative `pip check` behavior recorded
+- [x] Blocking Issue #24 and PR #23 comment created
+- [x] PR #23 converted to draft and release progression stopped
+- [ ] Collision-free import and command names approved by the maintainer
+- [ ] Naming decision implemented with regression tests and documentation
+- [ ] Both-order installation and uninstall acceptance criteria pass
+
+### Risks and next scoped work
+
+- Publishing with the current names could silently replace an unrelated tool
+  or be silently replaced by it, and later uninstallation could damage either
+  installation. v0.1.0 must not be published in this state.
+- Issue #24 must compare concrete naming options and record the chosen public
+  import and command. That decision will determine the next implementation
+  branch and invalidate current candidate hashes.
+- Trusted Publishing work remains deferred until the package identity is
+  stable and PR #23 is re-reviewed.

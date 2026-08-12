@@ -6,7 +6,10 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-08-12
+The v0.1.0 candidate remains unpublished while Issue #24 resolves its public
+import and command names.
+
+## [0.1.0] - Unreleased
 
 ### Added
 

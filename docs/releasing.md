@@ -17,6 +17,22 @@ does not authorize a tag or upload.
 - Published files are never overwritten; a correction uses a new patch
   version.
 
+## Public-name collision gate
+
+Publication is blocked by
+[Issue #24](https://github.com/Corvus-226/RunTrace/issues/24). The unrelated
+PyPI `runtrace==0.3.2` distribution and the current candidate both own the
+`runtrace` Python package and `runtrace` console script. Tests in both install
+orders showed that the later installation controls the import and command,
+while uninstalling either distribution deletes shared files and breaks the
+other. `pip check` does not detect this file-ownership conflict.
+
+Do not merge the release-preparation pull request, configure a trusted
+publisher, enable publication, create a tag, or publish v0.1.0 until the
+maintainer approves a collision-free public import and command naming strategy
+and the coexistence acceptance tests pass. A README warning alone is not an
+acceptable mitigation.
+
 ## One-time trusted publishing setup
 
 The `ml-runtrace` PyPI JSON and Simple API endpoints returned HTTP 404 during

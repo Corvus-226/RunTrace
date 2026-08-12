@@ -17,7 +17,8 @@ def test_build_backend_emits_twine_compatible_metadata() -> None:
     pyproject = (_ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
     assert 'requires = ["hatchling>=1.27,<1.30"]' in pyproject
-    assert 'exclude = ["/docs/codex_for_oss_runtrace_plan_2026-08-12.md"]' in pyproject
+    assert '"/docs/RunTrace_v0.1.0_release_progress_guide_2026-08-13.md"' in pyproject
+    assert '"/docs/codex_for_oss_runtrace_plan_2026-08-12.md"' in pyproject
 
 
 def test_release_documents_match_package_version() -> None:
@@ -27,9 +28,11 @@ def test_release_documents_match_package_version() -> None:
     readme = (_ROOT / "README.md").read_text(encoding="utf-8")
     release_notes = _ROOT / "docs" / "releases" / f"v{__version__}.md"
 
-    assert f"## [{__version__}]" in changelog
-    assert f"Project status:** v{__version__}." in readme
-    assert "python -m pip install ml-runtrace" in readme
+    assert f"## [{__version__}] - Unreleased" in changelog
+    assert f"Project status:** v{__version__} release candidate." in readme
+    assert "It has not been published to\n> PyPI." in readme
+    assert "python -m pip install ." in readme
+    assert "python -m pip install ml-runtrace" not in readme
     assert release_notes.is_file()
     assert f"# RunTrace v{__version__}" in release_notes.read_text(encoding="utf-8")
 

@@ -1,7 +1,7 @@
 # Getting Started with RunTrace
 
-This guide takes a Git-based project from installing RunTrace v0.1.0 to its
-first experiment comparison.
+This guide takes a Git-based project from installing the RunTrace v0.1.0
+release candidate to its first experiment comparison.
 
 ## Before you start
 
@@ -17,18 +17,28 @@ in PowerShell, Command Prompt, and common POSIX shells.
 
 ## Install RunTrace
 
-Create and activate an isolated environment using the commands for your Python
-installation and shell, then install the `ml-runtrace` distribution:
+The first PyPI release has not been published. Clone the repository and create
+an isolated environment:
 
 ```console
-python -m pip install ml-runtrace
+git clone https://github.com/Corvus-226/RunTrace.git
+cd RunTrace
+python -m venv .venv
+```
+
+Activate the environment using the command for your shell, then install the
+current candidate from source:
+
+```console
+python -m pip install .
 runtrace --version
 ```
 
-The project and CLI are named RunTrace. Only the distribution uses the
-`ml-runtrace` name because PyPI already has an unrelated `runtrace`
-distribution. Do not install that unrelated distribution expecting this
-project.
+The planned distribution name is `ml-runtrace`, but it is not available on
+PyPI. An unrelated PyPI project already owns both the `runtrace` import and
+command names, so RunTrace's public names are under release-blocking review in
+[Issue #24](https://github.com/Corvus-226/RunTrace/issues/24). Do not install
+the unrelated distribution expecting this project.
 
 ## 1. Initialize your project
 
@@ -235,9 +245,10 @@ installed version.
 
 ## Current maturity
 
-RunTrace v0.1.0 is the first public release. The core local workflow is tested
-on Windows plus Linux CI for supported Python versions. As a 0.x project,
-snapshot schemas and CLI behavior may evolve between minor releases. Track
-changes in the repository's
+RunTrace v0.1.0 is a release candidate, not a published PyPI release. The core
+local workflow is tested on Windows plus Linux CI for supported Python
+versions. Its public import and command names must be resolved before release;
+after publication, snapshot schemas and CLI behavior may still evolve during
+the 0.x series. Track changes in the repository's
 [issues](https://github.com/Corvus-226/RunTrace/issues) and
 [changelog](../CHANGELOG.md).
