@@ -904,9 +904,16 @@ review, CI, or release safety.
 - Package-content inspection confirmed the README, license, Getting Started
   guide, and source modules in the sdist, plus CLI/diff modules, metadata, and
   license in the wheel. The temporary artifacts were removed.
+- GitHub's rendered branch views displayed the README badges, headings, local
+  links, Quick Start, and every Getting Started section correctly.
 - `git diff --check`: passed.
 
 ### Submission record
 
-- Pending maintainer commit, push, pull request, and GitHub Actions results.
+- Created commit `7c35bd4` (`docs: add complete Quick Start`) and pushed
+  `codex/issue-11-quick-start-docs` to `origin`.
+- Opened [pull request #22](https://github.com/Corvus-226/RunTrace/pull/22)
+  against `main`. The pull request closes #11, uses the `documentation` label,
+  is assigned to the maintainer, and belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31596299684` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.
