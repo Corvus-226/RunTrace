@@ -403,3 +403,91 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
   assigned to the maintainer, and belongs to the `v0.1.0` milestone.
 - GitHub Actions run `31590157309` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.
+
+## 2026-08-12 — Issue #6 experiment snapshot command
+
+### Coordination
+
+- Merged [pull request #17](https://github.com/Corvus-226/RunTrace/pull/17)
+  into `main` as `9ce4cd8`; Issue #5 closed automatically.
+- Assigned Issue #6 to the maintainer and started from the updated `main`
+  branch on `codex/issue-6-snapshot-command`.
+
+### Scope
+
+- Add `runtrace snapshot` with optional `--name`, `--config`, and `--command`.
+- Capture and assemble the existing Git, Python runtime, dependency, platform,
+  and optional hardware metadata into the versioned snapshot schema.
+- Safely load a YAML config, record its portable path, raw SHA-256 digest, and
+  parsed values, then persist the complete snapshot.
+- Require an initialized RunTrace project and fail before writing when config
+  input is missing, unreadable, unsafe, or unsupported.
+- Print the generated run ID and local YAML path.
+
+### Decisions
+
+- Keep config loading in `runtrace.config`, orchestration and model conversion
+  in `runtrace.snapshot`, metadata capture in its existing modules, and CLI
+  presentation in `runtrace.cli`.
+- Require `runtrace.toml`, `.runtrace/`, and `.runtrace/runs/` before capture;
+  missing project state directs the user to `runtrace init` without creating
+  files implicitly.
+- Resolve user config paths relative to the invocation directory, require the
+  resolved file to remain inside the Git repository, and persist only its
+  POSIX-style repository-relative path.
+- Hash the original config bytes with SHA-256, decode UTF-8 YAML with the safe
+  loader, and accept only finite JSON-compatible values. Reject YAML dates,
+  sets, non-string map keys, non-finite numbers, unsafe tags, invalid encoding,
+  and cyclic or otherwise unsupported structures with concise guidance.
+- Exclude only `.runtrace`'s generated local data from the snapshot dirty-tree
+  check so a prior snapshot does not make the next run dirty. All other tracked
+  and untracked changes, including `runtrace.toml` until committed, still count.
+- Convert existing frozen metadata dataclasses into strict Pydantic snapshot
+  models explicitly. Missing GPU/CUDA data remains a normal `null` hardware
+  value rather than an error.
+- Persist explicitly supplied config values and commands locally. Continue to
+  exclude environment-variable values, credentials, package source URLs,
+  source contents, remotes, patches, and automatic uploads.
+
+### Implemented
+
+- [x] `runtrace snapshot` command and optional name/config/command arguments
+- [x] Initialized-project validation before metadata capture
+- [x] Safe UTF-8 YAML loading and raw SHA-256 hashing
+- [x] Repository-relative config path normalization and boundary protection
+- [x] Strict JSON-compatible config validation
+- [x] Git/runtime/platform/dependency/GPU model assembly
+- [x] Atomic persistence through the existing snapshot store
+- [x] Run-ID and local-path success output
+- [x] Minimal, full, dirty-tree, prior-snapshot, no-GPU, config, and failure tests
+- [x] README privacy disclosure for explicit config and command capture
+
+### Verification
+
+- `uv run pytest -p no:cacheprovider`: 62 tests passed on Windows with Python
+  3.12.7.
+- `uv run ruff check . --no-cache`: passed.
+- `uv run ruff format --check . --no-cache`: 25 files already formatted.
+- `uv lock --check`: passed with the existing 22-package lock graph; no new
+  dependency was introduced.
+- A real console-script smoke test completed `init`, committed a clean baseline,
+  and ran `snapshot` with name, config, and command options. The resulting local
+  YAML contained a 12-character run ID, aware UTC timestamp, full commit,
+  `main` branch, `dirty: false`, relative config path, and SHA-256 hash. The
+  temporary repository was removed after validation.
+- `uv build`: produced both `ml_runtrace-0.1.0.dev0.tar.gz` and the universal
+  `ml_runtrace-0.1.0.dev0-py3-none-any.whl` in a temporary verification
+  directory, which was removed after validation.
+- `uv run runtrace snapshot --help`: listed the name, config, and command
+  options with their expected types.
+- `git diff --check`: passed.
+
+### Submission record
+
+- Created commit `37a6c5a` (`feat: capture experiment snapshots from CLI`)
+  and pushed `codex/issue-6-snapshot-command` to `origin`.
+- Opened [pull request #18](https://github.com/Corvus-226/RunTrace/pull/18)
+  against `main`. The pull request closes #6, uses the `enhancement` label, is
+  assigned to the maintainer, and belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31591666159` passed on Python 3.10, 3.11, and 3.12.
+- The original planning document remains untracked and excluded.

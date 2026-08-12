@@ -20,6 +20,8 @@ def test_help_describes_runtrace() -> None:
 
     assert result.exit_code == 0
     assert "Capture and compare" in result.stdout
+    assert "init" in result.stdout
+    assert "snapshot" in result.stdout
 
 
 def test_version_reports_package_version() -> None:
