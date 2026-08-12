@@ -71,14 +71,14 @@ review, CI, or release safety.
 
 ### Day 5 — 2026-08-16 — Release readiness
 
-- [ ] Expand the README into the complete user guide.
-- [ ] Add a copy-paste Quick Start covering the full local workflow.
-- [ ] Add verified terminal output or a screenshot of the core workflow.
+- ~~Expand the README into the complete user guide.~~
+- ~~Add a copy-paste Quick Start covering the full local workflow.~~
+- ~~Add verified terminal output or a screenshot of the core workflow.~~
 - ~~Maintain contributor guidance in `CONTRIBUTING.md`.~~
 - ~~Maintain private vulnerability reporting guidance in `SECURITY.md`.~~
 - ~~Maintain user-visible changes under `CHANGELOG.md` Unreleased.~~
-- [ ] Verify installation and the full workflow in a clean isolated
-  environment.
+- ~~Verify installation and the full workflow in a clean isolated
+  environment.~~
 - ~~Run the full test and quality suite on Windows.~~
 - ~~Run CI on Linux with Python 3.10, 3.11, and 3.12.~~
 - [ ] Perform the final scope, packaging metadata, and release-readiness audit.
@@ -820,4 +820,100 @@ review, CI, or release safety.
   against `main`. The pull request closes #9, uses the `enhancement` label, is
   assigned to the maintainer, and belongs to the `v0.1.0` milestone.
 - GitHub Actions run `31594849751` passed on Python 3.10, 3.11, and 3.12.
+- The original planning document remains untracked and excluded.
+
+## 2026-08-12 — Issue #11 Quick Start documentation
+
+### Coordination
+
+- Merged [pull request #21](https://github.com/Corvus-226/RunTrace/pull/21)
+  into `main` as `5b92f1b`; Issue #9 closed automatically.
+- Assigned Issue #11 to the maintainer and started from the updated `main`
+  branch on `codex/issue-11-quick-start-docs`.
+
+### Scope
+
+- Complete the README first screen and a copyable Quick Start.
+- Add `docs/getting-started.md` for the complete init → snapshot → list → show
+  → diff workflow.
+- Explain current source installation and the planned `ml-runtrace` PyPI
+  distribution without presenting an unpublished release as available.
+- Explain local-first positioning, privacy behavior, storage, supported
+  platforms, and current project maturity.
+- Verify the documented workflow in a clean environment before release.
+
+### Decisions
+
+- Lead with the user problem, local/server-free position, pre-release status,
+  and a four-step first experiment. Keep contributor setup in a separate
+  Development section rather than making it the first user path.
+- Clearly label `python -m pip install ml-runtrace` as the post-v0.1.0 command.
+  For the current pre-release, document installation from a cloned source tree
+  inside an isolated environment.
+- Use one-line CLI examples that work across PowerShell, Command Prompt, and
+  POSIX shells. Avoid machine-specific absolute paths, shell-only environment
+  variables, and secret-like sample data.
+- State that `--command` records but does not execute a command, that config
+  values are intentionally persisted, and that users should review snapshot
+  YAML before sharing it.
+- Explain the Git preconditions and the difference between `runtrace.toml` and
+  local `.runtrace/` data, including the user's choice to ignore or version run
+  records.
+- Use representative text output instead of a platform-specific image so IDs,
+  paths, terminal widths, and colors are visibly illustrative rather than
+  claimed to be invariant.
+- Keep the detailed guide task-oriented, then add diff interpretation, common
+  errors, privacy, and a concise comparison with full tracking platforms.
+
+### Implemented
+
+- [x] Complete README first screen, positioning, maturity, and support matrix
+- [x] Source and planned PyPI installation guidance with release distinction
+- [x] Four-step README Quick Start and representative diff output
+- [x] Detailed `docs/getting-started.md` full-workflow guide
+- [x] Copyable init, snapshot, list, show, and diff commands
+- [x] Config example and Git/dirty-state guidance
+- [x] CLI reference, snapshot contents, storage, and privacy documentation
+- [x] RunTrace versus full tracking platform scope explanation
+- [x] Common error resolutions and project-maturity statement
+- [x] Changelog and daily delivery checklist updates
+
+### Verification
+
+- Built `ml_runtrace-0.1.0.dev0.tar.gz` and the universal
+  `ml_runtrace-0.1.0.dev0-py3-none-any.whl` in an isolated temporary directory.
+- Created a clean Python 3.12.7 virtual environment and installed the wheel
+  with all 15 resolved runtime packages. Resolution exercised currently
+  available compatible releases including Pydantic 2.13.4 and Typer 0.27.1.
+- In a separate temporary Git repository, the installed console script ran
+  `init`, captured baseline and candidate configs across two commits, listed
+  both runs, showed a run by six-character ID, and diffed both runs by unique
+  prefixes. Every documented output section and change kind was verified.
+- A preliminary offline-only installation correctly stopped because some
+  dependency wheels were not cached. The network-backed clean install then
+  passed; both validated temporary roots were removed.
+- Documentation checks confirmed balanced code fences, all five command names,
+  the unpublished-PyPI warning, valid local targets, and no machine-specific
+  user paths.
+- `uv run pytest -p no:cacheprovider`: 85 tests passed on Windows with Python
+  3.12.7.
+- `uv run ruff check . --no-cache`: passed.
+- `uv run ruff format --check . --no-cache`: 31 files already formatted.
+- `uv lock --check`: passed with the existing 22-package development lock
+  graph; no dependency was introduced.
+- Package-content inspection confirmed the README, license, Getting Started
+  guide, and source modules in the sdist, plus CLI/diff modules, metadata, and
+  license in the wheel. The temporary artifacts were removed.
+- GitHub's rendered branch views displayed the README badges, headings, local
+  links, Quick Start, and every Getting Started section correctly.
+- `git diff --check`: passed.
+
+### Submission record
+
+- Created commit `7c35bd4` (`docs: add complete Quick Start`) and pushed
+  `codex/issue-11-quick-start-docs` to `origin`.
+- Opened [pull request #22](https://github.com/Corvus-226/RunTrace/pull/22)
+  against `main`. The pull request closes #11, uses the `documentation` label,
+  is assigned to the maintainer, and belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31596299684` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.

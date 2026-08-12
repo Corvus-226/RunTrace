@@ -1,79 +1,188 @@
 # RunTrace
 
+[![CI](https://github.com/Corvus-226/RunTrace/actions/workflows/ci.yml/badge.svg)](https://github.com/Corvus-226/RunTrace/actions/workflows/ci.yml)
+[![Python 3.10–3.12](https://img.shields.io/badge/python-3.10--3.12-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 RunTrace is a lightweight CLI for capturing and comparing the code,
 configuration, environment, and metadata behind machine-learning experiments.
+It stores transparent YAML snapshots in the current Git repository, without a
+server or account.
 
-> Project status: pre-release. The local `runtrace init`, `runtrace snapshot`,
-> `runtrace list`, `runtrace show`, and `runtrace diff` workflow is available;
-> documentation and release hardening are in progress for v0.1.0.
-
-The project and CLI are named RunTrace. The planned PyPI distribution name is
-`ml-runtrace` because the `runtrace` distribution is already owned by an
-unrelated project.
+> **Project status:** pre-release (`0.1.0.dev0`). The complete local workflow
+> supports Python 3.10–3.12, is verified locally on Windows and by Linux CI,
+> and is undergoing release hardening for v0.1.0. Compatibility is not yet
+> guaranteed.
 
 ## Why RunTrace?
 
-It is easy to end up with experiment folders such as `final`, `final-2`, and
-`final-really`, then lose track of the Git commit, configuration, Python
-environment, or command that produced a result. RunTrace is being built to
-record that reproducibility context in transparent local files.
+Experiment folders named `final`, `final-2`, and `final-really` do not explain
+which commit, config, Python environment, or command produced a result.
+RunTrace records that reproducibility context at the moment you choose, then
+lets you inspect and compare it later.
 
-RunTrace is not intended to replace full experiment-tracking platforms such as
-MLflow or Weights & Biases. Its focus is deliberately smaller:
+RunTrace deliberately has a smaller job than MLflow or Weights & Biases. It is
+useful when you want:
 
-- local-first and server-free;
-- lightweight command-line workflows;
-- human-readable snapshot files;
-- Git-aware reproducibility metadata;
-- no automatic upload of experiment data.
+- a local-first workflow with no service, database, or account;
+- human-readable snapshot files that remain under your control;
+- Git-aware records of committed and uncommitted code state;
+- configuration and dependency comparisons from the terminal;
+- an incremental reproducibility layer rather than a full tracking platform.
 
-## Core v0.1 workflow
+It does not track metrics, host dashboards, schedule experiments, upload
+artifacts, or replace a full experiment-tracking platform.
+
+## Quick Start
+
+### 1. Install
+
+The planned PyPI distribution is named `ml-runtrace` because the `runtrace`
+distribution name belongs to an unrelated project. After v0.1.0 is published,
+installation will be:
 
 ```console
-runtrace init
-runtrace snapshot --name baseline --config configs/train.yaml \
-  --command "python train.py --config configs/train.yaml"
-runtrace list
-runtrace show <run-id>
-runtrace diff <run-id-a> <run-id-b>
+python -m pip install ml-runtrace
 ```
 
-All five commands above are implemented. See the repository issues for current
-documentation and release-readiness status.
-
-## Development setup
-
-RunTrace requires Python 3.10 or newer. The project uses
-[uv](https://docs.astral.sh/uv/) for its reproducible development environment.
+The PyPI release is **not available yet**. From an activated isolated
+environment, install the current pre-release from source:
 
 ```console
 git clone https://github.com/Corvus-226/RunTrace.git
 cd RunTrace
-uv sync --all-groups
-uv run runtrace --help
-uv run pytest
+python -m pip install .
+runtrace --version
 ```
 
-The current skeleton also exposes its development version:
+Contributors should use the locked uv environment described in
+[Development](#development).
+
+### 2. Initialize an existing Git repository
+
+RunTrace requires a Git repository with at least one commit:
 
 ```console
-uv run runtrace --version
+cd your-project
+runtrace init
 ```
 
-## Privacy
+This creates `runtrace.toml` and `.runtrace/runs/` at the Git root. Commit
+`runtrace.toml` if it is part of the project configuration. Add `.runtrace/` to
+your `.gitignore` when recorded runs should remain local and untracked.
+
+### 3. Record an experiment
+
+Create a repository-local YAML config such as `configs/train.yaml`:
+
+```yaml
+model: resnet18
+optimizer:
+  learning_rate: 0.001
+  weight_decay: 0.01
+batch_size: 32
+seed: 42
+```
+
+Commit the code and config you want to identify, then record the experiment:
+
+```console
+git add runtrace.toml configs/train.yaml
+git commit -m "add training baseline"
+runtrace snapshot --name baseline --config configs/train.yaml --command "python train.py --config configs/train.yaml"
+```
+
+`snapshot` records the supplied command; it does not execute that command. The
+result prints a 12-character run ID and writes one YAML file beneath
+`.runtrace/runs/`.
+
+### 4. Inspect and compare runs
+
+After recording another run, use either a full ID or a unique abbreviated ID:
+
+```console
+runtrace list
+runtrace show <run-id>
+runtrace diff <baseline-id> <candidate-id>
+```
+
+A representative diff looks like this (IDs and values will differ):
+
+```text
+Comparing a31f82000001 -> b91de3000002
+Configuration ────────────────────────────────────────────────────────────────
+changed  config.values.optimizer.learning_rate
+before  0.001
+after   0.0005
+Git ──────────────────────────────────────────────────────────────────────────
+changed  commit
+before  83ab2c1000000000000000000000000000000000
+after   92dc113000000000000000000000000000000000
+Environment ──────────────────────────────────────────────────────────────────
+changed  torch
+before  2.4.0
+after   2.5.0
+```
+
+The detailed [Getting Started guide](docs/getting-started.md) walks through the
+entire init → snapshot → list → show → diff workflow and explains each result.
+
+## What a snapshot contains
+
+- run ID, optional name, and UTC timestamp;
+- Git commit, branch or detached-HEAD state, and dirty state;
+- Python version, implementation, operating system, and architecture;
+- installed Python distribution names and versions;
+- optional NVIDIA GPU, driver, and CUDA metadata when detectable;
+- an explicitly supplied command and YAML config path, SHA-256 hash, and
+  parsed values.
+
+## CLI reference
+
+| Command | Purpose |
+| --- | --- |
+| `runtrace init` | Initialize local RunTrace state at the containing Git root. |
+| `runtrace snapshot` | Capture the current reproducibility context. |
+| `runtrace list` | List recorded runs newest first. |
+| `runtrace show <run-id>` | Display one complete stored snapshot. |
+| `runtrace diff <run-a> <run-b>` | Compare reproducibility-relevant values. |
+
+Run `runtrace <command> --help` for command-specific arguments and options.
+
+## Privacy and storage
 
 RunTrace is local-only by default. It does not upload experiment data, source
-code, credentials, or environment variables, and snapshot capture does not
-read those implicit secret sources. When `--config` or `--command` is supplied,
-RunTrace stores the parsed config values, repository-relative config path,
-config hash, and command in the local snapshot, so users should avoid putting
-credentials in those explicit inputs.
+code, credentials, environment variables, or artifacts. Snapshot capture does
+not read those implicit secret sources.
 
-## Contributing
+When `--config` or `--command` is supplied, RunTrace intentionally stores the
+parsed config values and command in local YAML. Do not put secrets in those
+explicit inputs. Review `.runtrace/runs/*.yaml` before sharing or committing
+it, just as you would review any experiment record.
 
-The project is at an early stage and welcomes focused bug reports, design
-feedback, and contributions. Read [CONTRIBUTING.md](CONTRIBUTING.md) before
-opening a pull request.
+## Development
+
+RunTrace requires Python 3.10 or newer and uses
+[uv](https://docs.astral.sh/uv/) for its reproducible development environment:
+
+```console
+git clone https://github.com/Corvus-226/RunTrace.git
+cd RunTrace
+uv sync --all-groups --locked
+uv run runtrace --help
+uv run pytest
+uv run ruff check .
+uv run ruff format --check .
+```
+
+CI runs the same quality gates on Linux with Python 3.10, 3.11, and 3.12.
+
+## Contributing and security
+
+Focused bug reports, design feedback, and contributions are welcome. Read
+[CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Report
+vulnerabilities privately using the instructions in [SECURITY.md](SECURITY.md),
+not a public issue.
 
 ## License
 
