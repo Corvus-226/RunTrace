@@ -3,6 +3,98 @@
 This log records implementation decisions and verification results. It is not a
 substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
 
+## Daily delivery checklist
+
+This checklist expands the dated plan into verifiable daily outcomes. A struck
+item has been implemented and locally verified; open items remain planned. The
+board reports progress but does not override issue scope, dependency order,
+review, CI, or release safety.
+
+### Day 1 — 2026-08-12 — Repository foundation
+
+- ~~Create and verify the public GitHub repository and product scope.~~
+- ~~Add the MIT license and initial README positioning.~~
+- ~~Create `pyproject.toml`, the `src/runtrace` package layout, and CLI entry
+  point.~~
+- ~~Configure uv, pytest, Ruff, and the committed dependency lockfile.~~
+- ~~Add Linux CI for Python 3.10, 3.11, and 3.12.~~
+- ~~Add `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, and GitHub issue and pull
+  request templates.~~
+- ~~Create the v0.1.0 milestone and scoped Issues #1–#12.~~
+
+### Day 2 — 2026-08-13 — Snapshot core
+
+- ~~Capture Git commit, branch, detached-HEAD state, and dirty state.~~
+- ~~Capture Python version, implementation, operating system, architecture,
+  and machine.~~
+- ~~Capture installed Python distribution versions deterministically.~~
+- ~~Capture optional NVIDIA GPU, driver, and CUDA metadata without requiring a
+  GPU.~~
+- ~~Define strict versioned snapshot models, 12-character run IDs, and UTC
+  timestamps.~~
+- ~~Persist readable YAML atomically with collision protection and schema
+  validation.~~
+- ~~Parse repository-local UTF-8 YAML configs safely and record their path,
+  SHA-256 hash, values, and optional experiment command.~~
+- ~~Implement `runtrace snapshot` with actionable success and error output.~~
+
+### Day 3 — 2026-08-14 — CLI and storage
+
+- ~~Implement idempotent `runtrace init` at the containing Git root.~~
+- ~~Create and validate `runtrace.toml` and `.runtrace/runs/` without replacing
+  existing user data.~~
+- ~~Support validated newest-first storage listing and full or unique-prefix
+  run lookup.~~
+- ~~Implement compact, literal-safe `runtrace list` output and its empty
+  state.~~
+- ~~Implement complete, sectioned `runtrace show <run-id>` output.~~
+- ~~Handle uninitialized projects, corrupt snapshots, and missing or ambiguous
+  IDs without avoidable tracebacks.~~
+- ~~Cover the complete init → snapshot → list → show workflow with unit and
+  real CLI tests.~~
+
+### Day 4 — 2026-08-15 — Experiment diff
+
+- ~~Recursively compare nested configuration mappings and arrays with stable
+  dotted and indexed paths.~~
+- ~~Report configuration additions, removals, and changes, including command,
+  path, and content hash.~~
+- ~~Compare Git commit, branch, detached state, and dirty state.~~
+- ~~Compare Python runtime, platform fields, and dependency additions,
+  removals, and version changes.~~
+- ~~Render deterministic Configuration, Git, Runtime, and Environment sections
+  with literal-safe Rich output.~~
+- ~~Support full and unique abbreviated IDs plus clear identical, missing, and
+  ambiguous results.~~
+- ~~Verify focused tests, the full suite, lint, formatting, lockfile, package
+  builds, command help, and a real two-snapshot CLI smoke test.~~
+
+### Day 5 — 2026-08-16 — Release readiness
+
+- [ ] Expand the README into the complete user guide.
+- [ ] Add a copy-paste Quick Start covering the full local workflow.
+- [ ] Add verified terminal output or a screenshot of the core workflow.
+- ~~Maintain contributor guidance in `CONTRIBUTING.md`.~~
+- ~~Maintain private vulnerability reporting guidance in `SECURITY.md`.~~
+- ~~Maintain user-visible changes under `CHANGELOG.md` Unreleased.~~
+- [ ] Verify installation and the full workflow in a clean isolated
+  environment.
+- ~~Run the full test and quality suite on Windows.~~
+- ~~Run CI on Linux with Python 3.10, 3.11, and 3.12.~~
+- [ ] Perform the final scope, packaging metadata, and release-readiness audit.
+
+### Day 6 — 2026-08-17 — v0.1.0 release
+
+- [ ] Recheck `ml-runtrace` distribution-name availability and release access.
+- [ ] Change the development version to `0.1.0` and finalize release notes.
+- [ ] Build and inspect the final source distribution and wheel.
+- [ ] Install the wheel in a fresh environment and run the acceptance workflow.
+- [ ] Create and push the signed or annotated `v0.1.0` tag.
+- [ ] Publish the distribution to PyPI.
+- [ ] Publish the GitHub Release and attach final release notes.
+- [ ] Replace source-development installation guidance with the verified PyPI
+  installation command.
+
 ## 2026-08-12 — Day 1 repository bootstrap
 
 ### Scope
@@ -642,4 +734,90 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
   against `main`. The pull request closes #8, uses the `enhancement` label, is
   assigned to the maintainer, and belongs to the `v0.1.0` milestone.
 - GitHub Actions run `31593293257` passed on Python 3.10, 3.11, and 3.12.
+- The original planning document remains untracked and excluded.
+
+## 2026-08-12 — Issue #9 experiment diff
+
+### Coordination
+
+- Merged [pull request #20](https://github.com/Corvus-226/RunTrace/pull/20)
+  into `main` as `6469973`; Issue #8 closed automatically.
+- Assigned Issue #9 to the maintainer and started from the updated `main`
+  branch on `codex/issue-9-experiment-diff`.
+
+### Scope
+
+- Add `runtrace diff <run-a> <run-b>` for reproducibility-focused comparison of
+  two persisted experiment snapshots.
+- Compare nested configuration values, Git state, Python runtime and platform,
+  and installed dependency versions.
+- Distinguish added, removed, and changed values in deterministic section and
+  path order.
+- Accept full or unique abbreviated run IDs and preserve storage-layer error
+  behavior.
+
+### Decisions
+
+- Keep comparison logic in a deterministic `runtrace.diff` module with frozen
+  result models. The function accepts two validated snapshots and has no
+  filesystem, terminal, or process-state dependencies.
+- Treat run ID, run name, and timestamp as snapshot identity rather than
+  reproducibility differences. Display both IDs in the comparison heading but
+  do not report those identity fields as changes.
+- Compare experiment command, config path, config SHA-256, and config values.
+  Recurse through JSON mappings and arrays with dotted, bracket-quoted, and
+  indexed paths so leaf-level changes remain stable and actionable.
+- Compare Git commit, branch, detached state, and dirty state; compare Python
+  version, implementation, platform fields, and every installed distribution
+  version. Sort mapping keys and package names for deterministic output.
+- Represent missing values internally with a private sentinel so an absent
+  field remains distinct from an explicit JSON `null` value.
+- Render Configuration, Git, Runtime, and Environment in fixed order. Give
+  every change its own path line and folded before/after rows so long paths and
+  hashes remain complete at narrow terminal widths.
+- Construct all stored values as Rich `Text` rather than markup, preserving
+  literal brackets and preventing stored content from affecting presentation.
+
+### Implemented
+
+- [x] Pure structured snapshot comparison with fixed sections and change kinds
+- [x] Recursive mapping and array paths with special-key escaping
+- [x] Configuration command, path, hash, and value comparison
+- [x] Git commit, branch, detached-state, and dirty-state comparison
+- [x] Python, implementation, platform, and dependency comparison
+- [x] Deterministic added, removed, and changed classification
+- [x] Sectioned, fold-without-truncation, literal-safe Rich presentation
+- [x] Full and unique abbreviated ID support through validated storage lookup
+- [x] Friendly identical, missing, ambiguous, corrupt, and uninitialized states
+- [x] Focused model, CLI, ordering, nested-array, and rendering regression tests
+- [x] README status, changelog entry, and detailed daily delivery checklist
+
+### Verification
+
+- `uv run pytest -p no:cacheprovider`: 85 tests passed on Windows with Python
+  3.12.7.
+- `uv run ruff check . --no-cache`: passed.
+- `uv run ruff format --check . --no-cache`: 30 files already formatted.
+- `uv lock --check`: passed with the existing 22-package lock graph; no new
+  dependency was introduced.
+- A real console-script smoke test initialized and committed a temporary Git
+  project, captured two runs from different nested YAML configs and commands
+  across two commits, then compared them with six-character IDs. Configuration
+  and Git sections, recursive array paths, and all three change kinds were
+  verified. The temporary repository was removed.
+- `uv build`: produced both `ml_runtrace-0.1.0.dev0.tar.gz` and the universal
+  `ml_runtrace-0.1.0.dev0-py3-none-any.whl` in a temporary verification
+  directory, which was removed after validation.
+- `uv run runtrace diff --help`: described both required full or unique
+  abbreviated run-ID arguments.
+- `git diff --check`: passed.
+
+### Submission record
+
+- Created commit `bdaca0a` (`feat: compare experiment snapshots`) and pushed
+  `codex/issue-9-experiment-diff` to `origin`.
+- Opened [pull request #21](https://github.com/Corvus-226/RunTrace/pull/21)
+  against `main`. The pull request closes #9, uses the `enhancement` label, is
+  assigned to the maintainer, and belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31594849751` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.

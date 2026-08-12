@@ -14,6 +14,12 @@ from rich.syntax import Syntax
 from rich.table import Table
 from rich.text import Text
 
+from runtrace.diff import (
+    DifferenceKind,
+    DifferenceSection,
+    SnapshotComparison,
+    SnapshotDifference,
+)
 from runtrace.models import Snapshot
 
 _WHITESPACE = re.compile(r"\s+")
@@ -92,6 +98,47 @@ def print_snapshot(snapshot: Snapshot, console: Console) -> None:
     _print_experiment(snapshot, console)
 
 
+def print_snapshot_comparison(
+    comparison: SnapshotComparison,
+    console: Console,
+) -> None:
+    """Print deterministic, sectioned changes between two snapshots."""
+    console.print(
+        Text(
+            f"Comparing {comparison.before_run_id} -> {comparison.after_run_id}",
+        )
+    )
+    if not comparison.differences:
+        console.print("No relevant differences found.")
+        return
+
+    for section in DifferenceSection:
+        section_differences = [
+            difference
+            for difference in comparison.differences
+            if difference.section is section
+        ]
+        if not section_differences:
+            continue
+        console.print(Rule(section.value, align="left"))
+        for difference in section_differences:
+            console.print(
+                Text(f"{difference.kind.value}  {difference.path}"),
+            )
+            values = Table.grid(padding=(0, 2))
+            values.add_column(style="bold", no_wrap=True)
+            values.add_column(overflow="fold")
+            values.add_row(
+                "before",
+                Text(_difference_value(difference, before=True)),
+            )
+            values.add_row(
+                "after",
+                Text(_difference_value(difference, before=False)),
+            )
+            console.print(values)
+
+
 def _print_fields(
     console: Console,
     heading: str,
@@ -168,6 +215,32 @@ def _print_experiment(snapshot: Snapshot, console: Console) -> None:
 
 def _yes_no(value: bool) -> str:
     return "yes" if value else "no"
+
+
+def _difference_value(
+    difference: SnapshotDifference,
+    *,
+    before: bool,
+) -> str:
+    if before and difference.kind is DifferenceKind.ADDED:
+        return "—"
+    if not before and difference.kind is DifferenceKind.REMOVED:
+        return "—"
+
+    value = difference.before if before else difference.after
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "yes" if value else "no"
+    if isinstance(value, str):
+        return value
+    return json.dumps(
+        value,
+        allow_nan=False,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
 
 
 def _display_name(name: str | None) -> str:

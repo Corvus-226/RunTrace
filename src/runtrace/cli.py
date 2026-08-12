@@ -8,8 +8,13 @@ from rich.console import Console
 
 from runtrace import __version__
 from runtrace.config import ConfigLoadError
+from runtrace.diff import compare_snapshots
 from runtrace.git import GitMetadataError
-from runtrace.presentation import print_snapshot, print_snapshot_list
+from runtrace.presentation import (
+    print_snapshot,
+    print_snapshot_comparison,
+    print_snapshot_list,
+)
 from runtrace.project import (
     ProjectInitializationError,
     initialize_project,
@@ -128,6 +133,31 @@ def show_command(
         raise typer.Exit(code=1) from error
 
     print_snapshot(snapshot, Console(highlight=False))
+
+
+@app.command("diff")
+def diff_command(
+    run_a: Annotated[
+        str,
+        typer.Argument(help="First full or unique abbreviated run ID."),
+    ],
+    run_b: Annotated[
+        str,
+        typer.Argument(help="Second full or unique abbreviated run ID."),
+    ],
+) -> None:
+    """Compare reproducibility values in two stored experiment runs."""
+    try:
+        project_root = require_initialized_project(Path.cwd())
+        store = SnapshotStore(project_root)
+        before = store.load(run_a)
+        after = store.load(run_b)
+    except (ProjectInitializationError, SnapshotStorageError) as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(code=1) from error
+
+    comparison = compare_snapshots(before, after)
+    print_snapshot_comparison(comparison, Console(highlight=False))
 
 
 def main() -> None:
