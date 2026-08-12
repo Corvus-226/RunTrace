@@ -22,6 +22,7 @@ def test_help_describes_runtrace() -> None:
     assert "Capture and compare" in result.stdout
     assert "init" in result.stdout
     assert "list" in result.stdout
+    assert "show" in result.stdout
     assert "snapshot" in result.stdout
 
 

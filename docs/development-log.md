@@ -563,3 +563,73 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
   assigned to the maintainer, and belongs to the `v0.1.0` milestone.
 - GitHub Actions run `31592402274` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.
+
+## 2026-08-12 — Issue #8 complete run display
+
+### Coordination
+
+- Merged [pull request #19](https://github.com/Corvus-226/RunTrace/pull/19)
+  into `main` as `5f27010`; Issue #7 closed automatically.
+- Assigned Issue #8 to the maintainer and started from the updated `main`
+  branch on `codex/issue-8-show-command`.
+
+### Scope
+
+- Add `runtrace show <run-id>` for a complete stored reproducibility record.
+- Accept a full run ID or a unique abbreviated ID.
+- Present overview, Git, runtime, environment, hardware, and experiment values
+  in labeled terminal sections.
+- Represent optional values clearly and preserve every stored value while
+  formatting output.
+- Return actionable errors for unknown and ambiguous ID prefixes.
+
+### Decisions
+
+- Reuse `SnapshotStore.load` for full/unique-prefix resolution and complete
+  schema validation; the command never reads the live Git repository,
+  environment, hardware, or config file to supplement historical data.
+- Extend the focused presentation module with Overview, Git, Runtime,
+  Environment, Hardware, and Experiment sections. Show full commit and run IDs,
+  complete UTC timestamps, all recorded packages, and yes/no booleans.
+- Use an em dash for missing optional scalar values and an explicit
+  `No packages recorded.` state for an empty package mapping.
+- Format captured config values as sorted, indented JSON so nested stored data
+  remains deterministic and distinguishable from terminal labels. A config
+  file whose stored value is JSON `null` remains distinct from no config path.
+- Render stored names, commands, paths, packages, GPU names, and versions as
+  Rich `Text`, not markup. Long fields use folding rather than ellipsis; a
+  regression test specifically verifies the complete 64-character config hash.
+- Do not infer or expose anything that was not present in the validated YAML
+  snapshot.
+
+### Implemented
+
+- [x] `runtrace show <run-id>` command and initialized-project validation
+- [x] Full and unique abbreviated run-ID lookup
+- [x] Six labeled sections covering every persisted snapshot component
+- [x] Full-length commit, timestamp, config hash, package, and config display
+- [x] Explicit optional-value, empty-package, and no-config states
+- [x] Deterministic JSON rendering for nested captured config values
+- [x] Literal user-text rendering and fold-without-truncation behavior
+- [x] Actionable missing and ambiguous ID errors without tracebacks
+- [x] Full, abbreviated, optional, missing, ambiguous, and literal-text tests
+
+### Verification
+
+- `uv run pytest -p no:cacheprovider`: 73 tests passed on Windows with Python
+  3.12.7.
+- `uv run ruff check . --no-cache`: passed.
+- `uv run ruff format --check . --no-cache`: 28 files already formatted.
+- `uv lock --check`: passed with the existing 22-package lock graph; no new
+  dependency was introduced.
+- A real console-script smoke test initialized and committed a temporary Git
+  project, captured a named run with a YAML config and command, then used the
+  generated ID's six-character prefix with `show`. All six sections, relative
+  config path, and complete 64-character SHA-256 hash were verified. The
+  temporary repository was removed.
+- `uv build`: produced both `ml_runtrace-0.1.0.dev0.tar.gz` and the universal
+  `ml_runtrace-0.1.0.dev0-py3-none-any.whl` in a temporary verification
+  directory, which was removed after validation.
+- `uv run runtrace show --help`: described the required full or unique
+  abbreviated run-ID argument.
+- `git diff --check`: passed.

@@ -9,7 +9,7 @@ from rich.console import Console
 from runtrace import __version__
 from runtrace.config import ConfigLoadError
 from runtrace.git import GitMetadataError
-from runtrace.presentation import print_snapshot_list
+from runtrace.presentation import print_snapshot, print_snapshot_list
 from runtrace.project import (
     ProjectInitializationError,
     initialize_project,
@@ -110,6 +110,24 @@ def list_command() -> None:
         raise typer.Exit(code=1) from error
 
     print_snapshot_list(snapshots, Console(highlight=False))
+
+
+@app.command("show")
+def show_command(
+    run_id: Annotated[
+        str,
+        typer.Argument(help="Full or unique abbreviated run ID."),
+    ],
+) -> None:
+    """Show the complete stored record for one experiment run."""
+    try:
+        project_root = require_initialized_project(Path.cwd())
+        snapshot = SnapshotStore(project_root).load(run_id)
+    except (ProjectInitializationError, SnapshotStorageError) as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(code=1) from error
+
+    print_snapshot(snapshot, Console(highlight=False))
 
 
 def main() -> None:
