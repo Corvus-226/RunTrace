@@ -16,5 +16,7 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Repository contribution, security, issue, and pull request guidance.
 - Git metadata capture for the full commit SHA, branch or detached-HEAD state,
   and dirty working trees, including untracked files.
+- Deterministic capture of the Python runtime, operating system, installed
+  distribution versions, and optional NVIDIA GPU/CUDA metadata.
 
 [Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...HEAD
