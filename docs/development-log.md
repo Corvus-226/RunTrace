@@ -164,5 +164,10 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
 
 ### Submission record
 
-- Pending final diff review, commit, push, pull request creation, and GitHub CI.
+- Created commit `5d16004` (`feat: capture Git repository metadata`) and
+  pushed `codex/issue-2-git-metadata` to `origin`.
+- Opened [pull request #14](https://github.com/Corvus-226/RunTrace/pull/14)
+  against `main`. The pull request closes #2, uses the `enhancement` label, and
+  belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31572928468` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.
