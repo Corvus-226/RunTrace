@@ -1148,6 +1148,22 @@ review, CI, or release safety.
 - [ ] Naming decision implemented with regression tests and documentation
 - [ ] Both-order installation and uninstall acceptance criteria pass
 
+### Submission record
+
+- Created commit `26170b0` (`docs: block release on public name collision`)
+  on the existing `codex/issue-12-release-preparation` branch and pushed it to
+  draft pull request #23. Both local maintainer reference documents remained
+  untracked.
+- GitHub Actions run `31622202758` passed all four checks for commit `26170b0`:
+  Linux Python 3.10, 3.11, and 3.12 plus the package smoke job.
+- Static release review confirmed consistent candidate version `0.1.0`,
+  full-SHA action pins, read-only workflow permissions, a manual-only
+  seven-day candidate artifact, no OIDC permission, and no tag, PyPI, or
+  GitHub Release write path.
+- Review recommendation: keep PR #23 in draft and request changes until Issue
+  #24 resolves the shared `runtrace` package and command at `pyproject.toml`
+  lines 45 and 61. All other checked release-preparation gates passed.
+
 ### Risks and next scoped work
 
 - Publishing with the current names could silently replace an unrelated tool
