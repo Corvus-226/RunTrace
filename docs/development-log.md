@@ -481,3 +481,13 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
 - `uv run runtrace snapshot --help`: listed the name, config, and command
   options with their expected types.
 - `git diff --check`: passed.
+
+### Submission record
+
+- Created commit `37a6c5a` (`feat: capture experiment snapshots from CLI`)
+  and pushed `codex/issue-6-snapshot-command` to `origin`.
+- Opened [pull request #18](https://github.com/Corvus-226/RunTrace/pull/18)
+  against `main`. The pull request closes #6, uses the `enhancement` label, is
+  assigned to the maintainer, and belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31591666159` passed on Python 3.10, 3.11, and 3.12.
+- The original planning document remains untracked and excluded.
