@@ -393,3 +393,13 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
   directory, which was removed after validation.
 - `uv run runtrace --help`: listed `init` with its Git-repository description.
 - `git diff --check`: passed.
+
+### Submission record
+
+- Created commit `ac8720e` (`feat: add idempotent project initialization`)
+  and pushed `codex/issue-5-init-command` to `origin`.
+- Opened [pull request #17](https://github.com/Corvus-226/RunTrace/pull/17)
+  against `main`. The pull request closes #5, uses the `enhancement` label, is
+  assigned to the maintainer, and belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31590157309` passed on Python 3.10, 3.11, and 3.12.
+- The original planning document remains untracked and excluded.
