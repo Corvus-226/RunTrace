@@ -1,8 +1,7 @@
 # Getting Started with RunTrace
 
-This guide takes a Git-based project from installation to its first experiment
-comparison. It uses only behavior implemented in the current RunTrace
-pre-release.
+This guide takes a Git-based project from installing RunTrace v0.1.0 to its
+first experiment comparison.
 
 ## Before you start
 
@@ -18,40 +17,18 @@ in PowerShell, Command Prompt, and common POSIX shells.
 
 ## Install RunTrace
 
-### Current pre-release
-
-The first PyPI release has not been published. Install the current source
-checkout into an isolated environment:
-
-```console
-git clone https://github.com/Corvus-226/RunTrace.git
-cd RunTrace
-python -m venv .venv
-```
-
-Activate that environment using the command for your shell, then install and
-verify RunTrace:
-
-```console
-python -m pip install .
-runtrace --version
-```
-
-Alternatively, invoke the environment's Python and `runtrace` executables by
-their explicit paths without activating it.
-
-### Planned v0.1.0 package
-
-The project and CLI are named RunTrace. Its distribution is named
-`ml-runtrace` because PyPI already has an unrelated `runtrace` distribution.
-After v0.1.0 is published, the installation command will be:
+Create and activate an isolated environment using the commands for your Python
+installation and shell, then install the `ml-runtrace` distribution:
 
 ```console
 python -m pip install ml-runtrace
+runtrace --version
 ```
 
-Until the release is visible on PyPI, use the source installation above. Do
-not install the unrelated `runtrace` distribution expecting this project.
+The project and CLI are named RunTrace. Only the distribution uses the
+`ml-runtrace` name because PyPI already has an unrelated `runtrace`
+distribution. Do not install that unrelated distribution expecting this
+project.
 
 ## 1. Initialize your project
 
@@ -258,8 +235,9 @@ installed version.
 
 ## Current maturity
 
-RunTrace is at `0.1.0.dev0`. The core local workflow is implemented and tested
-on Windows plus Linux CI, but the first stable package has not been published.
-Snapshot schemas and CLI behavior may change before v0.1.0. Track release work
-in the repository's [issues](https://github.com/Corvus-226/RunTrace/issues) and
+RunTrace v0.1.0 is the first public release. The core local workflow is tested
+on Windows plus Linux CI for supported Python versions. As a 0.x project,
+snapshot schemas and CLI behavior may evolve between minor releases. Track
+changes in the repository's
+[issues](https://github.com/Corvus-226/RunTrace/issues) and
 [changelog](../CHANGELOG.md).

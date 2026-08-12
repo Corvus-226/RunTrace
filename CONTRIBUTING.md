@@ -1,7 +1,7 @@
 # Contributing to RunTrace
 
-Thank you for helping make ML experiments easier to reproduce. RunTrace is in
-early development, so focused feedback and small, well-tested changes are the
+Thank you for helping make ML experiments easier to reproduce. RunTrace is an
+early 0.x project, so focused feedback and small, well-tested changes are the
 most useful contributions.
 
 ## Before starting
@@ -21,7 +21,7 @@ Install Python 3.10 or newer and [uv](https://docs.astral.sh/uv/), then run:
 ```console
 git clone https://github.com/Corvus-226/RunTrace.git
 cd RunTrace
-uv sync --all-groups
+uv sync --all-groups --locked
 uv run pytest
 uv run ruff check .
 uv run ruff format --check .

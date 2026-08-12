@@ -1,0 +1,84 @@
+name: Release candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Reviewed commit or tag to build
+        required: true
+        default: main
+        type: string
+      expected_version:
+        description: Exact package version expected from the source
+        required: true
+        default: 0.1.0
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-candidate-${{ inputs.source_ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and verify candidate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out reviewed source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.source_ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: true
+
+      - name: Install locked development environment
+        run: uv sync --all-groups --locked
+
+      - name: Verify version and release notes
+        id: metadata
+        env:
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
+        run: |
+          package_version="$(uv run python -c 'from runtrace import __version__; print(__version__)')"
+          test "$package_version" = "$EXPECTED_VERSION"
+          test -f "docs/releases/v${package_version}.md"
+          echo "version=${package_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Check formatting
+        run: uv run ruff format --check .
+
+      - name: Test
+        run: uv run pytest
+
+      - name: Build distributions
+        run: uv build
+
+      - name: Check package metadata
+        run: uv run twine check dist/*
+
+      - name: Record artifact hashes
+        run: sha256sum dist/* | tee SHA256SUMS
+
+      - name: Store release candidate
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-candidate-${{ steps.metadata.outputs.version }}
+          path: |
+            dist/*
+            SHA256SUMS
+          if-no-files-found: error
+          retention-days: 7

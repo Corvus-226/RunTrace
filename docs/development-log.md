@@ -85,10 +85,22 @@ review, CI, or release safety.
 
 ### Day 6 — 2026-08-17 — v0.1.0 release
 
-- [ ] Recheck `ml-runtrace` distribution-name availability and release access.
-- [ ] Change the development version to `0.1.0` and finalize release notes.
-- [ ] Build and inspect the final source distribution and wheel.
-- [ ] Install the wheel in a fresh environment and run the acceptance workflow.
+- ~~Recheck `ml-runtrace` availability through PyPI's JSON and Simple API
+  endpoints.~~
+- [ ] Configure the protected `pypi` environment and pending trusted publisher
+  with maintainer-controlled deployment approval.
+- ~~Freeze the v0.1.0 feature scope and keep publication outside automatic
+  release-preparation work.~~
+- ~~Change the development version to `0.1.0` and finalize changelog and release
+  notes.~~
+- ~~Add the release runbook, immutable action pins, Linux packaging smoke job,
+  and read-only candidate workflow.~~
+- ~~Build and inspect the final source distribution and wheel, including
+  metadata and file-content checks.~~
+- ~~Install the exact wheel in a fresh environment and run the complete
+  acceptance workflow.~~
+- [ ] Run the candidate workflow for the reviewed commit and compare recorded
+  artifact hashes.
 - [ ] Create and push the signed or annotated `v0.1.0` tag.
 - [ ] Publish the distribution to PyPI.
 - [ ] Publish the GitHub Release and attach final release notes.
@@ -917,3 +929,104 @@ review, CI, or release safety.
   is assigned to the maintainer, and belongs to the `v0.1.0` milestone.
 - GitHub Actions run `31596299684` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.
+
+## 2026-08-12 — Issue #12 v0.1.0 release preparation
+
+### Coordination
+
+- Merged [pull request #22](https://github.com/Corvus-226/RunTrace/pull/22)
+  into `main` as `c3134c8`; Issue #11 closed automatically.
+- Assigned Issue #12 to the maintainer and started from that updated `main`
+  commit on `codex/issue-12-release-preparation`.
+- Kept tag creation, PyPI publication, and GitHub Release creation outside this
+  branch because Issue #12 requires a separate explicit maintainer approval
+  for publication.
+
+### Scope
+
+- Freeze the first-release scope and change the package version to `0.1.0`.
+- Finalize changelog, release notes, public installation guidance, support
+  status, and an auditable maintainer runbook.
+- Harden CI action references and add Linux package-build and clean-wheel smoke
+  coverage.
+- Add a manually dispatched, read-only candidate workflow that builds and
+  retains artifacts without tagging or publishing them.
+- Recheck distribution-name availability, build and inspect both artifacts,
+  and run a clean Windows acceptance workflow.
+
+### Decisions
+
+- Treat the PyPI JSON and Simple API HTTP 404 responses on 2026-08-12 as an
+  availability observation, not a reservation. PyPI documents that a pending
+  publisher creates the project only on first use and does not reserve the
+  name beforehand.
+- Require a protected GitHub `pypi` environment and a PyPI pending trusted
+  publisher before any publication workflow is enabled. Do not add a password,
+  API token, or long-lived fallback credential.
+- Keep `.github/workflows/release.yml` non-publishing and manually dispatched.
+  It has `contents: read`, no OIDC permission, no tag trigger, and no GitHub or
+  PyPI write step. Candidate artifacts expire after seven days.
+- Pin every third-party action reference to a complete commit SHA, while
+  retaining the corresponding release name in a comment for maintainability.
+- Add Twine to the locked development tools so local and CI package metadata
+  validation use the same reviewed major version.
+- Bound Hatchling to `>=1.27,<1.30`: Hatchling 1.30+ emitted Core Metadata 2.5,
+  which Twine 6.2 rejected, while the compatible range emits supported Core
+  Metadata 2.4. Do not bypass the metadata check.
+- Explicitly exclude the untracked original planning document from Hatch
+  source distributions. This makes local and clean-clone artifact contents
+  consistent and keeps the planning file outside release artifacts.
+- Use the release-preparation pull request as the approval boundary: it may be
+  reviewed and tested normally, but it must not imply authorization to create
+  a tag or publish irreversible artifacts.
+
+### Implemented
+
+- [x] Package and runtime version changed from `0.1.0.dev0` to `0.1.0`
+- [x] Alpha classifier, documentation URL, changelog release, and v0.1.0 notes
+- [x] Public v0.1.0 install, maturity, contributor, and support documentation
+- [x] Maintainer release runbook with one-time trusted-publisher prerequisites
+- [x] Read-only manual release-candidate workflow with SHA-pinned actions
+- [x] SHA-pinned CI actions and separate Linux package smoke job
+- [x] Locked Twine release tooling and compatible Hatchling metadata boundary
+- [x] Release metadata/workflow guardrail tests compatible with Python 3.10+
+- [x] Explicit source-distribution exclusion for the private planning document
+- [x] Final wheel and sdist metadata, contents, hashes, and Windows wheel smoke
+- [ ] Reviewed pull request and green Linux matrix/package CI
+- [ ] Protected environment, pending publisher, signed or annotated tag,
+  trusted publication, and post-publication verification
+
+### Verification
+
+- PyPI returned HTTP 404 for both `https://pypi.org/pypi/ml-runtrace/json` and
+  `https://pypi.org/simple/ml-runtrace/` on 2026-08-12. The name appeared
+  unregistered at check time but remains unreserved until publication.
+- The first package check exposed Core Metadata 2.5 incompatibility with Twine
+  6.2. After bounding Hatchling, `twine check` passed for both distributions
+  and each reports Core Metadata 2.4.
+- Package-content inspection found and then eliminated the untracked planning
+  document from the local sdist. The corrected wheel contains 18 files; the
+  corrected sdist contains 45 files with package source, tests, license,
+  README, release documentation, and no planning document.
+- Pre-commit local audit artifact SHA-256 values (the reviewed commit is built
+  again by CI and its hashes supersede these values):
+  - `ml_runtrace-0.1.0-py3-none-any.whl`:
+    `5ea659cc0c253dbdf7d7c94fb043f6ab3541317058c954474aa694855188cbd6`
+  - `ml_runtrace-0.1.0.tar.gz`:
+    `71c1a3c150e2db7ec5f40517c3da02f66c51c3f0eda6d270985050dda65c976f`
+- The exact corrected wheel hash matched the wheel already installed into a
+  clean Python 3.12.7 Windows virtual environment. Pip resolved 15 runtime
+  packages, `pip check` found no broken requirements, and `runtrace --version`
+  returned `runtrace 0.1.0`.
+- In a new temporary Git repository, that installed console script completed
+  `init`, two named `snapshot` operations, `list`, `show`, and `diff`; the
+  outputs contained both IDs, the candidate details, and the before/after
+  command change. The temporary environment and repository were removed.
+- `uv run pytest -p no:cacheprovider`: 88 tests passed on Windows with Python
+  3.12.7, including three release metadata and workflow guardrail tests.
+- `uv run ruff check . --no-cache`: passed.
+- `uv run ruff format --check . --no-cache`: 34 files already formatted.
+- `uv lock --check`: passed with the 48-package locked graph, including Twine
+  and its release-checking dependencies.
+- Both GitHub Actions YAML files parsed successfully and `git diff --check`
+  passed. Linux pull-request CI remains required before review completion.

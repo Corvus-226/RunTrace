@@ -6,6 +6,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-08-12
+
 ### Added
 
 - Initial Python package and Typer CLI skeleton.
@@ -41,3 +43,4 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   maturity, and RunTrace's scope relative to full tracking platforms.
 
 [Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Corvus-226/RunTrace/releases/tag/v0.1.0

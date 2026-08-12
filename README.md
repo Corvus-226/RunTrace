@@ -9,10 +9,9 @@ configuration, environment, and metadata behind machine-learning experiments.
 It stores transparent YAML snapshots in the current Git repository, without a
 server or account.
 
-> **Project status:** pre-release (`0.1.0.dev0`). The complete local workflow
-> supports Python 3.10–3.12, is verified locally on Windows and by Linux CI,
-> and is undergoing release hardening for v0.1.0. Compatibility is not yet
-> guaranteed.
+> **Project status:** v0.1.0. The first public release supports Python
+> 3.10–3.12 and is verified locally on Windows and by Linux CI. As a 0.x
+> project, its CLI and snapshot schema may still evolve between minor releases.
 
 ## Why RunTrace?
 
@@ -37,26 +36,16 @@ artifacts, or replace a full experiment-tracking platform.
 
 ### 1. Install
 
-The planned PyPI distribution is named `ml-runtrace` because the `runtrace`
-distribution name belongs to an unrelated project. After v0.1.0 is published,
-installation will be:
+The PyPI distribution is named `ml-runtrace` because the `runtrace`
+distribution name belongs to an unrelated project:
 
 ```console
 python -m pip install ml-runtrace
-```
-
-The PyPI release is **not available yet**. From an activated isolated
-environment, install the current pre-release from source:
-
-```console
-git clone https://github.com/Corvus-226/RunTrace.git
-cd RunTrace
-python -m pip install .
 runtrace --version
 ```
 
-Contributors should use the locked uv environment described in
-[Development](#development).
+Contributors and unreleased-source users should use the locked uv environment
+described in [Development](#development).
 
 ### 2. Initialize an existing Git repository
 
