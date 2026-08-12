@@ -178,7 +178,7 @@ class SnapshotStore:
         if not metadata_candidate.exists() and not metadata_candidate.is_symlink():
             raise SnapshotStorageError(
                 f"RunTrace is not initialized in {self._project_root}. "
-                "Create the .runtrace directory first."
+                "Run `runtrace init` first."
             )
 
         metadata_directory = self._resolve_directory(

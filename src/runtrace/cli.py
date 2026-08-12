@@ -1,10 +1,12 @@
 """Command-line entry point for RunTrace."""
 
+from pathlib import Path
 from typing import Annotated
 
 import typer
 
 from runtrace import __version__
+from runtrace.project import ProjectInitializationError, initialize_project
 
 app = typer.Typer(
     help=(
@@ -35,6 +37,19 @@ def cli(
     ] = False,
 ) -> None:
     """RunTrace command group."""
+
+
+@app.command("init")
+def init_project() -> None:
+    """Initialize RunTrace in the current Git repository."""
+    try:
+        project_root = initialize_project(Path.cwd())
+    except ProjectInitializationError as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(code=1) from error
+
+    typer.echo("Initialized RunTrace in current repository.")
+    typer.echo(f"Project: {project_root}")
 
 
 def main() -> None:
