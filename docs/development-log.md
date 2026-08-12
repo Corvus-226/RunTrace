@@ -171,3 +171,67 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
   belongs to the `v0.1.0` milestone.
 - GitHub Actions run `31572928468` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.
+
+## 2026-08-12 — Issue #3 environment metadata
+
+### Coordination
+
+- The maintainer authorized continued implementation after reviewing the
+  one-issue-per-branch workflow.
+- Merged [pull request #14](https://github.com/Corvus-226/RunTrace/pull/14)
+  into `main` as `404ad5b`; Issue #2 closed automatically.
+- Started Issue #3 from the updated `main` branch on
+  `codex/issue-3-environment-metadata`.
+
+### Scope
+
+- Capture Python version and implementation.
+- Capture operating system, release, architecture, and machine information.
+- Capture installed distribution names and versions with normalized names and
+  stable ordering.
+- Detect NVIDIA GPU names, driver versions, and CUDA version when available.
+- Never capture environment variables, tokens, credentials, package source
+  URLs, installer details, or package contents.
+
+### Decisions
+
+- Use frozen, slotted dataclasses for runtime, platform, GPU, and aggregate
+  environment metadata.
+- Use only the standard library; no new runtime dependency is required.
+- Normalize distribution names using the PEP 503 separator rule and sort the
+  resulting mapping. If malformed environments expose duplicate metadata for
+  one normalized name, select deterministically from sorted versions.
+- Read only the standard distribution `Name` and `Version` fields; direct URL
+  and installer metadata are deliberately ignored.
+- Treat `nvidia-smi` as an optional, five-second best-effort probe. Missing
+  commands, timeouts, non-zero exits, empty results, and a failed CUDA summary
+  probe do not prevent environment capture.
+- Invoke `nvidia-smi` without a shell and capture no environment-variable
+  values.
+
+### Implemented
+
+- [x] Python interpreter version and implementation capture
+- [x] Operating system, release, architecture, and machine capture
+- [x] Normalized, deduplicated, stably ordered package mapping
+- [x] Optional GPU names, driver versions, and CUDA version capture
+- [x] Graceful GPU detection fallback without hardware or `nvidia-smi`
+- [x] Tests proving package source URLs are excluded
+- [x] Changelog entry for the new environment capability
+
+### Verification
+
+- `uv run pytest -p no:cacheprovider`: 20 tests passed on Windows with Python
+  3.12.7, including 9 focused environment tests.
+- `uv run ruff check . --no-cache`: passed.
+- `uv run ruff format --check . --no-cache`: 17 files already formatted.
+- `uv lock --check`: passed with the existing 22-package lock graph.
+- `git diff --check`: passed.
+- A real local capture reported CPython 3.12.7 on 64-bit Windows, produced a
+  sorted 20-distribution mapping, and detected optional GPU metadata without
+  exposing device details in the verification output.
+
+### Submission record
+
+- Pending final diff review, commit, push, pull request creation, and GitHub CI.
+- The original planning document remains untracked and excluded.
