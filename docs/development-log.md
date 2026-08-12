@@ -87,10 +87,19 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
 - On 2026-08-12, the maintainer authorized commit, push, and pull request
   submission for `codex/issue-1-cli-skeleton`.
 
+### Submission record
+
+- Created commit `76218b3` (`feat: initialize package and CLI skeleton`) and
+  pushed `codex/issue-1-cli-skeleton` to `origin`.
+- Opened [pull request #13](https://github.com/Corvus-226/RunTrace/pull/13)
+  against `main`. The pull request closes #1, references #10, uses the
+  `enhancement` label, and belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31570794406` passed on Python 3.10, 3.11, and 3.12.
+- The original planning document remains excluded from the branch.
+
 ### Next scoped work
 
-1. Commit and push `codex/issue-1-cli-skeleton`, then open a pull request that
-   closes #1 and references the CI portion of #10.
-2. Confirm the pull request CI matrix passes.
-3. Merge Issue #1 only after the maintainer's final GitHub review; then start
-   Git metadata work in #2.
+1. Complete the maintainer's final GitHub review of pull request #13.
+2. Merge Issue #1 only after the final CI run passes.
+3. Record how the CI work in #10 is resolved, then start Git metadata work in
+   #2 on a new branch.
