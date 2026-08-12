@@ -240,3 +240,71 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
   belongs to the `v0.1.0` milestone.
 - GitHub Actions run `31578268151` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.
+
+## 2026-08-12 — Issue #4 snapshot persistence
+
+### Coordination
+
+- Merged [pull request #15](https://github.com/Corvus-226/RunTrace/pull/15)
+  into `main` as `d59f848`; Issue #3 closed automatically.
+- Started Issue #4 from the updated `main` branch on
+  `codex/issue-4-snapshot-persistence`.
+
+### Scope
+
+- Define a versioned, validated snapshot schema for Git, runtime, environment,
+  hardware, and experiment metadata.
+- Generate short run IDs and aware UTC timestamps.
+- Persist human-readable YAML beneath `.runtrace/runs/` without silently
+  replacing an existing snapshot.
+- Load, validate, list, and resolve snapshots by full or unique abbreviated
+  run ID.
+- Keep storage local-only and reject paths that escape the initialized project.
+
+### Decisions
+
+- Use strict, frozen Pydantic models that reject unknown fields. Normalize
+  timestamps to UTC and persist a schema version so incompatible future
+  changes can be detected deliberately.
+- Generate 12-character lowercase hexadecimal IDs from 48 bits of
+  cryptographic randomness. Short prefixes are accepted only when they match
+  exactly one stored snapshot.
+- Require an existing `.runtrace/` directory rather than letting storage
+  implicitly initialize a project; Issue #5 remains responsible for `init`.
+- Write each YAML document to a same-directory temporary file, flush and sync
+  it, then publish it with an atomic replacement. An exclusive per-run lock
+  and a pre-existing destination check prevent RunTrace writers from silently
+  replacing duplicate IDs.
+- Resolve metadata, run directories, and snapshot files before use. Reject
+  symlinks or files that escape the project storage boundary.
+- Parse with PyYAML's safe loader, validate the complete Pydantic schema, and
+  verify that the declared run ID matches the filename before returning data.
+- Persist only the planned reproducibility metadata. Environment variables,
+  credentials, package source URLs, source code, and remote services remain
+  outside the storage model.
+
+### Implemented
+
+- [x] Pydantic schema for snapshot, Git, runtime, platform, environment,
+  hardware, GPU, and experiment metadata
+- [x] Collision-resistant run ID and aware UTC timestamp defaults
+- [x] Readable, versioned YAML serialization beneath `.runtrace/runs/`
+- [x] Atomic saves with temporary-file cleanup and duplicate-ID protection
+- [x] Validated loading and filename/run-ID consistency checks
+- [x] Newest-first listing and full or unique abbreviated ID resolution
+- [x] Actionable errors for missing, ambiguous, locked, invalid, or corrupt runs
+- [x] Storage-boundary and path-traversal protection
+- [x] Focused success, conflict, failure, corruption, and symlink tests
+
+### Verification
+
+- `uv run pytest -p no:cacheprovider`: 37 tests passed on Windows with Python
+  3.12.7, including 17 focused snapshot storage tests.
+- `uv run ruff check . --no-cache`: passed.
+- `uv run ruff format --check . --no-cache`: 20 files already formatted.
+- `uv lock --check`: passed with the existing 22-package lock graph; no new
+  dependency was introduced.
+- `uv build`: produced both `ml_runtrace-0.1.0.dev0.tar.gz` and the universal
+  `ml_runtrace-0.1.0.dev0-py3-none-any.whl` in a temporary verification
+  directory.
+- `git diff --check`: passed.

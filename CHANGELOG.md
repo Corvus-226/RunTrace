@@ -18,5 +18,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and dirty working trees, including untracked files.
 - Deterministic capture of the Python runtime, operating system, installed
   distribution versions, and optional NVIDIA GPU/CUDA metadata.
+- Versioned Pydantic snapshot models and readable local YAML persistence with
+  atomic saves, duplicate-ID protection, newest-first listing, and full or
+  unique abbreviated run-ID lookup.
 
 [Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...HEAD
