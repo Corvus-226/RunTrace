@@ -24,5 +24,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Idempotent `runtrace init` support that locates the current Git root, creates
   `.runtrace/runs/` and a minimal `runtrace.toml`, and preserves existing
   configuration and stored runs.
+- `runtrace snapshot` capture for Git state, Python runtime, platform,
+  dependencies, optional GPU/CUDA metadata, and optional run name, command,
+  and validated YAML config values, path, and SHA-256 hash.
 
 [Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...HEAD

@@ -84,6 +84,22 @@ def test_untracked_file_marks_repository_dirty(tmp_path: Path) -> None:
     assert metadata.dirty is True
 
 
+def test_runtrace_data_can_be_excluded_without_hiding_other_changes(
+    tmp_path: Path,
+) -> None:
+    repository, _ = _committed_repository(tmp_path / "repository")
+    runs = repository / ".runtrace" / "runs"
+    runs.mkdir(parents=True)
+    (runs / "snapshot.yaml").write_text("run_id: test\n", encoding="utf-8")
+
+    assert collect_git_metadata(repository).dirty is True
+    assert collect_git_metadata(repository, exclude_runtrace_data=True).dirty is False
+
+    (repository / "other.txt").write_text("still dirty\n", encoding="utf-8")
+
+    assert collect_git_metadata(repository, exclude_runtrace_data=True).dirty is True
+
+
 def test_detached_head_is_represented_explicitly(tmp_path: Path) -> None:
     repository, commit = _committed_repository(tmp_path / "repository")
     _git(repository, "checkout", "--quiet", "--detach", commit)

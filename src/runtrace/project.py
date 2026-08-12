@@ -17,6 +17,38 @@ class ProjectInitializationError(RuntimeError):
     """Raised when a RunTrace project cannot be initialized safely."""
 
 
+def require_initialized_project(path: Path) -> Path:
+    """Return the containing RunTrace project or raise an actionable error."""
+    try:
+        project_root = find_git_root(path)
+    except GitMetadataError as error:
+        raise ProjectInitializationError(str(error)) from error
+
+    configuration = project_root / "runtrace.toml"
+    metadata_candidate = project_root / ".runtrace"
+    runs_candidate = metadata_candidate / "runs"
+    if any(
+        not candidate.exists() and not candidate.is_symlink()
+        for candidate in (configuration, metadata_candidate, runs_candidate)
+    ):
+        raise ProjectInitializationError(
+            f"RunTrace is not initialized in {project_root}. Run `runtrace init` first."
+        )
+
+    _validate_file(configuration, project_root, label="RunTrace configuration")
+    metadata_directory = _validate_directory(
+        metadata_candidate,
+        project_root,
+        label="RunTrace metadata directory",
+    )
+    _validate_directory(
+        metadata_directory / "runs",
+        metadata_directory,
+        label="RunTrace runs directory",
+    )
+    return project_root
+
+
 def initialize_project(path: Path) -> Path:
     """Initialize RunTrace at the Git root containing ``path``.
 
@@ -60,6 +92,10 @@ def _ensure_directory(path: Path, parent: Path, *, label: str) -> Path:
                 f"Could not create {label} {path}: {error}"
             ) from error
 
+    return _validate_directory(path, parent, label=label)
+
+
+def _validate_directory(path: Path, parent: Path, *, label: str) -> Path:
     try:
         resolved = path.resolve(strict=True)
     except OSError as error:

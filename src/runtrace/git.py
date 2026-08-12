@@ -54,11 +54,16 @@ def find_git_root(path: Path) -> Path:
     return resolved_root
 
 
-def collect_git_metadata(path: Path) -> GitMetadata:
+def collect_git_metadata(
+    path: Path,
+    *,
+    exclude_runtrace_data: bool = False,
+) -> GitMetadata:
     """Collect commit, branch, detached-HEAD, and dirty-tree information.
 
     The implementation invokes the Git CLI without a shell. It deliberately
     does not inspect remotes, patches, source contents, or Git credentials.
+    Generated ``.runtrace`` data can be excluded without hiding other changes.
     """
     repository = Path(path).expanduser()
     if not repository.exists():
@@ -103,12 +108,14 @@ def collect_git_metadata(path: Path) -> GitMetadata:
             f"Could not determine the current Git branch in {repository}."
         )
 
-    status_result = _run_git(
-        repository,
+    status_arguments = [
         "status",
         "--porcelain=v1",
         "--untracked-files=normal",
-    )
+    ]
+    if exclude_runtrace_data:
+        status_arguments.extend(("--", ":(top,exclude).runtrace"))
+    status_result = _run_git(repository, *status_arguments)
     if status_result.returncode != 0:
         raise GitMetadataError(
             f"Could not inspect the Git working-tree status in {repository}."

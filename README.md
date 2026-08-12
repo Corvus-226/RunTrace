@@ -3,8 +3,8 @@
 RunTrace is a lightweight CLI for capturing and comparing the code,
 configuration, environment, and metadata behind machine-learning experiments.
 
-> Project status: early development. `runtrace init` is available; the first
-> complete experiment workflow is planned as v0.1.0.
+> Project status: early development. `runtrace init` and `runtrace snapshot`
+> are available; the first complete experiment workflow is planned as v0.1.0.
 
 The project and CLI are named RunTrace. The planned PyPI distribution name is
 `ml-runtrace` because the `runtrace` distribution is already owned by an
@@ -37,9 +37,9 @@ runtrace show <run-id>
 runtrace diff <run-id-a> <run-id-b>
 ```
 
-`runtrace init` is implemented. The remaining commands are the v0.1.0 target
-and will be delivered incrementally. See the repository issues for current
-implementation status.
+`runtrace init` and `runtrace snapshot` are implemented. The remaining commands
+are the v0.1.0 target and will be delivered incrementally. See the repository
+issues for current implementation status.
 
 ## Development setup
 
@@ -63,8 +63,11 @@ uv run runtrace --version
 ## Privacy
 
 RunTrace is local-only by default. It does not upload experiment data, source
-code, credentials, or environment variables. Snapshot capture will be designed
-to avoid collecting secrets.
+code, credentials, or environment variables, and snapshot capture does not
+read those implicit secret sources. When `--config` or `--command` is supplied,
+RunTrace stores the parsed config values, repository-relative config path,
+config hash, and command in the local snapshot, so users should avoid putting
+credentials in those explicit inputs.
 
 ## Contributing
 
