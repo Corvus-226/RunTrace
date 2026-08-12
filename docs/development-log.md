@@ -233,5 +233,10 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
 
 ### Submission record
 
-- Pending final diff review, commit, push, pull request creation, and GitHub CI.
+- Created commit `a19c610` (`feat: capture Python environment metadata`) and
+  pushed `codex/issue-3-environment-metadata` to `origin`.
+- Opened [pull request #15](https://github.com/Corvus-226/RunTrace/pull/15)
+  against `main`. The pull request closes #3, uses the `enhancement` label, and
+  belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31578268151` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.
