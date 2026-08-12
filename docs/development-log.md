@@ -633,3 +633,13 @@ substitute for issues, pull requests, commit history, or `CHANGELOG.md`.
 - `uv run runtrace show --help`: described the required full or unique
   abbreviated run-ID argument.
 - `git diff --check`: passed.
+
+### Submission record
+
+- Created commit `4a4210c` (`feat: show complete experiment snapshots`) and
+  pushed `codex/issue-8-show-command` to `origin`.
+- Opened [pull request #20](https://github.com/Corvus-226/RunTrace/pull/20)
+  against `main`. The pull request closes #8, uses the `enhancement` label, is
+  assigned to the maintainer, and belongs to the `v0.1.0` milestone.
+- GitHub Actions run `31593293257` passed on Python 3.10, 3.11, and 3.12.
+- The original planning document remains untracked and excluded.
