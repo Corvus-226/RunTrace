@@ -51,7 +51,7 @@ jobs:
         env:
           EXPECTED_VERSION: ${{ inputs.expected_version }}
         run: |
-          package_version="$(uv run python -c 'from runtrace import __version__; print(__version__)')"
+          package_version="$(uv run python -c 'from ml_runtrace import __version__; print(__version__)')"
           test "$package_version" = "$EXPECTED_VERSION"
           test -f "docs/releases/v${package_version}.md"
           echo "version=${package_version}" >> "$GITHUB_OUTPUT"
@@ -68,8 +68,21 @@ jobs:
       - name: Build distributions
         run: uv build
 
+      - name: Verify public-name coexistence
+        run: uv run python scripts/check_public_name_coexistence.py --dist-dir dist
+
       - name: Check package metadata
         run: uv run twine check dist/*
+
+      - name: Install wheel in a clean environment
+        run: |
+          expected_version="${{ steps.metadata.outputs.version }}"
+          python -m venv "$RUNNER_TEMP/ml-runtrace-wheel"
+          "$RUNNER_TEMP/ml-runtrace-wheel/bin/python" -m pip install dist/*.whl
+          test "$("$RUNNER_TEMP/ml-runtrace-wheel/bin/ml-runtrace" --version)" = "ml-runtrace ${expected_version}"
+          test "$("$RUNNER_TEMP/ml-runtrace-wheel/bin/python" -m ml_runtrace --version)" = "ml-runtrace ${expected_version}"
+          test ! -e "$RUNNER_TEMP/ml-runtrace-wheel/bin/runtrace"
+          "$RUNNER_TEMP/ml-runtrace-wheel/bin/python" -c "import importlib.util; assert importlib.util.find_spec('runtrace') is None"
 
       - name: Record artifact hashes
         run: sha256sum dist/* | tee SHA256SUMS

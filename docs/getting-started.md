@@ -31,14 +31,15 @@ current candidate from source:
 
 ```console
 python -m pip install .
-runtrace --version
+ml-runtrace --version
+python -m ml_runtrace --version
 ```
 
 The planned distribution name is `ml-runtrace`, but it is not available on
-PyPI. An unrelated PyPI project already owns both the `runtrace` import and
-command names, so RunTrace's public names are under release-blocking review in
-[Issue #24](https://github.com/Corvus-226/RunTrace/issues/24). Do not install
-the unrelated distribution expecting this project.
+PyPI. The approved Python import is `ml_runtrace`, and the only console command
+is `ml-runtrace`. [Issue #24](https://github.com/Corvus-226/RunTrace/issues/24)
+records why no `runtrace` import or command alias is provided: an unrelated
+PyPI project already owns both names.
 
 ## 1. Initialize your project
 
@@ -46,7 +47,7 @@ Change to an existing Git repository, then initialize RunTrace:
 
 ```console
 cd your-project
-runtrace init
+ml-runtrace init
 ```
 
 Expected output includes:
@@ -101,7 +102,7 @@ Capture the current Git, runtime, dependency, hardware, config, and command
 context:
 
 ```console
-runtrace snapshot --name baseline --config configs/train.yaml --command "python train.py --config configs/train.yaml"
+ml-runtrace snapshot --name baseline --config configs/train.yaml --command "python train.py --config configs/train.yaml"
 ```
 
 The command prints output in this form:
@@ -113,7 +114,7 @@ Path: <project>/.runtrace/runs/a31f82000001.yaml
 
 Your generated ID will be different. Save it for later comparison.
 
-Important: `runtrace snapshot --command ...` records the command string; it
+Important: `ml-runtrace snapshot --command ...` records the command string; it
 does not start the training process. Run the experiment yourself before or
 after recording, according to your workflow.
 
@@ -133,7 +134,7 @@ dependencies, and optional GPU/CUDA metadata.
 List snapshots newest first:
 
 ```console
-runtrace list
+ml-runtrace list
 ```
 
 Representative output:
@@ -146,7 +147,7 @@ a31f82000001  baseline  83ab2c1  no     2026-08-13 06:31 UTC
 Show the complete stored record using the full ID or a unique prefix:
 
 ```console
-runtrace show a31f82
+ml-runtrace show a31f82
 ```
 
 `show` reads the historical YAML record. It does not replace stored values
@@ -160,7 +161,7 @@ commit the candidate if it should represent a new code/config revision:
 ```console
 git add configs/train.yaml
 git commit -m "try lower learning rate"
-runtrace snapshot --name candidate --config configs/train.yaml --command "python train.py --config configs/train.yaml"
+ml-runtrace snapshot --name candidate --config configs/train.yaml --command "python train.py --config configs/train.yaml"
 ```
 
 Copy the new run ID from the output. Leaving changes uncommitted is also valid;
@@ -172,7 +173,7 @@ Pass the baseline first and the candidate second. Full IDs and unique prefixes
 are both accepted, case-insensitively:
 
 ```console
-runtrace diff a31f82 b91de3
+ml-runtrace diff a31f82 b91de3
 ```
 
 Representative output:
@@ -235,20 +236,21 @@ when a team also uses a larger tracking system.
 | --- | --- |
 | `Not inside a Git work tree` | Change into a Git repository or run `git init`. |
 | `Repository has no commits yet` | Create the first Git commit before taking a snapshot. |
-| `RunTrace is not initialized` | Run `runtrace init` in the repository. |
+| `RunTrace is not initialized` | Run `ml-runtrace init` in the repository. |
 | Config must be inside the repository | Move the YAML file under the Git root. |
 | Run ID is ambiguous | Supply more characters or the complete 12-character ID. |
 | Stored snapshot is invalid | Repair or remove the named YAML file after reviewing it. |
 
-Run `runtrace <command> --help` for the exact CLI arguments available in your
+Run `ml-runtrace <command> --help` for the exact CLI arguments available in your
 installed version.
 
 ## Current maturity
 
 RunTrace v0.1.0 is a release candidate, not a published PyPI release. The core
-local workflow is tested on Windows plus Linux CI for supported Python
-versions. Its public import and command names must be resolved before release;
-after publication, snapshot schemas and CLI behavior may still evolve during
-the 0.x series. Track changes in the repository's
+local workflow and collision-free public names are tested on Windows and
+covered by an offline two-order install/uninstall audit. Pull request CI must
+also validate supported Python versions on Linux before publication. After
+publication, snapshot schemas and CLI behavior may still evolve during the
+0.x series. Track changes in the repository's
 [issues](https://github.com/Corvus-226/RunTrace/issues) and
 [changelog](../CHANGELOG.md).

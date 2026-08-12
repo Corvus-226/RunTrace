@@ -42,7 +42,7 @@ Issues = "https://github.com/Corvus-226/RunTrace/issues"
 Repository = "https://github.com/Corvus-226/RunTrace"
 
 [project.scripts]
-runtrace = "runtrace.cli:main"
+ml-runtrace = "ml_runtrace.cli:main"
 
 [dependency-groups]
 dev = [
@@ -58,7 +58,7 @@ exclude = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/runtrace"]
+packages = ["src/ml_runtrace"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"

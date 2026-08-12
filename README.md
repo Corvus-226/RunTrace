@@ -10,9 +10,11 @@ It stores transparent YAML snapshots in the current Git repository, without a
 server or account.
 
 > **Project status:** v0.1.0 release candidate. It has not been published to
-> PyPI. The candidate is verified locally on Windows and by Linux CI for Python
-> 3.10–3.12, but its public import and command names are under release-blocking
-> review in [Issue #24](https://github.com/Corvus-226/RunTrace/issues/24).
+> PyPI. The collision-free candidate is verified locally on Windows; pull
+> request CI must validate it on Linux with Python 3.10–3.12. The public names
+> approved in
+> [Issue #24](https://github.com/Corvus-226/RunTrace/issues/24) are now part of
+> the candidate and remain subject to final release review.
 
 ## Why RunTrace?
 
@@ -50,13 +52,15 @@ reviewed source and verify the current command:
 
 ```console
 python -m pip install .
-runtrace --version
+ml-runtrace --version
+python -m ml_runtrace --version
 ```
 
 The planned PyPI distribution is `ml-runtrace`, but it is not available yet.
-Do not install the unrelated PyPI `runtrace` distribution expecting this
-project. Contributors should use the locked uv environment described in
-[Development](#development).
+Its Python import is `ml_runtrace`, and its only console command is
+`ml-runtrace`. No `runtrace` import or command alias is provided because an
+unrelated PyPI project owns those names. Contributors should use the locked uv
+environment described in [Development](#development).
 
 ### 2. Initialize an existing Git repository
 
@@ -64,7 +68,7 @@ RunTrace requires a Git repository with at least one commit:
 
 ```console
 cd your-project
-runtrace init
+ml-runtrace init
 ```
 
 This creates `runtrace.toml` and `.runtrace/runs/` at the Git root. Commit
@@ -89,7 +93,7 @@ Commit the code and config you want to identify, then record the experiment:
 ```console
 git add runtrace.toml configs/train.yaml
 git commit -m "add training baseline"
-runtrace snapshot --name baseline --config configs/train.yaml --command "python train.py --config configs/train.yaml"
+ml-runtrace snapshot --name baseline --config configs/train.yaml --command "python train.py --config configs/train.yaml"
 ```
 
 `snapshot` records the supplied command; it does not execute that command. The
@@ -101,9 +105,9 @@ result prints a 12-character run ID and writes one YAML file beneath
 After recording another run, use either a full ID or a unique abbreviated ID:
 
 ```console
-runtrace list
-runtrace show <run-id>
-runtrace diff <baseline-id> <candidate-id>
+ml-runtrace list
+ml-runtrace show <run-id>
+ml-runtrace diff <baseline-id> <candidate-id>
 ```
 
 A representative diff looks like this (IDs and values will differ):
@@ -141,13 +145,13 @@ entire init → snapshot → list → show → diff workflow and explains each r
 
 | Command | Purpose |
 | --- | --- |
-| `runtrace init` | Initialize local RunTrace state at the containing Git root. |
-| `runtrace snapshot` | Capture the current reproducibility context. |
-| `runtrace list` | List recorded runs newest first. |
-| `runtrace show <run-id>` | Display one complete stored snapshot. |
-| `runtrace diff <run-a> <run-b>` | Compare reproducibility-relevant values. |
+| `ml-runtrace init` | Initialize local RunTrace state at the containing Git root. |
+| `ml-runtrace snapshot` | Capture the current reproducibility context. |
+| `ml-runtrace list` | List recorded runs newest first. |
+| `ml-runtrace show <run-id>` | Display one complete stored snapshot. |
+| `ml-runtrace diff <run-a> <run-b>` | Compare reproducibility-relevant values. |
 
-Run `runtrace <command> --help` for command-specific arguments and options.
+Run `ml-runtrace <command> --help` for command-specific arguments and options.
 
 ## Privacy and storage
 
@@ -169,7 +173,7 @@ RunTrace requires Python 3.10 or newer and uses
 git clone https://github.com/Corvus-226/RunTrace.git
 cd RunTrace
 uv sync --all-groups --locked
-uv run runtrace --help
+uv run ml-runtrace --help
 uv run pytest
 uv run ruff check .
 uv run ruff format --check .

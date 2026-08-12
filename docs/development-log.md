@@ -14,8 +14,8 @@ review, CI, or release safety.
 
 - ~~Create and verify the public GitHub repository and product scope.~~
 - ~~Add the MIT license and initial README positioning.~~
-- ~~Create `pyproject.toml`, the `src/runtrace` package layout, and CLI entry
-  point.~~
+- ~~Create `pyproject.toml`, the collision-free `src/ml_runtrace` package
+  layout, and CLI entry point.~~
 - ~~Configure uv, pytest, Ruff, and the committed dependency lockfile.~~
 - ~~Add Linux CI for Python 3.10, 3.11, and 3.12.~~
 - ~~Add `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, and GitHub issue and pull
@@ -36,18 +36,18 @@ review, CI, or release safety.
   validation.~~
 - ~~Parse repository-local UTF-8 YAML configs safely and record their path,
   SHA-256 hash, values, and optional experiment command.~~
-- ~~Implement `runtrace snapshot` with actionable success and error output.~~
+- ~~Implement `ml-runtrace snapshot` with actionable success and error output.~~
 
 ### Day 3 — 2026-08-14 — CLI and storage
 
-- ~~Implement idempotent `runtrace init` at the containing Git root.~~
+- ~~Implement idempotent `ml-runtrace init` at the containing Git root.~~
 - ~~Create and validate `runtrace.toml` and `.runtrace/runs/` without replacing
   existing user data.~~
 - ~~Support validated newest-first storage listing and full or unique-prefix
   run lookup.~~
-- ~~Implement compact, literal-safe `runtrace list` output and its empty
+- ~~Implement compact, literal-safe `ml-runtrace list` output and its empty
   state.~~
-- ~~Implement complete, sectioned `runtrace show <run-id>` output.~~
+- ~~Implement complete, sectioned `ml-runtrace show <run-id>` output.~~
 - ~~Handle uninitialized projects, corrupt snapshots, and missing or ambiguous
   IDs without avoidable tracebacks.~~
 - ~~Cover the complete init → snapshot → list → show workflow with unit and
@@ -87,8 +87,17 @@ review, CI, or release safety.
 
 - ~~Recheck `ml-runtrace` availability through PyPI's JSON and Simple API
   endpoints.~~
-- [ ] Resolve the Python import and console-command collision with the
-  unrelated PyPI `runtrace` distribution (blocked by Issue #24).
+- ~~Record maintainer approval for strategy A in Issue #24: distribution
+  `ml-runtrace`, import `ml_runtrace`, command `ml-runtrace`, module
+  `python -m ml_runtrace`, and no aliases.~~
+- ~~Rename the source package, internal imports, console entry point, module
+  entry point, user-facing command guidance, and focused tests.~~
+- ~~Add a network-free two-order install/uninstall coexistence audit using a
+  synthetic distribution that owns the `runtrace` import and command.~~
+- ~~Repeat the two-order and both-uninstall audit against the real PyPI
+  `runtrace==0.3.2` wheel.~~
+- [ ] Obtain green Linux CI for the migrated package on Python 3.10–3.12 and
+  the packaging smoke job.
 - [ ] Configure the protected `pypi` environment and pending trusted publisher
   with maintainer-controlled deployment approval.
 - ~~Freeze the v0.1.0 feature scope and keep publication outside automatic
@@ -101,6 +110,8 @@ review, CI, or release safety.
   metadata and file-content checks.~~
 - ~~Install the exact wheel in a fresh environment and run the complete
   acceptance workflow.~~
+- ~~Rebuild, inspect, and smoke-test the replacement candidate after the
+  public-name migration; prior candidate hashes are invalidated.~~
 - [ ] Run the candidate workflow for the reviewed commit and compare recorded
   artifact hashes.
 - [ ] Create and push the signed or annotated `v0.1.0` tag.
@@ -1144,9 +1155,9 @@ review, CI, or release safety.
 - [x] False-negative `pip check` behavior recorded
 - [x] Blocking Issue #24 and PR #23 comment created
 - [x] PR #23 converted to draft and release progression stopped
-- [ ] Collision-free import and command names approved by the maintainer
-- [ ] Naming decision implemented with regression tests and documentation
-- [ ] Both-order installation and uninstall acceptance criteria pass
+- [x] Collision-free import and command names approved by the maintainer
+- [x] Naming decision implemented with regression tests and documentation
+- [x] Both-order installation and uninstall acceptance criteria pass
 
 ### Submission record
 
@@ -1166,11 +1177,95 @@ review, CI, or release safety.
 
 ### Risks and next scoped work
 
-- Publishing with the current names could silently replace an unrelated tool
-  or be silently replaced by it, and later uninstallation could damage either
-  installation. v0.1.0 must not be published in this state.
-- Issue #24 must compare concrete naming options and record the chosen public
-  import and command. That decision will determine the next implementation
-  branch and invalidate current candidate hashes.
-- Trusted Publishing work remains deferred until the package identity is
-  stable and PR #23 is re-reviewed.
+- The original candidate names could silently replace an unrelated tool and
+  must never be published. Strategy A supersedes that artifact.
+- The approved naming change invalidates every earlier candidate hash; only a
+  rebuilt and re-reviewed artifact can become v0.1.0.
+- Trusted Publishing work remains deferred until the migrated package passes
+  CI and PR #23 is re-reviewed.
+
+## 2026-08-13 — Strategy A public namespace migration
+
+### Coordination
+
+- The maintainer explicitly approved strategy A on 2026-08-13.
+- Continued on the existing `codex/issue-12-release-preparation` branch and
+  draft pull request #23; no new branch was created.
+- Kept Issue #24 open as the acceptance record. No merge, trusted-publisher
+  setup, tag, PyPI upload, or GitHub Release was performed.
+
+### Scope
+
+- Keep the project and repository name RunTrace and the distribution name
+  `ml-runtrace`.
+- Rename the Python package to `ml_runtrace`, the console command to
+  `ml-runtrace`, and the module entry point to `python -m ml_runtrace`.
+- Provide no `runtrace` import, command alias, or secondary console script.
+- Preserve the existing `.runtrace/` local data directory, `runtrace.toml`
+  configuration file, `[runtrace]` configuration table, and snapshot schema;
+  these persisted project names do not collide with Python installation
+  namespaces.
+
+### Implementation
+
+- Renamed `src/runtrace` to `src/ml_runtrace` and migrated all internal and
+  test imports.
+- Changed the sole package entry point to
+  `ml-runtrace = "ml_runtrace.cli:main"`; version output now identifies
+  `ml-runtrace`, and `python -m ml_runtrace` invokes the same application.
+- Updated actionable CLI errors, README, Getting Started guide, changelog,
+  draft release notes, release runbook, issue template, CI, release-candidate
+  workflow, and packaging guardrail tests.
+- Added `scripts/check_public_name_coexistence.py`. It constructs a valid
+  local `runtrace` wheel without contacting a package index, installs it and
+  the actual candidate wheel in both orders, checks distribution metadata,
+  import paths, entry points, RECORD ownership, and generated scripts, then
+  uninstalls one distribution in each environment and verifies that the other
+  remains intact.
+- Added an optional `--runtrace-wheel` input so the same audit can verify a
+  downloaded real public wheel without weakening the network-free default.
+
+### Verification
+
+- `uv sync --all-groups --locked` resolved the existing 48-package graph and
+  rebuilt the editable project under the approved package name.
+- The pre-documentation full suite passed all 88 tests on Windows with Python
+  3.12.7. After adding the final public-name guardrail, all 89 tests passed.
+- Ruff lint passed, all 36 Python files were formatted, `uv lock --check`
+  resolved the locked 48-package graph, and both Actions workflow files parsed
+  as YAML.
+- A freshly built `ml_runtrace-0.1.0-py3-none-any.whl` passed the synthetic
+  offline audit in both installation orders and both uninstall directions.
+- The same candidate passed against the downloaded real
+  `runtrace-0.3.2-py3-none-any.whl` under the same four lifecycle checks.
+  Both imports and both commands remained independently installed, and the
+  two distributions had no shared RECORD paths.
+- All build roots and virtual environments created for these audits were
+  confined to the system temporary directory and removed after validation.
+- Twine accepted both replacement artifacts. The wheel RECORD contained 18
+  files and only the `ml_runtrace` package; the sdist contained 46 files, only
+  `src/ml_runtrace`, and neither untracked maintainer reference document.
+- A fresh Windows environment installed the exact wheel and returned
+  `ml-runtrace 0.1.0` from both `ml-runtrace --version` and
+  `python -m ml_runtrace --version`. Neither a `runtrace` executable nor a
+  `runtrace` import was present.
+- The clean wheel then passed the complete init → two snapshots → list → show
+  → diff workflow in an isolated Git repository. The assertions confirmed
+  both run labels, complete baseline data, and the changed learning rate.
+- The final privacy audit covered 37 repository files and found no local user
+  paths, private-key blocks, PyPI tokens, GitHub tokens, or credential
+  assignments. The two untracked maintainer references were explicitly
+  excluded and remained outside the candidate.
+
+### Result
+
+- [x] Maintainer decision recorded
+- [x] Python package and internal imports migrated
+- [x] Sole console and module entry points migrated
+- [x] `runtrace` compatibility aliases intentionally absent
+- [x] User documentation and workflow commands migrated
+- [x] Focused metadata and documentation guardrails added
+- [x] Synthetic offline two-order and both-uninstall audit passed
+- [x] Real `runtrace==0.3.2` two-order and both-uninstall audit passed
+- [x] Final full quality, artifact, clean-install, and privacy validation
+- [ ] Commit, push, and Linux CI evidence

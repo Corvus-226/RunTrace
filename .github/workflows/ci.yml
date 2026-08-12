@@ -68,6 +68,9 @@ jobs:
       - name: Build distributions
         run: uv build
 
+      - name: Verify public-name coexistence
+        run: uv run python scripts/check_public_name_coexistence.py --dist-dir dist
+
       - name: Check package metadata
         run: uv run twine check dist/*
 
@@ -76,6 +79,9 @@ jobs:
 
       - name: Install wheel in a clean environment
         run: |
-          python -m venv "$RUNNER_TEMP/runtrace-wheel"
-          "$RUNNER_TEMP/runtrace-wheel/bin/python" -m pip install dist/*.whl
-          test "$("$RUNNER_TEMP/runtrace-wheel/bin/runtrace" --version)" = "runtrace 0.1.0"
+          python -m venv "$RUNNER_TEMP/ml-runtrace-wheel"
+          "$RUNNER_TEMP/ml-runtrace-wheel/bin/python" -m pip install dist/*.whl
+          test "$("$RUNNER_TEMP/ml-runtrace-wheel/bin/ml-runtrace" --version)" = "ml-runtrace 0.1.0"
+          test "$("$RUNNER_TEMP/ml-runtrace-wheel/bin/python" -m ml_runtrace --version)" = "ml-runtrace 0.1.0"
+          test ! -e "$RUNNER_TEMP/ml-runtrace-wheel/bin/runtrace"
+          "$RUNNER_TEMP/ml-runtrace-wheel/bin/python" -c "import importlib.util; assert importlib.util.find_spec('runtrace') is None"

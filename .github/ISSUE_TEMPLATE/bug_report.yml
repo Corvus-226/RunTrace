@@ -17,7 +17,7 @@ body:
   - type: input
     attributes:
       label: RunTrace version
-      placeholder: "runtrace --version"
+      placeholder: "ml-runtrace --version"
     validations:
       required: true
   - type: input

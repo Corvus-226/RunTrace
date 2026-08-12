@@ -14,13 +14,13 @@ from rich.syntax import Syntax
 from rich.table import Table
 from rich.text import Text
 
-from runtrace.diff import (
+from ml_runtrace.diff import (
     DifferenceKind,
     DifferenceSection,
     SnapshotComparison,
     SnapshotDifference,
 )
-from runtrace.models import Snapshot
+from ml_runtrace.models import Snapshot
 
 _WHITESPACE = re.compile(r"\s+")
 
@@ -29,7 +29,7 @@ def print_snapshot_list(snapshots: Sequence[Snapshot], console: Console) -> None
     """Print a compact newest-first summary of persisted snapshots."""
     if not snapshots:
         console.print(
-            "No snapshots recorded yet. Run `runtrace snapshot` to create one."
+            "No snapshots recorded yet. Run `ml-runtrace snapshot` to create one."
         )
         return
 

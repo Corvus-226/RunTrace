@@ -8,7 +8,7 @@ does not authorize a tag or upload.
 ## Release invariants
 
 - The release tag points to the reviewed `main` commit.
-- `pyproject.toml`, `runtrace.__version__`, the tag, changelog, and release notes
+- `pyproject.toml`, `ml_runtrace.__version__`, the tag, changelog, and release notes
   contain the same version.
 - The sdist and wheel uploaded to PyPI are the exact files attached to the
   GitHub Release.
@@ -19,19 +19,26 @@ does not authorize a tag or upload.
 
 ## Public-name collision gate
 
-Publication is blocked by
-[Issue #24](https://github.com/Corvus-226/RunTrace/issues/24). The unrelated
-PyPI `runtrace==0.3.2` distribution and the current candidate both own the
-`runtrace` Python package and `runtrace` console script. Tests in both install
-orders showed that the later installation controls the import and command,
-while uninstalling either distribution deletes shared files and breaks the
-other. `pip check` does not detect this file-ownership conflict.
+[Issue #24](https://github.com/Corvus-226/RunTrace/issues/24) records the
+original conflict: the unrelated PyPI `runtrace==0.3.2` distribution and the
+old candidate both owned the `runtrace` Python package and console script.
+Install-order testing showed that either distribution could overwrite and
+later uninstall the other's files; `pip check` did not detect the conflict.
 
-Do not merge the release-preparation pull request, configure a trusted
-publisher, enable publication, create a tag, or publish v0.1.0 until the
-maintainer approves a collision-free public import and command naming strategy
-and the coexistence acceptance tests pass. A README warning alone is not an
-acceptable mitigation.
+The maintainer approved strategy A on 2026-08-13:
+
+- project and repository: RunTrace;
+- PyPI distribution: `ml-runtrace`;
+- Python import: `ml_runtrace`;
+- console command: `ml-runtrace`; and
+- module entry point: `python -m ml_runtrace`.
+
+Do not add a `runtrace` import, console alias, or secondary script. Before
+publication, the checked-in offline coexistence audit and a repeat audit
+against the real `runtrace==0.3.2` wheel must pass in both installation orders,
+including uninstall independence. Do not configure a trusted publisher, enable
+publication, create a tag, or publish v0.1.0 until Issue #24 contains that
+evidence and the migration has passed review.
 
 ## One-time trusted publishing setup
 
@@ -69,7 +76,7 @@ and
 ## Prepare the source
 
 1. Start from an up-to-date `main` branch and a scoped release issue.
-2. Set the final version in `pyproject.toml` and `src/runtrace/__init__.py`.
+2. Set the final version in `pyproject.toml` and `src/ml_runtrace/__init__.py`.
 3. Move user-visible entries from Unreleased into the dated changelog release.
 4. Add `docs/releases/v<version>.md` and update install/status documentation.
 5. Run the full release validation described below.
@@ -92,7 +99,20 @@ Build into a clean directory and inspect both artifacts:
 ```console
 uv build
 uv run twine check dist/*
+uv run python scripts/check_public_name_coexistence.py --dist-dir dist
 ```
+
+Immediately before publication, download the current real public wheel into a
+temporary directory and rerun the same audit against it. For the collision
+known at v0.1.0 preparation time:
+
+```console
+python -m pip download --no-deps --only-binary=:all: --dest <temporary-directory> runtrace==0.3.2
+uv run python scripts/check_public_name_coexistence.py --dist-dir dist --runtrace-wheel <temporary-directory>/runtrace-0.3.2-py3-none-any.whl
+```
+
+The default audit is network-free; only the explicit `pip download` step
+contacts PyPI.
 
 Install the wheel into a newly created Windows virtual environment and run the
 documented init → snapshot → list → show → diff workflow. Record test counts,
@@ -106,10 +126,11 @@ commit or tag plus the exact expected version. The workflow has read-only
 repository permissions and no OIDC permission. It:
 
 1. verifies the source version and versioned release-notes file;
-2. reruns tests, lint, format, and package metadata checks;
+2. reruns tests, lint, and format checks;
 3. builds the sdist and wheel once;
-4. records SHA-256 values; and
-5. retains the files as a seven-day workflow artifact for review.
+4. runs the offline two-order public-name coexistence audit;
+5. checks package metadata and records SHA-256 values; and
+6. retains the files as a seven-day workflow artifact for review.
 
 Download that artifact, verify its hashes and contents, and record the Actions
 run before requesting publication approval.
@@ -146,8 +167,9 @@ Wait for PyPI's index to expose the files, then use another new environment:
 ```console
 python -m venv .venv-release-check
 python -m pip install --no-cache-dir ml-runtrace==0.1.0
-runtrace --version
-runtrace --help
+ml-runtrace --version
+ml-runtrace --help
+python -m ml_runtrace --version
 ```
 
 Repeat the documented workflow and compare the SHA-256 digests of the PyPI and

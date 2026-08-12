@@ -10,7 +10,7 @@ from pathlib import Path
 import yaml
 from pydantic import ValidationError
 
-from runtrace.models import Snapshot
+from ml_runtrace.models import Snapshot
 
 _FULL_RUN_ID = re.compile(r"^[0-9a-f]{12}$")
 _RUN_ID_REFERENCE = re.compile(r"^[0-9a-f]{1,12}$")
@@ -178,7 +178,7 @@ class SnapshotStore:
         if not metadata_candidate.exists() and not metadata_candidate.is_symlink():
             raise SnapshotStorageError(
                 f"RunTrace is not initialized in {self._project_root}. "
-                "Run `runtrace init` first."
+                "Run `ml-runtrace init` first."
             )
 
         metadata_directory = self._resolve_directory(

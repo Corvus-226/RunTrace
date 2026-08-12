@@ -10,8 +10,8 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from runtrace.cli import app
-from runtrace.models import (
+from ml_runtrace.cli import app
+from ml_runtrace.models import (
     EnvironmentSnapshot,
     ExperimentSnapshot,
     GitSnapshot,
@@ -21,7 +21,7 @@ from runtrace.models import (
     RuntimeSnapshot,
     Snapshot,
 )
-from runtrace.storage import SnapshotStore
+from ml_runtrace.storage import SnapshotStore
 
 runner = CliRunner()
 

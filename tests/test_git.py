@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-import runtrace.git as git_module
-from runtrace.git import GitMetadataError, collect_git_metadata, find_git_root
+import ml_runtrace.git as git_module
+from ml_runtrace.git import GitMetadataError, collect_git_metadata, find_git_root
 
 
 def _git(repository: Path, *arguments: str) -> subprocess.CompletedProcess[str]:

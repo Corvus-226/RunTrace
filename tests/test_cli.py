@@ -9,8 +9,8 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from runtrace import __version__
-from runtrace.cli import app
+from ml_runtrace import __version__
+from ml_runtrace.cli import app
 
 runner = CliRunner()
 
@@ -31,7 +31,7 @@ def test_version_reports_package_version() -> None:
     result = runner.invoke(app, ["--version"])
 
     assert result.exit_code == 0
-    assert result.stdout.strip() == f"runtrace {__version__}"
+    assert result.stdout.strip() == f"ml-runtrace {__version__}"
 
 
 def test_init_creates_project_files_in_git_root(

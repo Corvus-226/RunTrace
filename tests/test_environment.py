@@ -7,8 +7,8 @@ from dataclasses import asdict, dataclass
 
 import pytest
 
-import runtrace.environment as environment_module
-from runtrace.environment import (
+import ml_runtrace.environment as environment_module
+from ml_runtrace.environment import (
     collect_environment_metadata,
     collect_installed_packages,
     detect_gpu_metadata,

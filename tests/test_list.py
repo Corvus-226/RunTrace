@@ -10,15 +10,15 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from runtrace.cli import app
-from runtrace.models import (
+from ml_runtrace.cli import app
+from ml_runtrace.models import (
     EnvironmentSnapshot,
     GitSnapshot,
     PlatformSnapshot,
     RuntimeSnapshot,
     Snapshot,
 )
-from runtrace.storage import SnapshotStore
+from ml_runtrace.storage import SnapshotStore
 
 runner = CliRunner()
 
@@ -32,7 +32,7 @@ def test_empty_storage_prints_friendly_message(
 
     assert result.exit_code == 0
     assert "No snapshots recorded yet" in result.stdout
-    assert "runtrace snapshot" in result.stdout
+    assert "ml-runtrace snapshot" in result.stdout
 
 
 def test_single_run_displays_clear_optional_values(
@@ -131,7 +131,7 @@ def test_list_requires_initialized_project(
     result = runner.invoke(app, ["list"])
 
     assert result.exit_code == 1
-    assert "Run `runtrace init` first" in result.output
+    assert "Run `ml-runtrace init` first" in result.output
 
 
 def _initialized_repository(

@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass
 from enum import Enum
 
-from runtrace.models import Snapshot
+from ml_runtrace.models import Snapshot
 
 _MISSING = object()
 

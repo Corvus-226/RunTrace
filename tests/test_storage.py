@@ -10,8 +10,8 @@ import pytest
 import yaml
 from pydantic import ValidationError
 
-import runtrace.storage as storage_module
-from runtrace.models import (
+import ml_runtrace.storage as storage_module
+from ml_runtrace.models import (
     EnvironmentSnapshot,
     ExperimentSnapshot,
     GitSnapshot,
@@ -22,7 +22,7 @@ from runtrace.models import (
     Snapshot,
     generate_run_id,
 )
-from runtrace.storage import (
+from ml_runtrace.storage import (
     SnapshotAmbiguousIdError,
     SnapshotConflictError,
     SnapshotNotFoundError,
