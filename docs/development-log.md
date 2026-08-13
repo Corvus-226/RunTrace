@@ -1372,9 +1372,11 @@ review, CI, or release safety.
 - Keep the build and publish trust boundaries separate. Only the protected
   publish job receives `id-token: write`; it downloads and verifies the build
   artifact and never checks out or builds project source.
-- Pin `actions/download-artifact` v6 to `018cc2c` and the official PyPA
-  `release/v1` publication action to `dc37677`, both resolved directly from
-  their upstream repositories on 2026-08-13.
+- Pin the official PyPA `release/v1` publication action to `dc37677`. After a
+  live candidate exposed the difference between preliminary and default
+  Node.js 24 support, pin `actions/upload-artifact` v7.0.1 to `043fb46` and
+  `actions/download-artifact` v8.0.1 to `3e5f45b`; all three SHAs were resolved
+  directly from their upstream repositories on 2026-08-13.
 
 ### Infrastructure
 
@@ -1415,9 +1417,9 @@ review, CI, or release safety.
 
 ### Next scoped work
 
-1. Merge the artifact-action maintenance change after green CI and rerun the
-   final non-publishing candidate from the resulting exact `main` commit.
-2. Create `v0.1.0` only after the rerun is clean, approve the protected
+1. Merge the Node.js 24 artifact-action correction after green CI and rerun
+   the final non-publishing candidate from the resulting exact `main` commit.
+2. Create `v0.1.0` only after that rerun is clean, approve the protected
    deployment, and complete PyPI and GitHub Release acceptance.
 
 ### Pull request and final-candidate evidence
@@ -1435,3 +1437,12 @@ review, CI, or release safety.
   branch `codex/issue-25-upload-artifact-v5` and upgraded both candidate and
   formal publication workflows to the official immutable v5 commit
   `330a01c`, with regression assertions in the release guardrail tests.
+- Pull request #27 passed all four jobs in CI run `31681388805` and merged as
+  `349632a`. Candidate run `31681736224` then passed from that exact commit and
+  uploaded artifact digest
+  `7218c814c121ddfdda19ce6d0447d7feb4062feb2968a8693d31e406d7926f8a`,
+  but proved that v5 still defaults to Node.js 20 and therefore retained the
+  retirement warning. Official upstream release notes identify v6 as the first
+  default Node.js 24 upload release; the repository now uses the current v7.0.1
+  upload and v8.0.1 download releases so both sides of the artifact handoff use
+  Node.js 24 before the tag is created.

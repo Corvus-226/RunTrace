@@ -11,8 +11,11 @@ from ml_runtrace import __version__
 
 _ROOT = Path(__file__).resolve().parents[1]
 _PINNED_ACTION = re.compile(r"^[^\s@]+@[0-9a-f]{40}$")
-_UPLOAD_ARTIFACT_V5 = (
-    "actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5"
+_UPLOAD_ARTIFACT = (
+    "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1"
+)
+_DOWNLOAD_ARTIFACT = (
+    "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1"
 )
 
 
@@ -71,7 +74,7 @@ def test_release_workflow_builds_candidates_without_publishing() -> None:
     assert "gh-action-pypi-publish" not in workflow
     assert "gh release create" not in workflow
     assert "scripts/check_public_name_coexistence.py --dist-dir dist" in workflow
-    assert _UPLOAD_ARTIFACT_V5 in workflow
+    assert _UPLOAD_ARTIFACT in workflow
 
     action_references = re.findall(
         r"^\s*uses:\s*(\S+)\s*(?:#.*)?$", workflow, re.MULTILINE
@@ -97,7 +100,8 @@ def test_publish_workflow_uses_least_privilege_trusted_publishing() -> None:
     assert "secrets." not in workflow
     assert "scripts/check_public_name_coexistence.py --dist-dir dist" in workflow
     assert "sha256sum --check SHA256SUMS" in workflow
-    assert _UPLOAD_ARTIFACT_V5 in workflow
+    assert _UPLOAD_ARTIFACT in workflow
+    assert _DOWNLOAD_ARTIFACT in workflow
 
     jobs = parsed["jobs"]
     build = jobs["build"]
