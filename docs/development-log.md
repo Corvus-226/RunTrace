@@ -1383,8 +1383,9 @@ review, CI, or release safety.
   the current single-maintainer repository, and limited deployments to the
   `v*` tag pattern.
 - Confirmed the environment contains no secrets or variables.
-- PyPI Pending Publisher registration remains incomplete until the maintainer
-  finishes PyPI account authentication and 2FA in the prepared login page.
+- After the maintainer completed PyPI authentication and 2FA, registered and
+  verified the Pending Publisher for project `ml-runtrace`, repository
+  `Corvus-226/RunTrace`, workflow `publish.yml`, and environment `pypi`.
 
 ### Implemented
 
@@ -1414,10 +1415,23 @@ review, CI, or release safety.
 
 ### Next scoped work
 
-1. Complete the PyPI Pending Publisher with project `ml-runtrace`, owner
-   `Corvus-226`, repository `RunTrace`, workflow `publish.yml`, and environment
-   `pypi`.
-2. Run the full local suite, submit the Issue #25 pull request, and require
-   green CI before merge.
-3. Build and approve the final non-publishing candidate from the resulting
-   `main` commit before creating `v0.1.0`.
+1. Merge the artifact-action maintenance change after green CI and rerun the
+   final non-publishing candidate from the resulting exact `main` commit.
+2. Create `v0.1.0` only after the rerun is clean, approve the protected
+   deployment, and complete PyPI and GitHub Release acceptance.
+
+### Pull request and final-candidate evidence
+
+- Submitted pull request #26 from `codex/issue-25-trusted-publishing`; all four
+  CI jobs passed in run `31680248105` before merge.
+- The CI candidate produced wheel SHA-256 `ebed8b75fec1ecda3e2e341278d54197b95cb86f88049ca52dd76885d14931c2`
+  and sdist SHA-256 `149fb1ef913bc348c279a0a5a8d821e45d0ab7c1e224708476bae662f5cf0431`.
+- Merged pull request #26 into `main` as `2f5e187`; the first final-main
+  non-publishing candidate then passed in run `31680752639` and retained both
+  package hashes. Its uploaded artifact digest was
+  `4b4c52b3ebd91e9fe7b49cadb237921c94aa142f46049a01455aaadc48039b12`.
+- The successful run also surfaced GitHub's Node 20 retirement warning for
+  `actions/upload-artifact@v4`. Before tagging, created the scoped maintenance
+  branch `codex/issue-25-upload-artifact-v5` and upgraded both candidate and
+  formal publication workflows to the official immutable v5 commit
+  `330a01c`, with regression assertions in the release guardrail tests.
