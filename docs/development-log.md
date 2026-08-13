@@ -1290,3 +1290,60 @@ review, CI, or release safety.
   evidence, and unchanged publication boundary to Issue #24.
 - PR #23 remained Draft while the implementation CI ran. No merge, trusted
   publisher, tag, PyPI upload, or GitHub Release action was performed.
+
+## 2026-08-13 — Release status reconciliation
+
+### Coordination
+
+- Confirmed that the public PyPI project page for `ml-runtrace` still returns
+  HTTP 404. The distribution has not been published and the name remains
+  unreserved until a trusted publication succeeds.
+- Confirmed that pull request #23 is open, out of Draft, conflict-free, and
+  reports all four required checks as successful for reviewed head `7557d00`.
+- Confirmed that all eight acceptance criteria in Issue #24 are checked, the
+  final evidence comment is present, and the collision blocker is closed.
+
+### Current usability boundary
+
+- RunTrace is usable from the reviewed source branch or its validated local
+  wheel with the `ml-runtrace` command and `ml_runtrace` import package.
+- RunTrace is not yet a public release: there is no merged release commit on
+  `main`, `v0.1.0` tag, PyPI project, trusted deployment, or GitHub Release.
+- The published installation command must not replace source-development
+  guidance until a clean install from PyPI has passed post-publication
+  acceptance.
+
+### Verification
+
+- The reviewed strategy A implementation and validation record resolves to
+  `7557d0069de3743d2578e3ff03dd9aa590502dbc`; subsequent documentation-only
+  reconciliation does not change package code or public names.
+- GitHub Actions run
+  [`31625355238`](https://github.com/Corvus-226/RunTrace/actions/runs/31625355238)
+  passed Python 3.10, 3.11, 3.12, and the package smoke job.
+- The final-head package job recorded:
+  - wheel SHA-256:
+    `ebed8b75fec1ecda3e2e341278d54197b95cb86f88049ca52dd76885d14931c2`
+  - sdist SHA-256:
+    `8e3eef39fe86fbb46ca56a6702f5ae318f33379c512a905d227d7cdcaaf056b1`
+- The package smoke job passed the offline coexistence audit, Twine, and a
+  clean-wheel install using only `ml-runtrace` and `python -m ml_runtrace`.
+
+### Gate status
+
+- [x] Gate 0 public-name collision resolved and independently regression-tested
+- [x] Gate 1 technical re-review complete; PR #23 is ready for maintainer merge
+- [ ] Maintainer authorization to merge PR #23
+- [ ] Protected `pypi` environment and pending trusted publisher
+- [ ] Reviewed tag-triggered Trusted Publishing workflow
+- [ ] Final candidate built from the merged and reviewed `main` commit
+- [ ] Annotated or signed `v0.1.0` tag and trusted PyPI publication
+- [ ] GitHub Release and clean PyPI post-publication acceptance
+
+### Next scoped work
+
+1. Record explicit maintainer authorization before merging PR #23.
+2. After merge, create a new scoped Trusted Publishing issue and branch; Issue
+   #24 is already used by the resolved public-name collision.
+3. Keep build and publish jobs separate, grant OIDC only to the protected
+   publish job, and stop before any tag or real deployment.
