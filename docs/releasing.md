@@ -33,12 +33,11 @@ The maintainer approved strategy A on 2026-08-13:
 - console command: `ml-runtrace`; and
 - module entry point: `python -m ml_runtrace`.
 
-Do not add a `runtrace` import, console alias, or secondary script. Before
-publication, the checked-in offline coexistence audit and a repeat audit
-against the real `runtrace==0.3.2` wheel must pass in both installation orders,
-including uninstall independence. Do not configure a trusted publisher, enable
-publication, create a tag, or publish v0.1.0 until Issue #24 contains that
-evidence and the migration has passed review.
+Do not add a `runtrace` import, console alias, or secondary script. The
+checked-in offline coexistence audit and a repeat audit against the real
+`runtrace==0.3.2` wheel must pass in both installation orders, including
+uninstall independence. Issue #24 closed after all acceptance criteria passed,
+and PR #23 merged the reviewed migration into `main` as `01fb15d`.
 
 ## One-time trusted publishing setup
 
@@ -62,10 +61,15 @@ Before enabling publishing or pushing a release tag:
    - PyPI project name: `ml-runtrace`
    - owner: `Corvus-226`
    - repository: `RunTrace`
-   - workflow: `release.yml`
+   - workflow: `publish.yml`
    - environment: `pypi`
 3. Confirm two-factor authentication and recovery details for both GitHub and
    PyPI.
+
+For the current single-maintainer repository, the `pypi` environment uses
+`Corvus-226` as the required reviewer, leaves **Prevent self-review** disabled,
+allows only matching `v*` tags to deploy, and contains no environment secrets.
+Revisit the self-review setting when another trusted maintainer is available.
 
 The official references are
 [PyPI's pending-publisher guide](https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/),
@@ -137,11 +141,15 @@ run before requesting publication approval.
 
 ## Approve publication
 
-The repository intentionally has no active PyPI or GitHub Release publishing
-job at this stage. Pushing a tag currently does not upload a package. Enabling
-or executing publication requires a separate, explicit maintainer approval and
-a reviewed change that grants only the publish job `id-token: write` through
-the protected `pypi` environment.
+The formal `.github/workflows/publish.yml` workflow is enabled only after its
+scoped Issue #25 and pull request pass review. A matching version tag starts a
+build job with read-only repository permission. That job verifies the
+tag/version pair, runs quality and coexistence checks, builds once, records
+provenance and SHA-256 values, and uploads the reviewed artifacts. A separate
+publish job downloads those files, verifies their hashes, and receives
+`id-token: write` only while using the protected `pypi` environment. It does
+not check out source or rebuild distributions, and no password or API token is
+configured.
 
 Only after the release-preparation pull request is merged and its `main` CI is
 green—and after that separate approval—choose the exact audited commit. Prefer
@@ -155,10 +163,11 @@ git push origin v0.1.0
 ```
 
 If signing is unavailable, replace `-s` with `-a` and record that decision.
-The approved publishing path must verify the tag/version match, build once,
-publish the exact same files through PyPI trusted publishing, and attach those
-files plus `SHA256SUMS` to the GitHub Release. Do not add token-based fallback
-credentials.
+The approved publishing path verifies the tag/version match, builds once, and
+publishes the exact same files through PyPI Trusted Publishing. Download the
+retained tag-workflow artifact and attach those distributions plus
+`SHA256SUMS` and `RELEASE_PROVENANCE` to the GitHub Release. Do not add
+token-based fallback credentials.
 
 ## Post-publication verification
 

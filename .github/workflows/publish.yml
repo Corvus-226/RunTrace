@@ -1,0 +1,123 @@
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-pypi-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build reviewed distributions
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.metadata.outputs.version }}
+
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: true
+          cache-suffix: publish-build
+
+      - name: Install locked development environment
+        run: uv sync --all-groups --locked
+
+      - name: Verify tag, version, and release notes
+        id: metadata
+        run: |
+          test "$GITHUB_REF_TYPE" = "tag"
+          package_version="$(uv run python -c 'from ml_runtrace import __version__; print(__version__)')"
+          test "$GITHUB_REF_NAME" = "v${package_version}"
+          test -f "docs/releases/v${package_version}.md"
+          echo "version=${package_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Check formatting
+        run: uv run ruff format --check .
+
+      - name: Test
+        run: uv run pytest
+
+      - name: Build distributions
+        run: uv build
+
+      - name: Verify public-name coexistence
+        run: uv run python scripts/check_public_name_coexistence.py --dist-dir dist
+
+      - name: Check package metadata
+        run: uv run twine check dist/*
+
+      - name: Install wheel in a clean environment
+        run: |
+          expected_version="${{ steps.metadata.outputs.version }}"
+          python -m venv "$RUNNER_TEMP/ml-runtrace-wheel"
+          "$RUNNER_TEMP/ml-runtrace-wheel/bin/python" -m pip install dist/*.whl
+          test "$("$RUNNER_TEMP/ml-runtrace-wheel/bin/ml-runtrace" --version)" = "ml-runtrace ${expected_version}"
+          test "$("$RUNNER_TEMP/ml-runtrace-wheel/bin/python" -m ml_runtrace --version)" = "ml-runtrace ${expected_version}"
+          test ! -e "$RUNNER_TEMP/ml-runtrace-wheel/bin/runtrace"
+          "$RUNNER_TEMP/ml-runtrace-wheel/bin/python" -c "import importlib.util; assert importlib.util.find_spec('runtrace') is None"
+
+      - name: Record provenance and artifact hashes
+        run: |
+          {
+            echo "tag=$GITHUB_REF_NAME"
+            echo "commit=$GITHUB_SHA"
+            echo "version=${{ steps.metadata.outputs.version }}"
+          } > RELEASE_PROVENANCE
+          sha256sum dist/* | tee SHA256SUMS
+
+      - name: Store reviewed distributions
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: python-package-distributions-${{ steps.metadata.outputs.version }}
+          path: |
+            dist/*
+            SHA256SUMS
+            RELEASE_PROVENANCE
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    name: Publish reviewed distributions
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/ml-runtrace
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Download reviewed distributions
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: python-package-distributions-${{ needs.build.outputs.version }}
+          path: release-artifacts
+
+      - name: Verify downloaded artifact hashes
+        working-directory: release-artifacts
+        run: sha256sum --check SHA256SUMS
+
+      - name: Publish distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
+        with:
+          packages-dir: release-artifacts/dist/
+          print-hash: true

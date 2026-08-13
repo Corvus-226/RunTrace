@@ -1347,3 +1347,77 @@ review, CI, or release safety.
    #24 is already used by the resolved public-name collision.
 3. Keep build and publish jobs separate, grant OIDC only to the protected
    publish job, and stop before any tag or real deployment.
+
+## 2026-08-13 — Issue #25 Trusted Publishing infrastructure
+
+### Coordination
+
+- The maintainer explicitly authorized the complete v0.1.0 release sequence,
+  including merge, Trusted Publishing infrastructure, final candidate, tag,
+  PyPI publication, GitHub Release, and post-publication acceptance.
+- Merged pull request #23 into `main` as `01fb15d` after all four checks passed,
+  then fast-forwarded the local `main` branch to the same commit.
+- Opened and assigned
+  [Issue #25](https://github.com/Corvus-226/RunTrace/issues/25), added the
+  `enhancement` label and v0.1.0 milestone, and created
+  `codex/issue-25-trusted-publishing` from the updated `main` branch.
+
+### Decisions
+
+- Follow PyPI's pending-publisher and GitHub's PyPI OIDC guidance: no username,
+  password, API token, or long-lived fallback credential is permitted.
+- Use `.github/workflows/publish.yml` as the exact PyPI publisher identity.
+- Trigger the formal workflow only for version-shaped `v*.*.*` tags and verify
+  the exact `v<package-version>` equality again inside the build job.
+- Keep the build and publish trust boundaries separate. Only the protected
+  publish job receives `id-token: write`; it downloads and verifies the build
+  artifact and never checks out or builds project source.
+- Pin `actions/download-artifact` v6 to `018cc2c` and the official PyPA
+  `release/v1` publication action to `dc37677`, both resolved directly from
+  their upstream repositories on 2026-08-13.
+
+### Infrastructure
+
+- Created the GitHub Actions environment `pypi`.
+- Required approval from `Corvus-226`, left **Prevent self-review** disabled for
+  the current single-maintainer repository, and limited deployments to the
+  `v*` tag pattern.
+- Confirmed the environment contains no secrets or variables.
+- PyPI Pending Publisher registration remains incomplete until the maintainer
+  finishes PyPI account authentication and 2FA in the prepared login page.
+
+### Implemented
+
+- Added the tag-triggered formal publish workflow with immutable action pins,
+  read-only default permissions, tag/version/release-note verification, full
+  quality gates, package build, offline coexistence audit, Twine validation,
+  clean-wheel checks, provenance, SHA-256 recording, and a 30-day artifact.
+- Added a separate protected publish job that verifies downloaded hashes and
+  uploads only `release-artifacts/dist/` through Trusted Publishing.
+- Added tests rejecting dispatch/PR triggers, credentials, unpinned Actions,
+  build behavior in the publish job, and OIDC permissions outside that job.
+- Updated the release runbook with the final `publish.yml` identity,
+  single-maintainer environment settings, and exact artifact handoff model.
+
+### Verification
+
+- `uv run pytest tests/test_release.py -p no:cacheprovider`: 5 tests passed.
+- `uv run pytest -p no:cacheprovider`: 90 tests passed on Windows with Python
+  3.12.7.
+- Ruff lint and format checks passed, and `uv lock --check` resolved the
+  unchanged 48-package graph.
+- A clean temporary build produced the v0.1.0 wheel and sdist; both passed
+  Twine and the network-free two-order/both-uninstall coexistence audit. The
+  validated temporary directory was removed afterwards.
+- Both workflow files parsed successfully as YAML and `git diff --check`
+  passed.
+
+### Next scoped work
+
+1. Complete the PyPI Pending Publisher with project `ml-runtrace`, owner
+   `Corvus-226`, repository `RunTrace`, workflow `publish.yml`, and environment
+   `pypi`.
+2. Run the full local suite, submit the Issue #25 pull request, and require
+   green CI before merge.
+3. Build and approve the final non-publishing candidate from the resulting
+   `main` commit before creating `v0.1.0`.
