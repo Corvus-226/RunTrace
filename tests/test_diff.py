@@ -10,9 +10,9 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from runtrace.cli import app
-from runtrace.diff import DifferenceKind, DifferenceSection, compare_snapshots
-from runtrace.models import (
+from ml_runtrace.cli import app
+from ml_runtrace.diff import DifferenceKind, DifferenceSection, compare_snapshots
+from ml_runtrace.models import (
     EnvironmentSnapshot,
     ExperimentSnapshot,
     GitSnapshot,
@@ -20,7 +20,7 @@ from runtrace.models import (
     RuntimeSnapshot,
     Snapshot,
 )
-from runtrace.storage import SnapshotStore
+from ml_runtrace.storage import SnapshotStore
 
 runner = CliRunner()
 
@@ -314,7 +314,7 @@ def test_cli_requires_initialized_project(
     result = runner.invoke(app, ["diff", "a31f82", "b91de3"])
 
     assert result.exit_code == 1
-    assert "Run `runtrace init` first" in result.output
+    assert "Run `ml-runtrace init` first" in result.output
     assert "Traceback" not in result.output
 
 

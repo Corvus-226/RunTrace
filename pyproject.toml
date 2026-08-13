@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling>=1.27"]
+requires = ["hatchling>=1.27,<1.30"]
 build-backend = "hatchling.build"
 
 [project]
 name = "ml-runtrace"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "A lightweight CLI for reproducible machine-learning experiments"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -18,7 +18,7 @@ keywords = [
   "reproducibility",
 ]
 classifiers = [
-  "Development Status :: 2 - Pre-Alpha",
+  "Development Status :: 3 - Alpha",
   "Environment :: Console",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
@@ -37,20 +37,28 @@ dependencies = [
 
 [project.urls]
 Changelog = "https://github.com/Corvus-226/RunTrace/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/Corvus-226/RunTrace/blob/main/docs/getting-started.md"
 Issues = "https://github.com/Corvus-226/RunTrace/issues"
 Repository = "https://github.com/Corvus-226/RunTrace"
 
 [project.scripts]
-runtrace = "runtrace.cli:main"
+ml-runtrace = "ml_runtrace.cli:main"
 
 [dependency-groups]
 dev = [
   "pytest>=8.2,<9",
   "ruff>=0.12,<1",
+  "twine>=6,<7",
+]
+
+[tool.hatch.build]
+exclude = [
+  "/docs/RunTrace_v0.1.0_release_progress_guide_2026-08-13.md",
+  "/docs/codex_for_oss_runtrace_plan_2026-08-12.md",
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/runtrace"]
+packages = ["src/ml_runtrace"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"

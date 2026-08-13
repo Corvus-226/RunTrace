@@ -6,22 +6,22 @@ from typing import Annotated
 import typer
 from rich.console import Console
 
-from runtrace import __version__
-from runtrace.config import ConfigLoadError
-from runtrace.diff import compare_snapshots
-from runtrace.git import GitMetadataError
-from runtrace.presentation import (
+from ml_runtrace import __version__
+from ml_runtrace.config import ConfigLoadError
+from ml_runtrace.diff import compare_snapshots
+from ml_runtrace.git import GitMetadataError
+from ml_runtrace.presentation import (
     print_snapshot,
     print_snapshot_comparison,
     print_snapshot_list,
 )
-from runtrace.project import (
+from ml_runtrace.project import (
     ProjectInitializationError,
     initialize_project,
     require_initialized_project,
 )
-from runtrace.snapshot import SnapshotCaptureError, create_snapshot
-from runtrace.storage import SnapshotStorageError, SnapshotStore
+from ml_runtrace.snapshot import SnapshotCaptureError, create_snapshot
+from ml_runtrace.storage import SnapshotStorageError, SnapshotStore
 
 app = typer.Typer(
     help=(
@@ -35,7 +35,7 @@ app = typer.Typer(
 def _show_version(value: bool) -> None:
     """Print the package version and exit."""
     if value:
-        typer.echo(f"runtrace {__version__}")
+        typer.echo(f"ml-runtrace {__version__}")
         raise typer.Exit
 
 

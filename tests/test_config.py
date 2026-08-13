@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from runtrace.config import ConfigLoadError, load_yaml_config
+from ml_runtrace.config import ConfigLoadError, load_yaml_config
 
 
 def test_loads_yaml_with_relative_path_hash_and_values(tmp_path: Path) -> None:

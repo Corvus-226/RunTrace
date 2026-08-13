@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from runtrace.git import GitMetadataError, find_git_root
+from ml_runtrace.git import GitMetadataError, find_git_root
 
 _DEFAULT_CONFIG = """# RunTrace project configuration.
 [runtrace]
@@ -32,7 +32,8 @@ def require_initialized_project(path: Path) -> Path:
         for candidate in (configuration, metadata_candidate, runs_candidate)
     ):
         raise ProjectInitializationError(
-            f"RunTrace is not initialized in {project_root}. Run `runtrace init` first."
+            f"RunTrace is not initialized in {project_root}. "
+            "Run `ml-runtrace init` first."
         )
 
     _validate_file(configuration, project_root, label="RunTrace configuration")

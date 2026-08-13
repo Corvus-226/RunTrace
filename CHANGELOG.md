@@ -6,11 +6,18 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+The v0.1.0 candidate remains unpublished while the collision-free public names
+approved in Issue #24 complete review and release validation.
+
+## [0.1.0] - Unreleased
+
 ### Added
 
 - Initial Python package and Typer CLI skeleton.
-- PyPI distribution name set to `ml-runtrace`; the project and CLI remain
-  RunTrace and `runtrace`.
+- Collision-free public names: PyPI distribution `ml-runtrace`, Python import
+  `ml_runtrace`, console command `ml-runtrace`, and module entry point
+  `python -m ml_runtrace`. The project and repository remain RunTrace, with no
+  `runtrace` import or command alias.
 - Local development workflow using uv, pytest, and Ruff.
 - Linux CI matrix for Python 3.10, 3.11, and 3.12.
 - Repository contribution, security, issue, and pull request guidance.
@@ -21,19 +28,19 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Versioned Pydantic snapshot models and readable local YAML persistence with
   atomic saves, duplicate-ID protection, newest-first listing, and full or
   unique abbreviated run-ID lookup.
-- Idempotent `runtrace init` support that locates the current Git root, creates
+- Idempotent `ml-runtrace init` support that locates the current Git root, creates
   `.runtrace/runs/` and a minimal `runtrace.toml`, and preserves existing
   configuration and stored runs.
-- `runtrace snapshot` capture for Git state, Python runtime, platform,
+- `ml-runtrace snapshot` capture for Git state, Python runtime, platform,
   dependencies, optional GPU/CUDA metadata, and optional run name, command,
   and validated YAML config values, path, and SHA-256 hash.
-- Compact newest-first `runtrace list` output for local run IDs, names, short
+- Compact newest-first `ml-runtrace list` output for local run IDs, names, short
   commits, dirty states, and UTC creation times, including friendly empty-state
   and actionable corrupt-record handling.
-- Sectioned `runtrace show` output for complete stored snapshots selected by
+- Sectioned `ml-runtrace show` output for complete stored snapshots selected by
   full or unique abbreviated run ID, with explicit missing-value display and
   deterministic JSON formatting for captured config values.
-- Deterministic `runtrace diff` output for two full or uniquely abbreviated run
+- Deterministic `ml-runtrace diff` output for two full or uniquely abbreviated run
   IDs, including recursive configuration, Git, runtime, platform, and Python
   dependency changes grouped into readable terminal sections.
 - Complete README and Getting Started documentation for installation, the
@@ -41,3 +48,4 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   maturity, and RunTrace's scope relative to full tracking platforms.
 
 [Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Corvus-226/RunTrace/releases/tag/v0.1.0

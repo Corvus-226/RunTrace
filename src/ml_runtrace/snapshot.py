@@ -7,10 +7,10 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from runtrace.config import load_yaml_config
-from runtrace.environment import GpuMetadata, collect_environment_metadata
-from runtrace.git import collect_git_metadata
-from runtrace.models import (
+from ml_runtrace.config import load_yaml_config
+from ml_runtrace.environment import GpuMetadata, collect_environment_metadata
+from ml_runtrace.git import collect_git_metadata
+from ml_runtrace.models import (
     EnvironmentSnapshot,
     ExperimentSnapshot,
     GitSnapshot,
@@ -20,8 +20,8 @@ from runtrace.models import (
     RuntimeSnapshot,
     Snapshot,
 )
-from runtrace.project import require_initialized_project
-from runtrace.storage import SnapshotStore
+from ml_runtrace.project import require_initialized_project
+from ml_runtrace.storage import SnapshotStore
 
 
 class SnapshotCaptureError(RuntimeError):

@@ -14,8 +14,8 @@ review, CI, or release safety.
 
 - ~~Create and verify the public GitHub repository and product scope.~~
 - ~~Add the MIT license and initial README positioning.~~
-- ~~Create `pyproject.toml`, the `src/runtrace` package layout, and CLI entry
-  point.~~
+- ~~Create `pyproject.toml`, the collision-free `src/ml_runtrace` package
+  layout, and CLI entry point.~~
 - ~~Configure uv, pytest, Ruff, and the committed dependency lockfile.~~
 - ~~Add Linux CI for Python 3.10, 3.11, and 3.12.~~
 - ~~Add `AGENTS.md`, `CONTRIBUTING.md`, `SECURITY.md`, and GitHub issue and pull
@@ -36,18 +36,18 @@ review, CI, or release safety.
   validation.~~
 - ~~Parse repository-local UTF-8 YAML configs safely and record their path,
   SHA-256 hash, values, and optional experiment command.~~
-- ~~Implement `runtrace snapshot` with actionable success and error output.~~
+- ~~Implement `ml-runtrace snapshot` with actionable success and error output.~~
 
 ### Day 3 — 2026-08-14 — CLI and storage
 
-- ~~Implement idempotent `runtrace init` at the containing Git root.~~
+- ~~Implement idempotent `ml-runtrace init` at the containing Git root.~~
 - ~~Create and validate `runtrace.toml` and `.runtrace/runs/` without replacing
   existing user data.~~
 - ~~Support validated newest-first storage listing and full or unique-prefix
   run lookup.~~
-- ~~Implement compact, literal-safe `runtrace list` output and its empty
+- ~~Implement compact, literal-safe `ml-runtrace list` output and its empty
   state.~~
-- ~~Implement complete, sectioned `runtrace show <run-id>` output.~~
+- ~~Implement complete, sectioned `ml-runtrace show <run-id>` output.~~
 - ~~Handle uninitialized projects, corrupt snapshots, and missing or ambiguous
   IDs without avoidable tracebacks.~~
 - ~~Cover the complete init → snapshot → list → show workflow with unit and
@@ -81,14 +81,39 @@ review, CI, or release safety.
   environment.~~
 - ~~Run the full test and quality suite on Windows.~~
 - ~~Run CI on Linux with Python 3.10, 3.11, and 3.12.~~
-- [ ] Perform the final scope, packaging metadata, and release-readiness audit.
+- ~~Perform the final scope, packaging metadata, and release-readiness audit.~~
 
 ### Day 6 — 2026-08-17 — v0.1.0 release
 
-- [ ] Recheck `ml-runtrace` distribution-name availability and release access.
-- [ ] Change the development version to `0.1.0` and finalize release notes.
-- [ ] Build and inspect the final source distribution and wheel.
-- [ ] Install the wheel in a fresh environment and run the acceptance workflow.
+- ~~Recheck `ml-runtrace` availability through PyPI's JSON and Simple API
+  endpoints.~~
+- ~~Record maintainer approval for strategy A in Issue #24: distribution
+  `ml-runtrace`, import `ml_runtrace`, command `ml-runtrace`, module
+  `python -m ml_runtrace`, and no aliases.~~
+- ~~Rename the source package, internal imports, console entry point, module
+  entry point, user-facing command guidance, and focused tests.~~
+- ~~Add a network-free two-order install/uninstall coexistence audit using a
+  synthetic distribution that owns the `runtrace` import and command.~~
+- ~~Repeat the two-order and both-uninstall audit against the real PyPI
+  `runtrace==0.3.2` wheel.~~
+- ~~Obtain green Linux CI for the migrated package on Python 3.10–3.12 and
+  the packaging smoke job.~~
+- [ ] Configure the protected `pypi` environment and pending trusted publisher
+  with maintainer-controlled deployment approval.
+- ~~Freeze the v0.1.0 feature scope and keep publication outside automatic
+  release-preparation work.~~
+- ~~Change the development version to `0.1.0` and finalize changelog and release
+  notes.~~
+- ~~Add the release runbook, immutable action pins, Linux packaging smoke job,
+  and read-only candidate workflow.~~
+- ~~Build and inspect the final source distribution and wheel, including
+  metadata and file-content checks.~~
+- ~~Install the exact wheel in a fresh environment and run the complete
+  acceptance workflow.~~
+- ~~Rebuild, inspect, and smoke-test the replacement candidate after the
+  public-name migration; prior candidate hashes are invalidated.~~
+- [ ] Run the candidate workflow for the reviewed commit and compare recorded
+  artifact hashes.
 - [ ] Create and push the signed or annotated `v0.1.0` tag.
 - [ ] Publish the distribution to PyPI.
 - [ ] Publish the GitHub Release and attach final release notes.
@@ -917,3 +942,408 @@ review, CI, or release safety.
   is assigned to the maintainer, and belongs to the `v0.1.0` milestone.
 - GitHub Actions run `31596299684` passed on Python 3.10, 3.11, and 3.12.
 - The original planning document remains untracked and excluded.
+
+## 2026-08-12 — Issue #12 v0.1.0 release preparation
+
+### Coordination
+
+- Merged [pull request #22](https://github.com/Corvus-226/RunTrace/pull/22)
+  into `main` as `c3134c8`; Issue #11 closed automatically.
+- Assigned Issue #12 to the maintainer and started from that updated `main`
+  commit on `codex/issue-12-release-preparation`.
+- Kept tag creation, PyPI publication, and GitHub Release creation outside this
+  branch because Issue #12 requires a separate explicit maintainer approval
+  for publication.
+
+### Scope
+
+- Freeze the first-release scope and change the package version to `0.1.0`.
+- Finalize changelog, release notes, release-candidate installation guidance,
+  support status, and an auditable maintainer runbook.
+- Harden CI action references and add Linux package-build and clean-wheel smoke
+  coverage.
+- Add a manually dispatched, read-only candidate workflow that builds and
+  retains artifacts without tagging or publishing them.
+- Recheck distribution-name availability, build and inspect both artifacts,
+  and run a clean Windows acceptance workflow.
+
+### Decisions
+
+- Treat the PyPI JSON and Simple API HTTP 404 responses on 2026-08-12 as an
+  availability observation, not a reservation. PyPI documents that a pending
+  publisher creates the project only on first use and does not reserve the
+  name beforehand.
+- Require a protected GitHub `pypi` environment and a PyPI pending trusted
+  publisher before any publication workflow is enabled. Do not add a password,
+  API token, or long-lived fallback credential.
+- Keep `.github/workflows/release.yml` non-publishing and manually dispatched.
+  It has `contents: read`, no OIDC permission, no tag trigger, and no GitHub or
+  PyPI write step. Candidate artifacts expire after seven days.
+- Pin every third-party action reference to a complete commit SHA, while
+  retaining the corresponding release name in a comment for maintainability.
+- Add Twine to the locked development tools so local and CI package metadata
+  validation use the same reviewed major version.
+- Bound Hatchling to `>=1.27,<1.30`: Hatchling 1.30+ emitted Core Metadata 2.5,
+  which Twine 6.2 rejected, while the compatible range emits supported Core
+  Metadata 2.4. Do not bypass the metadata check.
+- Explicitly exclude the untracked original planning document from Hatch
+  source distributions. This makes local and clean-clone artifact contents
+  consistent and keeps the planning file outside release artifacts.
+- Use the release-preparation pull request as the approval boundary: it may be
+  reviewed and tested normally, but it must not imply authorization to create
+  a tag or publish irreversible artifacts.
+
+### Implemented
+
+- [x] Package and runtime version changed from `0.1.0.dev0` to `0.1.0`
+- [x] Alpha classifier, documentation URL, changelog release, and v0.1.0 notes
+- [x] Truthful release-candidate install, maturity, contributor, and support
+  documentation that does not claim PyPI publication
+- [x] Maintainer release runbook with one-time trusted-publisher prerequisites
+- [x] Read-only manual release-candidate workflow with SHA-pinned actions
+- [x] SHA-pinned CI actions and separate Linux package smoke job
+- [x] Locked Twine release tooling and compatible Hatchling metadata boundary
+- [x] Release metadata/workflow guardrail tests compatible with Python 3.10+
+- [x] Explicit source-distribution exclusion for the private planning document
+- [x] Final wheel and sdist metadata, contents, hashes, and Windows wheel smoke
+- [x] Release-preparation pull request and first green Linux matrix/package CI
+- [ ] Explicit maintainer approval of the release-preparation pull request
+- [ ] Protected environment, pending publisher, signed or annotated tag,
+  trusted publication, and post-publication verification
+
+### Verification
+
+- PyPI returned HTTP 404 for both `https://pypi.org/pypi/ml-runtrace/json` and
+  `https://pypi.org/simple/ml-runtrace/` on 2026-08-12. The name appeared
+  unregistered at check time but remains unreserved until publication.
+- The first package check exposed Core Metadata 2.5 incompatibility with Twine
+  6.2. After bounding Hatchling, `twine check` passed for both distributions
+  and each reports Core Metadata 2.4.
+- Package-content inspection found and then eliminated the untracked planning
+  document from the local sdist. The corrected wheel contains 18 files; the
+  corrected sdist contains 45 files with package source, tests, license,
+  README, release documentation, and no planning document.
+- Pre-commit local audit artifact SHA-256 values (the reviewed commit is built
+  again by CI and its hashes supersede these values):
+  - `ml_runtrace-0.1.0-py3-none-any.whl`:
+    `5ea659cc0c253dbdf7d7c94fb043f6ab3541317058c954474aa694855188cbd6`
+  - `ml_runtrace-0.1.0.tar.gz`:
+    `71c1a3c150e2db7ec5f40517c3da02f66c51c3f0eda6d270985050dda65c976f`
+- The exact corrected wheel hash matched the wheel already installed into a
+  clean Python 3.12.7 Windows virtual environment. Pip resolved 15 runtime
+  packages, `pip check` found no broken requirements, and `runtrace --version`
+  returned `runtrace 0.1.0`.
+- In a new temporary Git repository, that installed console script completed
+  `init`, two named `snapshot` operations, `list`, `show`, and `diff`; the
+  outputs contained both IDs, the candidate details, and the before/after
+  command change. The temporary environment and repository were removed.
+- `uv run pytest -p no:cacheprovider`: 88 tests passed on Windows with Python
+  3.12.7, including three release metadata and workflow guardrail tests.
+- `uv run ruff check . --no-cache`: passed.
+- `uv run ruff format --check . --no-cache`: 34 files already formatted.
+- `uv lock --check`: passed with the 48-package locked graph, including Twine
+  and its release-checking dependencies.
+- Both GitHub Actions YAML files parsed successfully and `git diff --check`
+  passed.
+- [Pull request #23](https://github.com/Corvus-226/RunTrace/pull/23) opened
+  against `main`, references Issue #12 without closing it, is assigned to the
+  maintainer, carries the `enhancement` label, and belongs to the `v0.1.0`
+  milestone.
+- GitHub Actions run `31599053386` passed all four checks: the Linux Python
+  3.10, 3.11, and 3.12 matrix plus the new package smoke job. The package job
+  built commit `0895cf7`, passed Twine and clean-wheel installation, and
+  recorded these first-review hashes:
+  - wheel: `28519f89c21658b0fe0a55dc3aae67fd708b064ec97cb7a8bb249ddd788d189b`
+  - sdist: `407ea4fd632dc257609f33ef520a527e101881f195a1f5fdd634a61e32bfef6f`
+- The first package job reported a non-failing cache-save warning because it
+  raced the Python 3.12 job for the same uv cache key. Distinct `package` and
+  `release-candidate` cache suffixes now prevent cross-job cache contention;
+  this follows setup-uv's documented guidance for jobs with different roles.
+
+### Submission record
+
+- Created commit `0895cf7` (`chore: prepare v0.1.0 release`) and pushed
+  `codex/issue-12-release-preparation` to `origin`.
+- Opened [pull request #23](https://github.com/Corvus-226/RunTrace/pull/23)
+  with an explicit publication boundary. The PR remains open and Issue #12
+  remains open; neither a merge nor any release action has been performed.
+
+## 2026-08-13 — Gate 0 public-name coexistence audit
+
+### Coordination
+
+- Used the v0.1.0 release-progress guide to start at Gate 0 before any PR
+  approval, trusted-publisher configuration, merge, tag, or publication.
+- Confirmed through PyPI's JSON and Simple APIs that the unrelated `runtrace`
+  distribution is currently published at version 0.3.2 and requires Python
+  3.11 or newer; `ml-runtrace` still returned HTTP 404 on both endpoints.
+- Opened [Issue #24](https://github.com/Corvus-226/RunTrace/issues/24) as the
+  release-blocking public-name decision, assigned it to the maintainer, added
+  the `bug` label, and placed it in the `v0.1.0` milestone.
+- Added the evidence and stop condition to
+  [pull request #23](https://github.com/Corvus-226/RunTrace/pull/23), then
+  converted that pull request to draft.
+
+### Scope
+
+- Test the published `runtrace==0.3.2` distribution and the local
+  `ml_runtrace-0.1.0` candidate wheel in both installation orders.
+- Compare import resolution, console-command behavior, distribution RECORD
+  ownership, and `pip check` results.
+- Uninstall one distribution from each combined environment and verify whether
+  the remaining distribution still imports and runs.
+- Stop release work on any package or command collision; do not choose or
+  implement a new public name without maintainer review.
+
+### Decisions
+
+- Treat distribution names, Python import packages, and console scripts as
+  separate public namespaces. The available `ml-runtrace` distribution name
+  does not mitigate collisions in the other two namespaces.
+- Treat this as a release blocker rather than a documentation caveat. A warning
+  cannot prevent pip from overwriting or deleting files owned by another
+  distribution.
+- Keep the current package and command unchanged until Issue #24 records a
+  maintainer-approved naming decision. Do not start Trusted Publishing setup
+  while the publishable artifact identity remains unresolved.
+- Correct release-preparation documentation immediately so an open or merged
+  candidate never claims that v0.1.0 is already available from PyPI.
+- Exclude both untracked maintainer reference documents from local sdists so a
+  developer-machine build matches a clean-clone build more closely.
+
+### Experiment
+
+- Environment A installed `runtrace==0.3.2` first. Its import reported version
+  0.3.2 and its `runtrace --help` identified an unrelated AI-agent black-box
+  tool. Installing the candidate second changed the same import and executable
+  to RunTrace v0.1.0.
+- Environment B installed the candidate first. Its import and executable
+  reported RunTrace v0.1.0. Installing `runtrace==0.3.2` second changed both to
+  the unrelated project.
+- The two distribution RECORD files claim the same six paths:
+  - `Scripts/runtrace.exe`
+  - `runtrace/__init__.py`
+  - `runtrace/__main__.py`
+  - `runtrace/cli.py`
+  - `runtrace/config.py`
+  - `runtrace/models.py`
+- In Environment A, uninstalling `runtrace` left `ml-runtrace==0.1.0` metadata
+  installed but removed the `runtrace` import and executable.
+- In Environment B, uninstalling `ml-runtrace` left `runtrace==0.3.2` metadata
+  installed but removed the `runtrace` import and executable.
+- `pip check` returned success at every checkpoint, demonstrating that normal
+  dependency validation does not detect cross-distribution file ownership.
+- Both temporary environments and the candidate wheel directory were removed
+  after the audit.
+- After the documentation and packaging corrections, all 88 tests passed on
+  Windows with Python 3.12.7. Ruff lint passed, 35 files were already
+  formatted, `uv lock --check` passed, and both Actions YAML files parsed.
+- Three focused release guardrail tests passed. Both candidate distributions
+  passed Twine; the sdist contained 45 files and excluded both untracked
+  maintainer reference documents.
+- Tracked-file audits found no machine-specific user paths, private-key blocks,
+  PyPI tokens, or API-key assignments. `runtrace --version` and `--help`
+  continued to pass for the unchanged source candidate.
+
+### Result
+
+- [x] Both installation orders tested in clean Python 3.12 environments
+- [x] Python import ownership collision reproduced
+- [x] Console-script ownership collision reproduced
+- [x] Six shared RECORD paths identified
+- [x] Both uninstall directions shown to break the remaining distribution
+- [x] False-negative `pip check` behavior recorded
+- [x] Blocking Issue #24 and PR #23 comment created
+- [x] PR #23 converted to draft and release progression stopped
+- [x] Collision-free import and command names approved by the maintainer
+- [x] Naming decision implemented with regression tests and documentation
+- [x] Both-order installation and uninstall acceptance criteria pass
+
+### Submission record
+
+- Created commit `26170b0` (`docs: block release on public name collision`)
+  on the existing `codex/issue-12-release-preparation` branch and pushed it to
+  draft pull request #23. Both local maintainer reference documents remained
+  untracked.
+- GitHub Actions run `31622202758` passed all four checks for commit `26170b0`:
+  Linux Python 3.10, 3.11, and 3.12 plus the package smoke job.
+- Static release review confirmed consistent candidate version `0.1.0`,
+  full-SHA action pins, read-only workflow permissions, a manual-only
+  seven-day candidate artifact, no OIDC permission, and no tag, PyPI, or
+  GitHub Release write path.
+- Review recommendation: keep PR #23 in draft and request changes until Issue
+  #24 resolves the shared `runtrace` package and command at `pyproject.toml`
+  lines 45 and 61. All other checked release-preparation gates passed.
+
+### Risks and next scoped work
+
+- The original candidate names could silently replace an unrelated tool and
+  must never be published. Strategy A supersedes that artifact.
+- The approved naming change invalidates every earlier candidate hash; only a
+  rebuilt and re-reviewed artifact can become v0.1.0.
+- Trusted Publishing work remains deferred until the migrated package passes
+  CI and PR #23 is re-reviewed.
+
+## 2026-08-13 — Strategy A public namespace migration
+
+### Coordination
+
+- The maintainer explicitly approved strategy A on 2026-08-13.
+- Continued on the existing `codex/issue-12-release-preparation` branch and
+  draft pull request #23; no new branch was created.
+- Kept Issue #24 open as the acceptance record. No merge, trusted-publisher
+  setup, tag, PyPI upload, or GitHub Release was performed.
+
+### Scope
+
+- Keep the project and repository name RunTrace and the distribution name
+  `ml-runtrace`.
+- Rename the Python package to `ml_runtrace`, the console command to
+  `ml-runtrace`, and the module entry point to `python -m ml_runtrace`.
+- Provide no `runtrace` import, command alias, or secondary console script.
+- Preserve the existing `.runtrace/` local data directory, `runtrace.toml`
+  configuration file, `[runtrace]` configuration table, and snapshot schema;
+  these persisted project names do not collide with Python installation
+  namespaces.
+
+### Implementation
+
+- Renamed `src/runtrace` to `src/ml_runtrace` and migrated all internal and
+  test imports.
+- Changed the sole package entry point to
+  `ml-runtrace = "ml_runtrace.cli:main"`; version output now identifies
+  `ml-runtrace`, and `python -m ml_runtrace` invokes the same application.
+- Updated actionable CLI errors, README, Getting Started guide, changelog,
+  draft release notes, release runbook, issue template, CI, release-candidate
+  workflow, and packaging guardrail tests.
+- Added `scripts/check_public_name_coexistence.py`. It constructs a valid
+  local `runtrace` wheel without contacting a package index, installs it and
+  the actual candidate wheel in both orders, checks distribution metadata,
+  import paths, entry points, RECORD ownership, and generated scripts, then
+  uninstalls one distribution in each environment and verifies that the other
+  remains intact.
+- Added an optional `--runtrace-wheel` input so the same audit can verify a
+  downloaded real public wheel without weakening the network-free default.
+
+### Verification
+
+- `uv sync --all-groups --locked` resolved the existing 48-package graph and
+  rebuilt the editable project under the approved package name.
+- The pre-documentation full suite passed all 88 tests on Windows with Python
+  3.12.7. After adding the final public-name guardrail, all 89 tests passed.
+- Ruff lint passed, all 36 Python files were formatted, `uv lock --check`
+  resolved the locked 48-package graph, and both Actions workflow files parsed
+  as YAML.
+- A freshly built `ml_runtrace-0.1.0-py3-none-any.whl` passed the synthetic
+  offline audit in both installation orders and both uninstall directions.
+- The same candidate passed against the downloaded real
+  `runtrace-0.3.2-py3-none-any.whl` under the same four lifecycle checks.
+  Both imports and both commands remained independently installed, and the
+  two distributions had no shared RECORD paths.
+- All build roots and virtual environments created for these audits were
+  confined to the system temporary directory and removed after validation.
+- Twine accepted both replacement artifacts. The wheel RECORD contained 18
+  files and only the `ml_runtrace` package; the sdist contained 46 files, only
+  `src/ml_runtrace`, and neither untracked maintainer reference document.
+- A fresh Windows environment installed the exact wheel and returned
+  `ml-runtrace 0.1.0` from both `ml-runtrace --version` and
+  `python -m ml_runtrace --version`. Neither a `runtrace` executable nor a
+  `runtrace` import was present.
+- The clean wheel then passed the complete init → two snapshots → list → show
+  → diff workflow in an isolated Git repository. The assertions confirmed
+  both run labels, complete baseline data, and the changed learning rate.
+- The final privacy audit covered 37 repository files and found no local user
+  paths, private-key blocks, PyPI tokens, GitHub tokens, or credential
+  assignments. The two untracked maintainer references were explicitly
+  excluded and remained outside the candidate.
+- GitHub Actions run
+  [`31624906406`](https://github.com/Corvus-226/RunTrace/actions/runs/31624906406)
+  passed all four jobs for implementation commit `2005035`: Linux Python
+  3.10, 3.11, and 3.12 plus the package smoke job.
+- The package job completed in 26 seconds. It built both artifacts, passed the
+  offline two-order/both-uninstall audit, passed Twine, and installed the
+  exact wheel in a clean environment with the approved command, module, and
+  no legacy `runtrace` import or executable.
+- CI recorded these implementation-candidate hashes:
+  - wheel: `53b292f3ba08f4b5b26cd6a233e55aff75d357d0ada87a9378253fb565745d82`
+  - sdist: `6d28f2b2405fb3cbeeefcd6dcedc10f8b759a0e83d730e2ba0f8509049e00370`
+
+### Result
+
+- [x] Maintainer decision recorded
+- [x] Python package and internal imports migrated
+- [x] Sole console and module entry points migrated
+- [x] `runtrace` compatibility aliases intentionally absent
+- [x] User documentation and workflow commands migrated
+- [x] Focused metadata and documentation guardrails added
+- [x] Synthetic offline two-order and both-uninstall audit passed
+- [x] Real `runtrace==0.3.2` two-order and both-uninstall audit passed
+- [x] Final full quality, artifact, clean-install, and privacy validation
+- [x] Commit, push, and Linux CI evidence
+
+### Submission record
+
+- Created commit `2005035` (`fix: resolve public name collision`) and pushed
+  it to the existing `codex/issue-12-release-preparation` branch and draft PR
+  #23. Both local maintainer reference documents remained untracked.
+- Posted the explicit strategy A decision, implementation details, local
+  evidence, and unchanged publication boundary to Issue #24.
+- PR #23 remained Draft while the implementation CI ran. No merge, trusted
+  publisher, tag, PyPI upload, or GitHub Release action was performed.
+
+## 2026-08-13 — Release status reconciliation
+
+### Coordination
+
+- Confirmed that the public PyPI project page for `ml-runtrace` still returns
+  HTTP 404. The distribution has not been published and the name remains
+  unreserved until a trusted publication succeeds.
+- Confirmed that pull request #23 is open, out of Draft, conflict-free, and
+  reports all four required checks as successful for reviewed head `7557d00`.
+- Confirmed that all eight acceptance criteria in Issue #24 are checked, the
+  final evidence comment is present, and the collision blocker is closed.
+
+### Current usability boundary
+
+- RunTrace is usable from the reviewed source branch or its validated local
+  wheel with the `ml-runtrace` command and `ml_runtrace` import package.
+- RunTrace is not yet a public release: there is no merged release commit on
+  `main`, `v0.1.0` tag, PyPI project, trusted deployment, or GitHub Release.
+- The published installation command must not replace source-development
+  guidance until a clean install from PyPI has passed post-publication
+  acceptance.
+
+### Verification
+
+- The reviewed strategy A implementation and validation record resolves to
+  `7557d0069de3743d2578e3ff03dd9aa590502dbc`; subsequent documentation-only
+  reconciliation does not change package code or public names.
+- GitHub Actions run
+  [`31625355238`](https://github.com/Corvus-226/RunTrace/actions/runs/31625355238)
+  passed Python 3.10, 3.11, 3.12, and the package smoke job.
+- The final-head package job recorded:
+  - wheel SHA-256:
+    `ebed8b75fec1ecda3e2e341278d54197b95cb86f88049ca52dd76885d14931c2`
+  - sdist SHA-256:
+    `8e3eef39fe86fbb46ca56a6702f5ae318f33379c512a905d227d7cdcaaf056b1`
+- The package smoke job passed the offline coexistence audit, Twine, and a
+  clean-wheel install using only `ml-runtrace` and `python -m ml_runtrace`.
+
+### Gate status
+
+- [x] Gate 0 public-name collision resolved and independently regression-tested
+- [x] Gate 1 technical re-review complete; PR #23 is ready for maintainer merge
+- [ ] Maintainer authorization to merge PR #23
+- [ ] Protected `pypi` environment and pending trusted publisher
+- [ ] Reviewed tag-triggered Trusted Publishing workflow
+- [ ] Final candidate built from the merged and reviewed `main` commit
+- [ ] Annotated or signed `v0.1.0` tag and trusted PyPI publication
+- [ ] GitHub Release and clean PyPI post-publication acceptance
+
+### Next scoped work
+
+1. Record explicit maintainer authorization before merging PR #23.
+2. After merge, create a new scoped Trusted Publishing issue and branch; Issue
+   #24 is already used by the resolved public-name collision.
+3. Keep build and publish jobs separate, grant OIDC only to the protected
+   publish job, and stop before any tag or real deployment.

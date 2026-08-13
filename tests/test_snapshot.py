@@ -11,15 +11,15 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-import runtrace.snapshot as snapshot_module
-from runtrace.cli import app
-from runtrace.environment import (
+import ml_runtrace.snapshot as snapshot_module
+from ml_runtrace.cli import app
+from ml_runtrace.environment import (
     EnvironmentMetadata,
     GpuMetadata,
     PlatformMetadata,
     PythonRuntimeMetadata,
 )
-from runtrace.storage import SnapshotStore
+from ml_runtrace.storage import SnapshotStore
 
 runner = CliRunner()
 _RUN_ID_OUTPUT = re.compile(r"Created snapshot ([0-9a-f]{12})\.")
@@ -180,7 +180,7 @@ def test_snapshot_requires_initialized_project(
     result = runner.invoke(app, ["snapshot"])
 
     assert result.exit_code == 1
-    assert "Run `runtrace init` first" in result.output
+    assert "Run `ml-runtrace init` first" in result.output
     assert not (repository / ".runtrace").exists()
 
 
