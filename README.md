@@ -16,6 +16,11 @@ server or account.
 > [PyPI](https://pypi.org/project/ml-runtrace/0.1.0/) and verified on Windows
 > and Linux with Python 3.10–3.12.
 
+![RunTrace CLI workflow showing local Git, configuration, environment, hardware, and snapshot context](https://raw.githubusercontent.com/Corvus-226/RunTrace/main/docs/assets/runtrace-overview.png)
+
+*The local workflow is init → snapshot → list/show → diff. Snapshot records
+the command you supply; it does not execute the training command.*
+
 ## Why RunTrace?
 
 Experiment folders named `final`, `final-2`, and `final-really` do not explain

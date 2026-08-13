@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import struct
 from pathlib import Path
 
 import yaml
@@ -23,8 +24,26 @@ def test_build_backend_emits_twine_compatible_metadata() -> None:
     pyproject = (_ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
     assert 'requires = ["hatchling>=1.27,<1.30"]' in pyproject
+    assert '"/docs/assets/runtrace-overview.png"' in pyproject
     assert '"/docs/RunTrace_v0.1.0_release_progress_guide_2026-08-13.md"' in pyproject
     assert '"/docs/codex_for_oss_runtrace_plan_2026-08-12.md"' in pyproject
+
+
+def test_readme_overview_image_is_present_and_publishable() -> None:
+    readme = (_ROOT / "README.md").read_text(encoding="utf-8")
+    image_path = _ROOT / "docs" / "assets" / "runtrace-overview.png"
+    image_url = (
+        "https://raw.githubusercontent.com/Corvus-226/RunTrace/"
+        "main/docs/assets/runtrace-overview.png"
+    )
+
+    assert image_url in readme
+    assert "does not execute the training command" in readme
+    header = image_path.read_bytes()[:24]
+    assert header[:8] == b"\x89PNG\r\n\x1a\n"
+    width, height = struct.unpack(">II", header[16:24])
+    assert width >= 1200
+    assert height >= 675
 
 
 def test_public_names_are_collision_free() -> None:

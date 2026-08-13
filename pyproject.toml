@@ -53,6 +53,7 @@ dev = [
 
 [tool.hatch.build]
 exclude = [
+  "/docs/assets/runtrace-overview.png",
   "/docs/RunTrace_v0.1.0_release_progress_guide_2026-08-13.md",
   "/docs/codex_for_oss_runtrace_plan_2026-08-12.md",
 ]
