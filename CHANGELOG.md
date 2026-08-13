@@ -6,7 +6,10 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-No unreleased changes yet.
+### Documentation
+
+- Added an accurate README overview image for the local init → snapshot →
+  list/show → diff workflow.
 
 ## [0.1.0] - 2026-08-13
 

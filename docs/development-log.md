@@ -1527,3 +1527,42 @@ review, CI, or release safety.
 - [x] Clean PyPI install and complete CLI acceptance
 - [x] GitHub Release with verified source, links, hashes, and evidence
 - [x] Published-install documentation and release status synchronized
+
+## 2026-08-14 — Issue #30 README overview image
+
+### Context and review
+
+- Opened [Issue #30](https://github.com/Corvus-226/RunTrace/issues/30) for a
+  repository-owned README hero image and started the scoped
+  `codex/issue-30-readme-overview` branch from synchronized `main`.
+- Reviewed the supplied concept image against the published v0.1.0 CLI. The
+  original visual showed unsupported metric tracking and used an invalid
+  two-dot `diff` form, so it was not added unchanged.
+- Produced and visually reviewed a corrected variant that retains the supplied
+  layout and style while showing only the released `init`, `snapshot`, `list`,
+  `show`, and two-run-ID `diff` workflow.
+- Removed the concept's RAM field because v0.1.0 records optional NVIDIA GPU,
+  driver, and CUDA metadata but not system memory; changed "full context" to
+  "key context" to keep the overview's promise bounded to captured fields.
+
+### Implementation
+
+- Added `docs/assets/runtrace-overview.png` and referenced its absolute GitHub
+  raw URL from the README so it renders on both the GitHub project page and the
+  PyPI long description.
+- Added useful image alt text and a caption clarifying that `snapshot` records
+  but does not execute a supplied training command.
+- Excluded the 1.49 MB README-only PNG from package builds so future sdists are
+  not enlarged by a repository presentation asset.
+- Added a release guardrail that checks the README URL, local PNG signature,
+  minimum readable dimensions, caption, and build exclusion.
+
+### Verification
+
+- `uv run pytest`: 91 tests passed, including the new README asset guardrail.
+- `uv run ruff check .`, `uv run ruff format --check .`, `uv lock --check`,
+  and `git diff --check` passed.
+- A fresh wheel and sdist both passed `twine check`; archive inspection
+  confirmed that the README-only PNG and both local planning documents are
+  excluded from distribution packages. The isolated build directory was
+  removed after verification.
