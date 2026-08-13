@@ -74,3 +74,45 @@ def test_release_workflow_builds_candidates_without_publishing() -> None:
     )
     assert action_references
     assert all(_PINNED_ACTION.fullmatch(reference) for reference in action_references)
+
+
+def test_publish_workflow_uses_least_privilege_trusted_publishing() -> None:
+    workflow_path = _ROOT / ".github" / "workflows" / "publish.yml"
+    workflow = workflow_path.read_text(encoding="utf-8")
+    parsed = yaml.safe_load(workflow)
+
+    assert parsed is not None
+    assert 'tags:\n      - "v*.*.*"' in workflow
+    assert "workflow_dispatch:" not in workflow
+    assert "pull_request:" not in workflow
+    assert workflow.count("id-token: write") == 1
+    assert "environment:\n      name: pypi" in workflow
+    assert "url: https://pypi.org/p/ml-runtrace" in workflow
+    assert "username:" not in workflow
+    assert "password:" not in workflow
+    assert "secrets." not in workflow
+    assert "scripts/check_public_name_coexistence.py --dist-dir dist" in workflow
+    assert "sha256sum --check SHA256SUMS" in workflow
+
+    jobs = parsed["jobs"]
+    build = jobs["build"]
+    publish = jobs["publish"]
+    assert build.get("permissions") is None
+    assert publish["needs"] == "build"
+    assert publish["permissions"] == {"contents": "read", "id-token": "write"}
+
+    build_steps = "\n".join(str(step) for step in build["steps"])
+    publish_steps = "\n".join(str(step) for step in publish["steps"])
+    assert "uv build" in build_steps
+    assert "actions/upload-artifact@" in build_steps
+    assert "actions/download-artifact@" in publish_steps
+    assert "pypa/gh-action-pypi-publish@" in publish_steps
+    assert "actions/checkout@" not in publish_steps
+    assert "uv " not in publish_steps
+    assert "pip " not in publish_steps
+
+    action_references = re.findall(
+        r"^\s*uses:\s*(\S+)\s*(?:#.*)?$", workflow, re.MULTILINE
+    )
+    assert action_references
+    assert all(_PINNED_ACTION.fullmatch(reference) for reference in action_references)
