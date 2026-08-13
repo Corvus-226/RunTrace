@@ -54,13 +54,16 @@ def test_release_documents_match_package_version() -> None:
     readme = (_ROOT / "README.md").read_text(encoding="utf-8")
     release_notes = _ROOT / "docs" / "releases" / f"v{__version__}.md"
 
-    assert f"## [{__version__}] - Unreleased" in changelog
-    assert f"Project status:** v{__version__} release candidate." in readme
-    assert "It has not been published to\n> PyPI." in readme
-    assert "python -m pip install ." in readme
-    assert "python -m pip install ml-runtrace" not in readme
+    assert f"## [{__version__}] - 2026-08-13" in changelog
+    assert f"[v{__version__}]" in readme
+    assert "is the first published release" in readme
+    assert "python -m pip install ml-runtrace" in readme
+    assert "python -m pip install ." not in readme
     assert release_notes.is_file()
-    assert f"# RunTrace v{__version__}" in release_notes.read_text(encoding="utf-8")
+    release_notes_text = release_notes.read_text(encoding="utf-8")
+    assert f"# RunTrace v{__version__}" in release_notes_text
+    assert "Draft release notes" not in release_notes_text
+    assert f"ml-runtrace=={__version__}" in release_notes_text
 
 
 def test_release_workflow_builds_candidates_without_publishing() -> None:

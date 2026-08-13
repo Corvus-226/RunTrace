@@ -6,10 +6,9 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
-The v0.1.0 candidate remains unpublished while the collision-free public names
-approved in Issue #24 complete review and release validation.
+No unreleased changes yet.
 
-## [0.1.0] - Unreleased
+## [0.1.0] - 2026-08-13
 
 ### Added
 
@@ -46,6 +45,9 @@ approved in Issue #24 complete review and release validation.
 - Complete README and Getting Started documentation for installation, the
   init-to-diff workflow, terminal output, local storage, privacy, project
   maturity, and RunTrace's scope relative to full tracking platforms.
+- Credential-free, tag-triggered PyPI Trusted Publishing with a protected
+  deployment environment, immutable GitHub Action pins, retained provenance,
+  and SHA-256 verification across the artifact handoff.
 
 [Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/Corvus-226/RunTrace/releases/tag/v0.1.0

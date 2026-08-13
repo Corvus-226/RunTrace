@@ -2,10 +2,12 @@
 
 ## Supported versions
 
-RunTrace has not published its first release. Security fixes currently target
-the latest reviewed source on `main` and the active v0.1.0 release candidate.
-The supported-release table will be added after publication and updated with
-future release notes.
+Security fixes target the latest published 0.1.x release and the current
+reviewed source on `main`.
+
+| Version | Supported |
+| --- | --- |
+| 0.1.x | Yes |
 
 ## Reporting a vulnerability
 

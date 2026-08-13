@@ -1,6 +1,8 @@
 # RunTrace
 
 [![CI](https://github.com/Corvus-226/RunTrace/actions/workflows/ci.yml/badge.svg)](https://github.com/Corvus-226/RunTrace/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/ml-runtrace.svg)](https://pypi.org/project/ml-runtrace/)
+[![GitHub Release](https://img.shields.io/github/v/release/Corvus-226/RunTrace.svg)](https://github.com/Corvus-226/RunTrace/releases/latest)
 [![Python 3.10–3.12](https://img.shields.io/badge/python-3.10--3.12-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
@@ -9,11 +11,10 @@ configuration, environment, and metadata behind machine-learning experiments.
 It stores transparent YAML snapshots in the current Git repository, without a
 server or account.
 
-> **Project status:** v0.1.0 release candidate. It has not been published to
-> PyPI. The collision-free candidate is verified locally on Windows and by
-> pull request CI on Linux with Python 3.10–3.12. The public names approved in
-> [Issue #24](https://github.com/Corvus-226/RunTrace/issues/24) are now part of
-> the candidate and remain subject to final release review.
+> **Project status:** [v0.1.0](https://github.com/Corvus-226/RunTrace/releases/tag/v0.1.0)
+> is the first published release. It is available from
+> [PyPI](https://pypi.org/project/ml-runtrace/0.1.0/) and verified on Windows
+> and Linux with Python 3.10–3.12.
 
 ## Why RunTrace?
 
@@ -36,30 +37,27 @@ artifacts, or replace a full experiment-tracking platform.
 
 ## Quick Start
 
-### 1. Install the current candidate from source
+### 1. Install from PyPI
 
-Clone the repository and create an isolated environment:
+Create and activate an isolated environment using the command for your shell:
 
 ```console
-git clone https://github.com/Corvus-226/RunTrace.git
-cd RunTrace
 python -m venv .venv
 ```
 
-Activate the environment using the command for your shell, then install the
-reviewed source and verify the current command:
+Then install RunTrace and verify both supported entry points:
 
 ```console
-python -m pip install .
+python -m pip install ml-runtrace
 ml-runtrace --version
 python -m ml_runtrace --version
 ```
 
-The planned PyPI distribution is `ml-runtrace`, but it is not available yet.
-Its Python import is `ml_runtrace`, and its only console command is
-`ml-runtrace`. No `runtrace` import or command alias is provided because an
-unrelated PyPI project owns those names. Contributors should use the locked uv
-environment described in [Development](#development).
+The PyPI distribution is `ml-runtrace`, its Python import is `ml_runtrace`,
+and its only console command is `ml-runtrace`. No `runtrace` import or command
+alias is provided because an unrelated PyPI project owns those names.
+Contributors should use the locked uv environment described in
+[Development](#development).
 
 ### 2. Initialize an existing Git repository
 
