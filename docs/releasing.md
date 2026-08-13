@@ -134,15 +134,15 @@ repository permissions and no OIDC permission. It:
 3. builds the sdist and wheel once;
 4. runs the offline two-order public-name coexistence audit;
 5. checks package metadata and records SHA-256 values; and
-6. retains the files as a seven-day workflow artifact for review.
+6. retains the files as a 30-day workflow artifact for review.
 
 Download that artifact, verify its hashes and contents, and record the Actions
 run before requesting publication approval.
 
 ## Approve publication
 
-The formal `.github/workflows/publish.yml` workflow is enabled only after its
-scoped Issue #25 and pull request pass review. A matching version tag starts a
+The formal `.github/workflows/publish.yml` workflow was enabled after its
+scoped Issue #25 and pull request passed review. A matching version tag starts a
 build job with read-only repository permission. That job verifies the
 tag/version pair, runs quality and coexistence checks, builds once, records
 provenance and SHA-256 values, and uploads the reviewed artifacts. A separate

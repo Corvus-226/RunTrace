@@ -1,7 +1,7 @@
 # Getting Started with RunTrace
 
-This guide takes a Git-based project from installing the RunTrace v0.1.0
-release candidate to its first experiment comparison.
+This guide takes a Git-based project from installing the published RunTrace
+v0.1.0 release to its first experiment comparison.
 
 ## Before you start
 
@@ -17,29 +17,26 @@ in PowerShell, Command Prompt, and common POSIX shells.
 
 ## Install RunTrace
 
-The first PyPI release has not been published. Clone the repository and create
-an isolated environment:
+Create an isolated environment:
 
 ```console
-git clone https://github.com/Corvus-226/RunTrace.git
-cd RunTrace
 python -m venv .venv
 ```
 
 Activate the environment using the command for your shell, then install the
-current candidate from source:
+documented release from PyPI:
 
 ```console
-python -m pip install .
+python -m pip install ml-runtrace==0.1.0
 ml-runtrace --version
 python -m ml_runtrace --version
 ```
 
-The planned distribution name is `ml-runtrace`, but it is not available on
-PyPI. The approved Python import is `ml_runtrace`, and the only console command
-is `ml-runtrace`. [Issue #24](https://github.com/Corvus-226/RunTrace/issues/24)
-records why no `runtrace` import or command alias is provided: an unrelated
-PyPI project already owns both names.
+The distribution name is `ml-runtrace`, the Python import is `ml_runtrace`,
+and the only console command is `ml-runtrace`.
+[Issue #24](https://github.com/Corvus-226/RunTrace/issues/24) records why no
+`runtrace` import or command alias is provided: an unrelated PyPI project
+already owns both names.
 
 ## 1. Initialize your project
 
@@ -246,11 +243,11 @@ installed version.
 
 ## Current maturity
 
-RunTrace v0.1.0 is a release candidate, not a published PyPI release. The core
-local workflow and collision-free public names are tested on Windows and
-covered by an offline two-order install/uninstall audit. Pull request CI also
-passes on supported Python versions on Linux. Final release review is still
-required before publication. After publication, snapshot schemas and CLI
-behavior may still evolve during the 0.x series. Track changes in the repository's
+RunTrace v0.1.0 is the first published PyPI release. The core local workflow
+and collision-free public names are tested on Windows, covered by an offline
+two-order install/uninstall audit, and verified by Linux CI on every supported
+Python version. A clean, no-cache install from PyPI also passed the complete
+init-to-diff workflow. Snapshot schemas and CLI behavior may still evolve
+during the 0.x series. Track changes in the repository's
 [issues](https://github.com/Corvus-226/RunTrace/issues) and
 [changelog](../CHANGELOG.md).

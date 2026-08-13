@@ -98,8 +98,8 @@ review, CI, or release safety.
   `runtrace==0.3.2` wheel.~~
 - ~~Obtain green Linux CI for the migrated package on Python 3.10–3.12 and
   the packaging smoke job.~~
-- [ ] Configure the protected `pypi` environment and pending trusted publisher
-  with maintainer-controlled deployment approval.
+- ~~Configure the protected `pypi` environment and pending trusted publisher
+  with maintainer-controlled deployment approval.~~
 - ~~Freeze the v0.1.0 feature scope and keep publication outside automatic
   release-preparation work.~~
 - ~~Change the development version to `0.1.0` and finalize changelog and release
@@ -112,13 +112,15 @@ review, CI, or release safety.
   acceptance workflow.~~
 - ~~Rebuild, inspect, and smoke-test the replacement candidate after the
   public-name migration; prior candidate hashes are invalidated.~~
-- [ ] Run the candidate workflow for the reviewed commit and compare recorded
-  artifact hashes.
-- [ ] Create and push the signed or annotated `v0.1.0` tag.
-- [ ] Publish the distribution to PyPI.
-- [ ] Publish the GitHub Release and attach final release notes.
-- [ ] Replace source-development installation guidance with the verified PyPI
-  installation command.
+- ~~Run the candidate workflow for the reviewed commit and compare recorded
+  artifact hashes.~~
+- ~~Create and push the signed or annotated `v0.1.0` tag.~~
+- ~~Publish the distribution to PyPI.~~
+- ~~Publish the GitHub Release and attach final release notes.~~
+- ~~Replace source-development installation guidance with the verified PyPI
+  installation command.~~
+- ~~Install from PyPI without a cache and run `pip check`, both entry points,
+  and the complete init → snapshot → list → show → diff acceptance flow.~~
 
 ## 2026-08-12 — Day 1 repository bootstrap
 
@@ -1446,3 +1448,82 @@ review, CI, or release safety.
   default Node.js 24 upload release; the repository now uses the current v7.0.1
   upload and v8.0.1 download releases so both sides of the artifact handoff use
   Node.js 24 before the tag is created.
+
+## 2026-08-13 — v0.1.0 formal publication and acceptance
+
+### Final source and candidate
+
+- Submitted pull request #28 for the Node.js 24 artifact-action correction.
+  All four jobs passed in CI run
+  [`31682084074`](https://github.com/Corvus-226/RunTrace/actions/runs/31682084074),
+  and the pull request merged into `main` as
+  `db03cb9999f8428962caa1e62c3bea5df4682b9d`.
+- Ran the final non-publishing candidate from that exact commit in
+  [`31682370801`](https://github.com/Corvus-226/RunTrace/actions/runs/31682370801).
+  The workflow completed successfully with zero annotations.
+- The final candidate recorded:
+  - wheel SHA-256:
+    `ebed8b75fec1ecda3e2e341278d54197b95cb86f88049ca52dd76885d14931c2`
+  - sdist SHA-256:
+    `1301e8b3555aa82927872af604c3fe5185c19d51556061311f00de3ce4c271a9`
+  - workflow artifact digest:
+    `722a7ba170a02cdff0617c7ba10034b18c6a039f5bf6c19a54998575f46176a9`
+
+### Trusted publication
+
+- Rechecked PyPI immediately before tagging; the `ml-runtrace` JSON endpoint
+  still returned HTTP 404 and no conflicting local or remote `v0.1.0` tag
+  existed.
+- Created and pushed annotated tag `v0.1.0`, verified to resolve to the exact
+  reviewed `db03cb9` commit.
+- Tag push triggered formal Trusted Publishing workflow
+  [`31682596354`](https://github.com/Corvus-226/RunTrace/actions/runs/31682596354).
+  The read-only build job passed before the protected `pypi` deployment was
+  approved with the final-candidate evidence recorded in the approval comment.
+- The isolated publish job verified the downloaded `SHA256SUMS`, acquired OIDC
+  only through `id-token: write`, uploaded the reviewed files, and generated
+  digital attestations. No password, API token, repository secret, or fallback
+  credential was configured.
+- The formal artifact digest is
+  `2189ac0f64bdd7adbb803151eab3fd29b4f70117ddfe149c7b2d0f72200c0d12`;
+  the retained artifact contains the two distributions, `SHA256SUMS`, and
+  `RELEASE_PROVENANCE` for tag `v0.1.0`, commit `db03cb9`, and version `0.1.0`.
+- PyPI converted the pending publisher into an active publisher with the exact
+  repository `Corvus-226/RunTrace`, workflow `publish.yml`, and environment
+  `pypi` identity.
+
+### Post-publication acceptance
+
+- PyPI exposes `ml-runtrace==0.1.0` with `Requires-Python >=3.10`. Its wheel
+  and sdist hashes exactly match the final candidate and publish-job records;
+  uploads completed at `2026-08-13T08:35:55.609503Z` and
+  `2026-08-13T08:35:56.623420Z`, respectively.
+- Installed `ml-runtrace==0.1.0` from PyPI into a newly created Python 3.12.7
+  environment with the download cache disabled. `pip check`,
+  `ml-runtrace --version`, `python -m ml_runtrace --version`, and CLI help all
+  passed.
+- In a separate new Git repository, completed `init`, two snapshots, `list`,
+  `show`, and `diff`; the comparison correctly reported the changed recorded
+  command. The isolated acceptance directory was then removed after its exact
+  path was verified.
+- Published the
+  [RunTrace v0.1.0 GitHub Release](https://github.com/Corvus-226/RunTrace/releases/tag/v0.1.0)
+  as Latest with the audited commit, install command, Workflow links, privacy
+  boundary, and exact PyPI hashes. GitHub supplies its normal source archives;
+  the release links to the PyPI distributions and retained formal Workflow
+  artifact because the authenticated Chrome control channel did not permit
+  local-file injection for additional binary attachments.
+- Verified the downloaded formal artifact against its digest before inspecting
+  its contents. Removed the verified browser download, extraction directory,
+  and upload-staging copies after the Release was published.
+
+### Release gate result
+
+- [x] Protected GitHub environment and active PyPI Trusted Publisher
+- [x] Reviewed formal publication Workflow with least-privilege OIDC
+- [x] Warning-free final candidate from the exact final `main` commit
+- [x] Annotated `v0.1.0` tag at the reviewed commit
+- [x] Trusted PyPI publication with matching hashes and attestations
+- [x] Clean PyPI install and complete CLI acceptance
+- [x] GitHub Release with verified source, links, hashes, and evidence
+- [x] Published-install documentation and release status synchronized
