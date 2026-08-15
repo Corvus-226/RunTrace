@@ -1,5 +1,7 @@
 # RunTrace
 
+![RunTrace — Know exactly what changed. An experiment fingerprint formed by overlapping version traces](https://raw.githubusercontent.com/Corvus-226/RunTrace/main/docs/assets/runtrace-overview.png)
+
 [![CI](https://github.com/Corvus-226/RunTrace/actions/workflows/ci.yml/badge.svg)](https://github.com/Corvus-226/RunTrace/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/ml-runtrace.svg)](https://pypi.org/project/ml-runtrace/)
 [![GitHub Release](https://img.shields.io/github/v/release/Corvus-226/RunTrace.svg)](https://github.com/Corvus-226/RunTrace/releases/latest)
@@ -15,11 +17,6 @@ server or account.
 > is the first published release. It is available from
 > [PyPI](https://pypi.org/project/ml-runtrace/0.1.0/) and verified on Windows
 > and Linux with Python 3.10–3.12.
-
-![RunTrace CLI workflow showing local Git, configuration, environment, hardware, and snapshot context](https://raw.githubusercontent.com/Corvus-226/RunTrace/main/docs/assets/runtrace-overview.png)
-
-*The local workflow is init → snapshot → list/show → diff. Snapshot records
-the command you supply; it does not execute the training command.*
 
 ## Why RunTrace?
 
