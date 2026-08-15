@@ -1566,3 +1566,50 @@ review, CI, or release safety.
   confirmed that the README-only PNG and both local planning documents are
   excluded from distribution packages. The isolated build directory was
   removed after verification.
+
+## 2026-08-15 — Issue #32 experiment-fingerprint brand hero
+
+### Context and design review
+
+- Opened [Issue #32](https://github.com/Corvus-226/RunTrace/issues/32) after
+  reviewing feedback that the existing hero explained the command sequence but
+  did not give the project a distinctive visual identity.
+- Reviewed the City2Graph README hero for its high-level design principle: a
+  bold project name over a domain-specific visual texture. The replacement is
+  original and does not reuse its map, road network, icon, typography, or
+  composition.
+- Chose an "experiment fingerprint" as RunTrace's visual metaphor. Nested
+  ridges communicate a reproducible snapshot, branching nodes communicate
+  provenance, and overlapping teal-to-violet traces communicate comparison.
+- Limited visible copy to `RunTrace` and `Know exactly what changed.` The image
+  contains no process steps, commands, metrics, dashboard, upload, cloud, or
+  execution claims.
+
+### Implementation
+
+- Replaced `docs/assets/runtrace-overview.png` in place with the new
+  1774 × 887 PNG, preserving the stable raw GitHub URL used by the README and
+  PyPI long description.
+- Moved the hero directly beneath the README title, removed the workflow
+  caption, and replaced the alt text with an accessible description of the
+  experiment-fingerprint visual.
+- Updated the Unreleased changelog entry and release guardrail to assert the
+  new alt text, absence of the retired caption, PNG integrity, minimum readable
+  dimensions, and the intended 2:1 aspect ratio.
+
+### Verification
+
+- Visually reviewed the repository copy at its native 1774 × 887 resolution;
+  the wordmark, exact tagline, fingerprint emblem, and background traces are
+  legible and remain inside safe margins. The PNG SHA-256 is
+  `f28d43abaa387b1d6c62e128e5e6a369a92d168def18ccde83533d2d2fa81cd8`.
+- `uv run pytest -q`: 91 tests passed. `uv run ruff check .`,
+  `uv run ruff format --check .`, `uv lock --check`, and
+  `git diff --check` passed.
+- A fresh wheel and sdist both passed `twine check`; archive inspection
+  confirmed that the README-only PNG and both local planning documents remain
+  excluded. The temporary build directory was removed after verification.
+- The first packaging-check invocation accidentally included uv's generated
+  output-directory `.gitignore` in the arguments to `twine check`. The two
+  distributions themselves built successfully; the filter was corrected to
+  accept only `.whl` and `.tar.gz`, and the complete check then passed.

@@ -29,7 +29,7 @@ def test_build_backend_emits_twine_compatible_metadata() -> None:
     assert '"/docs/codex_for_oss_runtrace_plan_2026-08-12.md"' in pyproject
 
 
-def test_readme_overview_image_is_present_and_publishable() -> None:
+def test_readme_brand_hero_is_present_and_publishable() -> None:
     readme = (_ROOT / "README.md").read_text(encoding="utf-8")
     image_path = _ROOT / "docs" / "assets" / "runtrace-overview.png"
     image_url = (
@@ -38,12 +38,17 @@ def test_readme_overview_image_is_present_and_publishable() -> None:
     )
 
     assert image_url in readme
-    assert "does not execute the training command" in readme
+    assert (
+        "![RunTrace — Know exactly what changed. An experiment fingerprint "
+        "formed by overlapping version traces]" in readme
+    )
+    assert "*The local workflow is init → snapshot → list/show → diff." not in readme
     header = image_path.read_bytes()[:24]
     assert header[:8] == b"\x89PNG\r\n\x1a\n"
     width, height = struct.unpack(">II", header[16:24])
     assert width >= 1200
     assert height >= 675
+    assert abs((width / height) - 2.0) < 0.02
 
 
 def test_public_names_are_collision_free() -> None:

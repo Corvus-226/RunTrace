@@ -8,8 +8,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Documentation
 
-- Added an accurate README overview image for the local init → snapshot →
-  list/show → diff workflow.
+- Added an original experiment-fingerprint README hero that presents RunTrace
+  as a local snapshot and diff tool without unsupported product claims.
 
 ## [0.1.0] - 2026-08-13
 
