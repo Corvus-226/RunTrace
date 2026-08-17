@@ -79,9 +79,10 @@ jobs:
 
       - name: Install wheel in a clean environment
         run: |
+          expected_version="$(uv run python -c 'from ml_runtrace import __version__; print(__version__)')"
           python -m venv "$RUNNER_TEMP/ml-runtrace-wheel"
           "$RUNNER_TEMP/ml-runtrace-wheel/bin/python" -m pip install dist/*.whl
-          test "$("$RUNNER_TEMP/ml-runtrace-wheel/bin/ml-runtrace" --version)" = "ml-runtrace 0.1.0"
-          test "$("$RUNNER_TEMP/ml-runtrace-wheel/bin/python" -m ml_runtrace --version)" = "ml-runtrace 0.1.0"
+          test "$("$RUNNER_TEMP/ml-runtrace-wheel/bin/ml-runtrace" --version)" = "ml-runtrace ${expected_version}"
+          test "$("$RUNNER_TEMP/ml-runtrace-wheel/bin/python" -m ml_runtrace --version)" = "ml-runtrace ${expected_version}"
           test ! -e "$RUNNER_TEMP/ml-runtrace-wheel/bin/runtrace"
           "$RUNNER_TEMP/ml-runtrace-wheel/bin/python" -c "import importlib.util; assert importlib.util.find_spec('runtrace') is None"

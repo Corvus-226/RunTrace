@@ -1679,3 +1679,85 @@ review, CI, or release safety.
   unavailable in the local PowerShell runtime and exited before building; the
   wrapper was replaced with a compatible, path-validated temporary directory,
   the complete check passed, and that directory was removed.
+
+## 2026-08-17 — Issue #36 v0.2.0 release preparation
+
+### Coordination and release decision
+
+- Opened [Issue #36](https://github.com/Corvus-226/RunTrace/issues/36), assigned
+  it to the repository owner, and created the scoped
+  `codex/issue-36-release-v0.2.0` branch from synchronized `main` commit
+  `315433bf6f36db8939972e3dc22b64ae180b25d2`.
+- The maintainer authorized the complete PyPI update sequence: reviewed source
+  changes, pull request and Linux CI, a non-publishing Candidate from the exact
+  final `main`, an annotated tag, protected Trusted Publishing, clean PyPI
+  acceptance, and GitHub Release closure.
+- Selected v0.2.0 rather than a patch release because Issue #34 added a new
+  public `run` command and additive persisted snapshot metadata. The package,
+  runtime, changelog, release notes, Candidate default, and lock file now agree
+  on `0.2.0`.
+- Queried PyPI's official project JSON before release preparation. The latest
+  and only published version was `0.1.0`; no `0.2.0` files existed. The existing
+  protected `pypi` environment and credential-free Trusted Publisher remain
+  the approved publication path.
+
+### Release hardening and documentation
+
+- Added final `docs/releases/v0.2.0.md` notes covering snapshot-before-run
+  semantics, exact arguments, no implicit shell, PEP 610 provenance, privacy,
+  compatibility, public names, and known limits.
+- Updated the README and Getting Started guide from development-preview wording
+  to v0.2.0 behavior, while avoiding a premature claim that the target files
+  have already been uploaded. Updated the reusable release runbook for later
+  PyPI versions and corrected Candidate artifact retention from 30 to 7 days.
+- Made the clean-wheel CI version check derive the expected value from the
+  package instead of hard-coding `0.1.0`, and added a release guardrail that
+  prevents that regression. Both local planning documents remain untracked and
+  excluded from commits and distribution artifacts.
+
+### Local release validation
+
+- `uv sync --all-groups --locked` updated the editable environment to 0.2.0.
+  `uv run pytest -p no:cacheprovider` passed all 103 tests on Windows with
+  Python 3.12.7. `uv run ruff check . --no-cache`,
+  `uv run ruff format --check . --no-cache`, `uv lock --check`, and
+  `git diff --check` all passed.
+- A clean temporary source build produced
+  `ml_runtrace-0.2.0-py3-none-any.whl` and `ml_runtrace-0.2.0.tar.gz`; both
+  passed `twine check`. The pre-log build hashes were respectively
+  `9920df3962484714cf71eb78213d58025e61175e8d27c8410ca0e669277e1e36`
+  and `1799c97baa1a12fe4c861a4ff28fa3a66cb29ef71cbc7da29ba410c681c21bce`.
+  These identify that local checkpoint only; the post-merge Candidate and
+  tag-workflow hashes are the authoritative release evidence.
+- Archive inspection confirmed that v0.2.0 release notes and source checks are
+  present while the README-only hero PNG and two local planning documents are
+  excluded. The default offline coexistence audit passed in both installation
+  orders. A second audit downloaded the real public `runtrace==0.3.2` wheel
+  from PyPI and again passed import/command ownership and uninstall
+  independence in both orders.
+- Installed only the candidate wheel into a new Python 3.12.7 environment with
+  `--no-cache-dir`. `pip check`, both version entry points, and CLI help passed
+  and reported `ml-runtrace 0.2.0` with the new `run` command present.
+- In a new committed Git repository, the installed wheel passed
+  `init`, `run`, `snapshot`, `list`, `show`, and `diff`. The `run` command saved
+  exact child arguments before creating a harmless result file; `show`
+  displayed those arguments, and `diff` reported the changed readable command,
+  removed argument vector, config hash, and learning rate from `0.001` to
+  `0.0005`.
+- Two harness-only Windows issues were isolated from the product: an initially
+  quoted executable path was not invoked with PowerShell's call operator, and
+  a sandbox-owned temporary Git directory triggered Git's dubious-ownership
+  protection. Neither command reached RunTrace. The install was repeated with
+  valid PowerShell invocation and the workflow was rerun in a user-owned
+  temporary repository without changing global Git safety settings.
+
+### Remaining controlled gates
+
+1. Review and merge the release-preparation pull request after Linux CI passes.
+2. Run and inspect the non-publishing Candidate from the exact final `main`
+   commit, including downloaded artifacts and SHA-256 provenance.
+3. Confirm v0.2.0 is still absent from PyPI, create the annotated tag, approve
+   the protected `pypi` deployment, and verify the uploaded files and
+   attestations.
+4. Perform a no-cache install from PyPI, publish the GitHub Release with exact
+   evidence, update this log after publication, and close Issue #36.

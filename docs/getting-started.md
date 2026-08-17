@@ -1,7 +1,7 @@
 # Getting Started with RunTrace
 
-This guide takes a Git-based project from installing the published RunTrace
-v0.1.0 release to its first experiment comparison.
+This guide takes a Git-based project from installing RunTrace v0.2.0 to its
+first experiment comparison.
 
 ## Before you start
 
@@ -27,7 +27,7 @@ Activate the environment using the command for your shell, then install the
 documented release from PyPI:
 
 ```console
-python -m pip install ml-runtrace==0.1.0
+python -m pip install ml-runtrace==0.2.0
 ml-runtrace --version
 python -m ml_runtrace --version
 ```
@@ -126,10 +126,10 @@ The optional snapshot inputs are:
 Without these options, RunTrace still records Git, Python, platform,
 dependencies, and optional GPU/CUDA metadata.
 
-### Preview on current `main`: snapshot before execution
+## 4. Run with an automatic pre-execution snapshot
 
-The following opt-in wrapper is implemented on the current development branch
-for the next release; it is not available in the published PyPI v0.1.0 package:
+RunTrace v0.2.0 provides an opt-in wrapper for commands that should always have
+a snapshot captured immediately before execution:
 
 ```console
 ml-runtrace run --name baseline --config configs/train.yaml -- python train.py --config configs/train.yaml
@@ -144,7 +144,7 @@ returns the command's exit code.
 syntax such as pipes or redirection is not interpreted. Invoke a shell
 explicitly only when the experiment genuinely requires shell behavior.
 
-## 4. Inspect recorded runs
+## 5. Inspect recorded runs
 
 List snapshots newest first:
 
@@ -168,7 +168,7 @@ ml-runtrace show a31f82
 `show` reads the historical YAML record. It does not replace stored values
 with the current repository, environment, hardware, or config file.
 
-## 5. Record a candidate
+## 6. Record a candidate
 
 Change `optimizer.learning_rate` in `configs/train.yaml` to `0.0005`, then
 commit the candidate if it should represent a new code/config revision:
@@ -182,7 +182,7 @@ ml-runtrace snapshot --name candidate --config configs/train.yaml --command "pyt
 Copy the new run ID from the output. Leaving changes uncommitted is also valid;
 the snapshot will record `dirty: true` so that difference remains visible.
 
-## 6. Compare the experiments
+## 7. Compare the experiments
 
 Pass the baseline first and the candidate second. Full IDs and unique prefixes
 are both accepted, case-insensitively:
@@ -215,8 +215,8 @@ Differences are grouped in a fixed order:
 2. **Git** — commit, branch, detached state, and dirty state.
 3. **Runtime** — Python implementation/version and platform fields.
 4. **Environment** — installed distribution additions, removals, and version
-   changes. On current `main`, this also includes sanitized direct-package
-   origin changes such as resolved VCS commits.
+   changes. In v0.2.0 this also includes sanitized direct-package origin
+   changes such as resolved VCS commits.
 
 Each leaf is classified as `added`, `removed`, or `changed`. Run name,
 timestamp, and run ID identify snapshots but are not reported as
@@ -231,10 +231,9 @@ does not capture source contents, environment variables, tokens, credentials,
 or experiment artifacts.
 
 RunTrace does store values you explicitly pass with `--config`, `--command`, or
-the current-main `run` wrapper. Keep secrets out of config values and command
-arguments.
+the `run` wrapper. Keep secrets out of config values and command arguments.
 
-Current `main` also reads standardized `direct_url.json` metadata for packages
+RunTrace v0.2.0 also reads standardized `direct_url.json` metadata for packages
 installed directly from version control, an archive, or a local directory. It
 removes URL credentials, queries, and fragments and never stores the local
 directory's absolute path. Safe relative VCS/archive subdirectories are retained
@@ -271,11 +270,11 @@ installed version.
 
 ## Current maturity
 
-RunTrace v0.1.0 is the first published PyPI release. The core local workflow
-and collision-free public names are tested on Windows, covered by an offline
-two-order install/uninstall audit, and verified by Linux CI on every supported
-Python version. A clean, no-cache install from PyPI also passed the complete
-init-to-diff workflow. Snapshot schemas and CLI behavior may still evolve
-during the 0.x series. Track changes in the repository's
+RunTrace v0.2.0 adds atomic snapshot-before-execution and sanitized direct
+dependency provenance to the local workflow introduced in v0.1.0. The
+collision-free public names are tested on Windows, covered by a two-order
+install/uninstall audit, and verified by Linux CI on every supported Python
+version. Snapshot schemas and CLI behavior may still evolve during the 0.x
+series. Track changes in the repository's
 [issues](https://github.com/Corvus-226/RunTrace/issues) and
 [changelog](../CHANGELOG.md).
