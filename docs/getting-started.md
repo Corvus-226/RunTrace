@@ -270,11 +270,11 @@ installed version.
 
 ## Current maturity
 
-RunTrace v0.2.0 adds atomic snapshot-before-execution and sanitized direct
-dependency provenance to the local workflow introduced in v0.1.0. The
-collision-free public names are tested on Windows, covered by a two-order
-install/uninstall audit, and verified by Linux CI on every supported Python
-version. Snapshot schemas and CLI behavior may still evolve during the 0.x
-series. Track changes in the repository's
+RunTrace v0.2.0 is the latest published PyPI release. It adds atomic
+snapshot-before-execution and sanitized direct dependency provenance to the
+local workflow introduced in v0.1.0. The collision-free public names are tested
+on Windows, covered by a two-order install/uninstall audit, and verified by
+Linux CI on every supported Python version. Snapshot schemas and CLI behavior
+may still evolve during the 0.x series. Track changes in the repository's
 [issues](https://github.com/Corvus-226/RunTrace/issues) and
 [changelog](../CHANGELOG.md).

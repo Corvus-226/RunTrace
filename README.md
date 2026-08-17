@@ -13,11 +13,10 @@ configuration, environment, and metadata behind machine-learning experiments.
 It stores transparent YAML snapshots in the current Git repository, without a
 server or account.
 
-> **Version:** This source tree and distribution metadata target v0.2.0.
-> Published files and release status are listed on
-> [PyPI](https://pypi.org/project/ml-runtrace/) and
-> [GitHub Releases](https://github.com/Corvus-226/RunTrace/releases).
-> RunTrace supports Windows and Linux with Python 3.10–3.12.
+> **Project status:** [v0.2.0](https://github.com/Corvus-226/RunTrace/releases/tag/v0.2.0)
+> is the latest published release. It is available from
+> [PyPI](https://pypi.org/project/ml-runtrace/0.2.0/) and verified on Windows
+> and Linux with Python 3.10–3.12.
 
 ## Why RunTrace?
 
