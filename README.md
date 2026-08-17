@@ -99,6 +99,24 @@ ml-runtrace snapshot --name baseline --config configs/train.yaml --command "pyth
 result prints a 12-character run ID and writes one YAML file beneath
 `.runtrace/runs/`.
 
+#### Preview on current `main`: snapshot, then run
+
+The current development branch adds an opt-in wrapper planned for the next
+release. It is not part of the PyPI v0.1.0 package:
+
+```console
+ml-runtrace run --name baseline --config configs/train.yaml -- python train.py --config configs/train.yaml
+```
+
+`run` writes the snapshot before starting the command after `--`, preserving
+the exact argument vector as well as a readable command. If snapshot capture
+fails, the experiment is not started. If the experiment fails, its snapshot is
+kept and its exit code is returned.
+
+The child process is started directly, without an implicit shell. Pipes,
+redirection, shell variables, and other shell syntax are therefore not
+interpreted unless you explicitly run a shell as the child command.
+
 ### 4. Inspect and compare runs
 
 After recording another run, use either a full ID or a unique abbreviated ID:
@@ -140,12 +158,19 @@ entire init → snapshot → list → show → diff workflow and explains each r
 - an explicitly supplied command and YAML config path, SHA-256 hash, and
   parsed values.
 
+On current `main`, snapshots also include the exact argument vector used by
+`ml-runtrace run` and sanitized [PEP 610](https://peps.python.org/pep-0610/)
+origins for direct VCS, archive, and local-directory package installations.
+VCS and archive origins retain a safe relative package subdirectory when one
+is declared.
+
 ## CLI reference
 
 | Command | Purpose |
 | --- | --- |
 | `ml-runtrace init` | Initialize local RunTrace state at the containing Git root. |
 | `ml-runtrace snapshot` | Capture the current reproducibility context. |
+| `ml-runtrace run -- COMMAND...` | On current `main` (next release), snapshot first and then execute an argument vector. |
 | `ml-runtrace list` | List recorded runs newest first. |
 | `ml-runtrace show <run-id>` | Display one complete stored snapshot. |
 | `ml-runtrace diff <run-a> <run-b>` | Compare reproducibility-relevant values. |
@@ -158,10 +183,17 @@ RunTrace is local-only by default. It does not upload experiment data, source
 code, credentials, environment variables, or artifacts. Snapshot capture does
 not read those implicit secret sources.
 
-When `--config` or `--command` is supplied, RunTrace intentionally stores the
-parsed config values and command in local YAML. Do not put secrets in those
-explicit inputs. Review `.runtrace/runs/*.yaml` before sharing or committing
-it, just as you would review any experiment record.
+When `--config`, `--command`, or the current-main `run` wrapper is used,
+RunTrace intentionally stores the parsed config values, readable command, and
+exact command arguments in local YAML. Do not put secrets in those explicit
+inputs.
+
+For packages installed from a direct source, current `main` reads standardized
+`direct_url.json` metadata. URL usernames/passwords, queries, fragments, and
+local absolute directory paths are omitted. A remote URL's host and repository
+path, requested revision, and safe relative subdirectory can still reveal
+private project names; review `.runtrace/runs/*.yaml` before sharing or
+committing it, just as you would review any experiment record.
 
 ## Development
 

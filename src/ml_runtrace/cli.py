@@ -9,6 +9,12 @@ from rich.console import Console
 from ml_runtrace import __version__
 from ml_runtrace.config import ConfigLoadError
 from ml_runtrace.diff import compare_snapshots
+from ml_runtrace.execution import (
+    ExperimentExecutionError,
+    execute_command,
+    format_command,
+    normalize_exit_code,
+)
 from ml_runtrace.git import GitMetadataError
 from ml_runtrace.presentation import (
     print_snapshot,
@@ -102,6 +108,66 @@ def snapshot_command(
 
     typer.echo(f"Created snapshot {saved.snapshot.run_id}.")
     typer.echo(f"Path: {saved.path}")
+
+
+@app.command("run")
+def run_command(
+    command: Annotated[
+        list[str],
+        typer.Argument(
+            help="Command and arguments to execute after `--`.",
+            metavar="COMMAND...",
+        ),
+    ],
+    name: Annotated[
+        str | None,
+        typer.Option("--name", help="Human-readable name for this run."),
+    ] = None,
+    config: Annotated[
+        Path | None,
+        typer.Option("--config", help="YAML experiment config to capture."),
+    ] = None,
+) -> None:
+    """Capture a snapshot, then execute one experiment command."""
+    current_directory = Path.cwd()
+    try:
+        display_command = format_command(command)
+        saved = create_snapshot(
+            current_directory,
+            name=name,
+            config_path=config,
+            command=display_command,
+            command_argv=tuple(command),
+        )
+    except (
+        ConfigLoadError,
+        ExperimentExecutionError,
+        GitMetadataError,
+        ProjectInitializationError,
+        SnapshotCaptureError,
+        SnapshotStorageError,
+    ) as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(code=1) from error
+
+    typer.echo(f"Created snapshot {saved.snapshot.run_id}.")
+    typer.echo(f"Path: {saved.path}")
+    typer.echo(f"Running: {display_command}")
+
+    try:
+        returncode = execute_command(command, cwd=current_directory)
+    except ExperimentExecutionError as error:
+        typer.echo(f"Error: {error}", err=True)
+        raise typer.Exit(code=127) from error
+
+    if returncode != 0:
+        typer.echo(
+            f"Experiment command exited with code {returncode}.",
+            err=True,
+        )
+        raise typer.Exit(code=normalize_exit_code(returncode))
+
+    typer.echo("Experiment command completed successfully.")
 
 
 @app.command("list")

@@ -126,6 +126,24 @@ The optional snapshot inputs are:
 Without these options, RunTrace still records Git, Python, platform,
 dependencies, and optional GPU/CUDA metadata.
 
+### Preview on current `main`: snapshot before execution
+
+The following opt-in wrapper is implemented on the current development branch
+for the next release; it is not available in the published PyPI v0.1.0 package:
+
+```console
+ml-runtrace run --name baseline --config configs/train.yaml -- python train.py --config configs/train.yaml
+```
+
+The `--` separator ends RunTrace's options. Everything after it is preserved as
+an exact argument vector. RunTrace saves the snapshot first and starts the
+command only when capture succeeds. A failed command keeps its snapshot and
+returns the command's exit code.
+
+`run` does not insert a shell, so argument boundaries remain intact and shell
+syntax such as pipes or redirection is not interpreted. Invoke a shell
+explicitly only when the experiment genuinely requires shell behavior.
+
 ## 4. Inspect recorded runs
 
 List snapshots newest first:
@@ -197,7 +215,8 @@ Differences are grouped in a fixed order:
 2. **Git** — commit, branch, detached state, and dirty state.
 3. **Runtime** — Python implementation/version and platform fields.
 4. **Environment** — installed distribution additions, removals, and version
-   changes.
+   changes. On current `main`, this also includes sanitized direct-package
+   origin changes such as resolved VCS commits.
 
 Each leaf is classified as `added`, `removed`, or `changed`. Run name,
 timestamp, and run ID identify snapshots but are not reported as
@@ -211,9 +230,18 @@ not start a service, create an account, or automatically upload anything. It
 does not capture source contents, environment variables, tokens, credentials,
 or experiment artifacts.
 
-RunTrace does store values you explicitly pass with `--config` and `--command`.
-Keep secrets out of those inputs, and review snapshot YAML before sharing or
-committing it.
+RunTrace does store values you explicitly pass with `--config`, `--command`, or
+the current-main `run` wrapper. Keep secrets out of config values and command
+arguments.
+
+Current `main` also reads standardized `direct_url.json` metadata for packages
+installed directly from version control, an archive, or a local directory. It
+removes URL credentials, queries, and fragments and never stores the local
+directory's absolute path. Safe relative VCS/archive subdirectories are retained
+because they can be required to reproduce a monorepo install. Remote hosts,
+repository paths, revisions, and subdirectories remain useful provenance and
+can reveal private project names, so always review snapshot YAML before sharing
+or committing it.
 
 ## RunTrace and full tracking platforms
 

@@ -9,6 +9,9 @@ import pytest
 
 import ml_runtrace.environment as environment_module
 from ml_runtrace.environment import (
+    ArchivePackageSourceMetadata,
+    DirectoryPackageSourceMetadata,
+    VcsPackageSourceMetadata,
     collect_environment_metadata,
     collect_installed_packages,
     detect_gpu_metadata,
@@ -20,6 +23,7 @@ class _Distribution:
     name: str | None
     version: str
     source_url: str = "https://packages.example.invalid/private"
+    direct_url: str | None = None
 
     @property
     def metadata(self) -> dict[str, str]:
@@ -30,6 +34,11 @@ class _Distribution:
         if self.name is not None:
             values["Name"] = self.name
         return values
+
+    def read_text(self, filename: str) -> str | None:
+        if filename == "direct_url.json":
+            return self.direct_url
+        return None
 
 
 def test_collects_runtime_and_platform_without_gpu(
@@ -65,6 +74,7 @@ def test_collects_runtime_and_platform_without_gpu(
     assert captured.platform.architecture == "64bit"
     assert captured.platform.machine == "test64"
     assert captured.packages == {"example-package": "1.2.3"}
+    assert captured.package_sources == {}
     assert captured.gpu is None
 
 
@@ -104,7 +114,108 @@ def test_package_source_urls_are_not_captured(
     captured = collect_environment_metadata()
 
     assert captured.packages == {"safe-package": "4.2"}
+    assert captured.package_sources == {}
     assert source_url not in repr(asdict(captured))
+
+
+def test_vcs_direct_origin_records_commit_and_removes_url_secrets(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    direct_url = """{
+      "url": "https://token:secret@github.com/acme/model.git?token=hidden#branch",
+      "vcs_info": {
+        "vcs": "Git",
+        "requested_revision": "feature/private",
+        "commit_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "subdirectory": "python/package"
+    }"""
+    monkeypatch.setattr(
+        environment_module.metadata,
+        "distributions",
+        lambda: [_Distribution("vcs-package", "1.0", direct_url=direct_url)],
+    )
+    monkeypatch.setattr(environment_module, "detect_gpu_metadata", lambda: None)
+
+    captured = collect_environment_metadata()
+
+    assert captured.package_sources == {
+        "vcs-package": VcsPackageSourceMetadata(
+            url="https://github.com/acme/model.git",
+            vcs="git",
+            commit_id="a" * 40,
+            requested_revision="feature/private",
+            subdirectory="python/package",
+        )
+    }
+    serialized = repr(asdict(captured))
+    assert "token:secret" not in serialized
+    assert "token=hidden" not in serialized
+    assert "#branch" not in serialized
+
+
+def test_archive_direct_origin_records_hash_and_sanitized_url(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    direct_url = """{
+      "url": "https://user:password@packages.example.test/model.whl?signature=secret",
+      "archive_info": {
+        "hashes": {"sha256": "0123456789abcdef"}
+      },
+      "subdirectory": "C:/Users/example/private"
+    }"""
+    monkeypatch.setattr(
+        environment_module.metadata,
+        "distributions",
+        lambda: [_Distribution("archive-package", "2.0", direct_url=direct_url)],
+    )
+    monkeypatch.setattr(environment_module, "detect_gpu_metadata", lambda: None)
+
+    captured = collect_environment_metadata()
+
+    assert captured.package_sources == {
+        "archive-package": ArchivePackageSourceMetadata(
+            url="https://packages.example.test/model.whl",
+            hash="sha256=0123456789abcdef",
+            subdirectory=None,
+        )
+    }
+
+
+def test_local_directory_origin_omits_absolute_path(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    local_path = "file:///Users/example/private/project"
+    direct_url = '{"url": "' + local_path + '", "dir_info": {"editable": true}}'
+    monkeypatch.setattr(
+        environment_module.metadata,
+        "distributions",
+        lambda: [_Distribution("local-package", "3.0", direct_url=direct_url)],
+    )
+    monkeypatch.setattr(environment_module, "detect_gpu_metadata", lambda: None)
+
+    captured = collect_environment_metadata()
+
+    assert captured.package_sources == {
+        "local-package": DirectoryPackageSourceMetadata(editable=True)
+    }
+    assert local_path not in repr(asdict(captured))
+
+
+def test_malformed_direct_origin_is_ignored(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        environment_module.metadata,
+        "distributions",
+        lambda: [_Distribution("broken-package", "4.0", direct_url="{broken")],
+    )
+    monkeypatch.setattr(environment_module, "detect_gpu_metadata", lambda: None)
+
+    captured = collect_environment_metadata()
+
+    assert captured.packages == {"broken-package": "4.0"}
+    assert captured.package_sources == {}
 
 
 def test_missing_nvidia_smi_returns_no_gpu(

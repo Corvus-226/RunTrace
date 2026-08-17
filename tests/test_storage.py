@@ -20,6 +20,7 @@ from ml_runtrace.models import (
     PlatformSnapshot,
     RuntimeSnapshot,
     Snapshot,
+    VcsPackageSourceSnapshot,
     generate_run_id,
 )
 from ml_runtrace.storage import (
@@ -127,6 +128,42 @@ def test_save_and_load_round_trip_without_data_loss(tmp_path: Path) -> None:
         "alpha-package": "1.0",
         "zeta-package": "2.0",
     }
+
+
+def test_schema_v1_snapshots_without_additive_fields_still_load(
+    tmp_path: Path,
+) -> None:
+    project = _project(tmp_path)
+    runs = project / ".runtrace" / "runs"
+    runs.mkdir()
+    expected = _snapshot()
+    document = expected.model_dump(mode="json")
+    document["environment"].pop("package_sources")
+    document["experiment"].pop("command_argv")
+    path = runs / f"{expected.run_id}.yaml"
+    path.write_text(
+        yaml.safe_dump(document, sort_keys=False),
+        encoding="utf-8",
+    )
+
+    loaded = SnapshotStore(project).load(expected.run_id)
+
+    assert loaded.environment.package_sources == {}
+    assert loaded.experiment.command_argv is None
+
+
+def test_package_source_requires_a_matching_distribution() -> None:
+    with pytest.raises(ValidationError, match="matching packages"):
+        EnvironmentSnapshot(
+            packages={},
+            package_sources={
+                "missing-package": VcsPackageSourceSnapshot(
+                    url="https://github.com/example/missing-package.git",
+                    vcs="git",
+                    commit_id="a" * 40,
+                )
+            },
+        )
 
 
 def test_duplicate_run_id_never_overwrites_existing_snapshot(tmp_path: Path) -> None:

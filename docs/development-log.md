@@ -1613,3 +1613,69 @@ review, CI, or release safety.
   output-directory `.gitignore` in the arguments to `twine check`. The two
   distributions themselves built successfully; the filter was corrected to
   accept only `.whl` and `.tar.gz`, and the complete check then passed.
+
+## 2026-08-17 — Snapshot-before-run and direct dependency provenance
+
+### Community feedback and scope
+
+- Opened [Issue #34](https://github.com/Corvus-226/RunTrace/issues/34), assigned
+  it to the repository owner, and kept the implementation on the scoped
+  `codex/issue-34-autosnapshot-provenance` branch from synchronized `main`.
+- Reviewed community feedback that experiment results should not require
+  reconstructing an exact Git commit and Python environment from shell history.
+  The two actionable requests were an automatic snapshot immediately before an
+  experiment and better handling of direct `git+https` dependencies.
+- Kept manual `ml-runtrace snapshot` record-only and added a separate opt-in
+  `ml-runtrace run -- COMMAND...` boundary. This avoids changing the behavior
+  of an existing command while giving scripts a single snapshot-before-execute
+  entry point.
+- Based direct-install capture on standardized
+  [PEP 610](https://peps.python.org/pep-0610/) `direct_url.json` metadata read
+  through Python's
+  [`importlib.metadata`](https://docs.python.org/3/library/importlib.metadata.html)
+  distribution API. The resolved VCS commit is retained because it identifies
+  an immutable source revision more reliably than a requested branch or tag.
+- Followed Python's
+  [`subprocess`](https://docs.python.org/3/library/subprocess.html) guidance by
+  passing an argument sequence directly with `shell=False` rather than
+  rebuilding a shell command.
+
+### Implementation and privacy boundary
+
+- Added a small execution module that formats a readable command, starts the
+  exact argument vector only after its snapshot has been atomically saved,
+  preserves the snapshot when the child fails, and returns a portable child
+  exit status. A command is never started when config, Git, environment, model,
+  or storage capture fails.
+- Added exact `command_argv` storage alongside the readable command so spaces,
+  quoting boundaries, and option values remain unambiguous. `show` displays the
+  vector and `diff` compares individual arguments deterministically.
+- Added sanitized direct-package origins for VCS, remote archive, and local
+  directory installs. VCS records include the tool, sanitized remote URL,
+  requested revision, resolved commit ID, and safe relative subdirectory;
+  archives retain a sanitized URL, available hash, and safe relative
+  subdirectory. Local directory records retain only their editable marker.
+- URL user information, queries, and fragments are stripped. Local absolute
+  paths and unsafe absolute or parent-traversing subdirectories are omitted.
+  Documentation notes that remote hosts, repository paths, revisions, and safe
+  subdirectories can still identify private projects and should be reviewed
+  before snapshot YAML is shared.
+- Extended schema v1 with defaulted additive fields so existing v0.1.0 YAML
+  records still load. Source records must correspond to a captured package.
+  `show` and `diff` expose the additional metadata without changing run IDs,
+  timestamps, or existing comparison ordering.
+
+### Verification
+
+- `uv run pytest`: 102 tests passed on Windows with Python 3.12.7. Coverage
+  includes snapshot-before-execution ordering, exact arguments, failed capture,
+  failed/missing child commands, exit-code propagation, PEP 610 VCS/archive/
+  directory metadata, URL secret removal, local-path omission, source diffs,
+  terminal display, and old-schema loading.
+- `uv run ruff check .`, `uv run ruff format --check .`,
+  `uv lock --check`, and `git diff --check` passed.
+- A clean temporary build produced the wheel and sdist; both passed
+  `twine check`. The first build wrapper used a .NET temporary-directory API
+  unavailable in the local PowerShell runtime and exited before building; the
+  wrapper was replaced with a compatible, path-validated temporary directory,
+  the complete check passed, and that directory was removed.
