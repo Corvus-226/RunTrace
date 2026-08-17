@@ -20,6 +20,7 @@ from ml_runtrace.models import (
     PlatformSnapshot,
     RuntimeSnapshot,
     Snapshot,
+    VcsPackageSourceSnapshot,
 )
 from ml_runtrace.storage import SnapshotStore
 
@@ -59,15 +60,18 @@ def test_full_id_displays_every_captured_section(
         "test64",
         "alpha-package",
         "1.0",
+        "https://github.com/example/alpha-package.git",
         "NVIDIA Test",
         "555.42",
         "12.5",
         "python train.py --config configs/train.yaml",
+        '["python", "train.py", "--config", "configs/train.yaml"]',
         "configs/train.yaml",
         '"batch_size": 32',
         '"name": "adamw"',
     ):
         assert value in result.stdout
+    assert "a" * 40 in "".join(result.stdout.split())
     assert "f" * 64 in "".join(result.stdout.split())
 
 
@@ -196,7 +200,14 @@ def _full_snapshot() -> Snapshot:
             ),
         ),
         environment=EnvironmentSnapshot(
-            packages={"zeta-package": "2.0", "alpha-package": "1.0"}
+            packages={"zeta-package": "2.0", "alpha-package": "1.0"},
+            package_sources={
+                "alpha-package": VcsPackageSourceSnapshot(
+                    url="https://github.com/example/alpha-package.git",
+                    vcs="git",
+                    commit_id="a" * 40,
+                )
+            },
         ),
         hardware=HardwareSnapshot(
             gpu=GpuSnapshot(
@@ -207,6 +218,12 @@ def _full_snapshot() -> Snapshot:
         ),
         experiment=ExperimentSnapshot(
             command="python train.py --config configs/train.yaml",
+            command_argv=(
+                "python",
+                "train.py",
+                "--config",
+                "configs/train.yaml",
+            ),
             config_path="configs/train.yaml",
             config_hash="f" * 64,
             config={"batch_size": 32, "optimizer": {"name": "adamw"}},

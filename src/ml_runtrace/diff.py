@@ -59,6 +59,23 @@ def compare_snapshots(before: Snapshot, after: Snapshot) -> SnapshotComparison:
         before.experiment.command,
         after.experiment.command,
     )
+    before_argv = (
+        _MISSING
+        if before.experiment.command_argv is None
+        else list(before.experiment.command_argv)
+    )
+    after_argv = (
+        _MISSING
+        if after.experiment.command_argv is None
+        else list(after.experiment.command_argv)
+    )
+    _compare_nested(
+        differences,
+        DifferenceSection.CONFIGURATION,
+        "command.argv",
+        before_argv,
+        after_argv,
+    )
     _compare_field(
         differences,
         DifferenceSection.CONFIGURATION,
@@ -148,6 +165,22 @@ def compare_snapshots(before: Snapshot, after: Snapshot) -> SnapshotComparison:
             before.environment.packages.get(package_name, _MISSING),
             after.environment.packages.get(package_name, _MISSING),
         )
+
+    before_sources = {
+        name: source.model_dump(mode="json", exclude_none=True)
+        for name, source in before.environment.package_sources.items()
+    }
+    after_sources = {
+        name: source.model_dump(mode="json", exclude_none=True)
+        for name, source in after.environment.package_sources.items()
+    }
+    _compare_nested(
+        differences,
+        DifferenceSection.ENVIRONMENT,
+        "sources",
+        before_sources,
+        after_sources,
+    )
 
     return SnapshotComparison(
         before_run_id=before.run_id,

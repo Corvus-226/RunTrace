@@ -6,6 +6,21 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Added `ml-runtrace run -- COMMAND...`, an opt-in snapshot-before-execution
+  wrapper that preserves exact arguments, does not invoke an implicit shell,
+  keeps the snapshot when execution fails, and returns the child exit code.
+- Added privacy-conscious PEP 610 provenance for packages installed from VCS,
+  remote archives, or local directories, including resolved VCS commit IDs and
+  archive hashes when available.
+
+### Changed
+
+- Snapshot schema v1 now accepts additive `command_argv` and
+  `package_sources` fields while remaining compatible with existing v0.1.0
+  YAML records. `show` and `diff` expose the new reproducibility metadata.
+
 ### Documentation
 
 - Added an original experiment-fingerprint README hero that presents RunTrace

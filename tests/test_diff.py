@@ -16,9 +16,11 @@ from ml_runtrace.models import (
     EnvironmentSnapshot,
     ExperimentSnapshot,
     GitSnapshot,
+    PackageSourceSnapshot,
     PlatformSnapshot,
     RuntimeSnapshot,
     Snapshot,
+    VcsPackageSourceSnapshot,
 )
 from ml_runtrace.storage import SnapshotStore
 
@@ -208,6 +210,48 @@ def test_dependency_add_remove_and_change_are_distinguished() -> None:
     assert (changes[2].before, changes[2].after) == ("2.0", None)
 
 
+def test_command_arguments_and_direct_source_commits_are_compared() -> None:
+    before = _snapshot(
+        "100000000001",
+        command_argv=("python", "train.py", "--label", "first run"),
+        packages={"research-package": "1.0"},
+        package_sources={
+            "research-package": VcsPackageSourceSnapshot(
+                url="https://github.com/example/research-package.git",
+                vcs="git",
+                commit_id="1" * 40,
+            )
+        },
+    )
+    after = _snapshot(
+        "200000000002",
+        command_argv=("python", "train.py", "--label", "second run"),
+        packages={"research-package": "1.0"},
+        package_sources={
+            "research-package": VcsPackageSourceSnapshot(
+                url="https://github.com/example/research-package.git",
+                vcs="git",
+                commit_id="2" * 40,
+            )
+        },
+    )
+
+    changes = compare_snapshots(before, after).differences
+
+    assert [(change.section, change.path, change.kind) for change in changes] == [
+        (
+            DifferenceSection.CONFIGURATION,
+            "command.argv[3]",
+            DifferenceKind.CHANGED,
+        ),
+        (
+            DifferenceSection.ENVIRONMENT,
+            'sources["research-package"].commit_id',
+            DifferenceKind.CHANGED,
+        ),
+    ]
+
+
 def test_identical_relevant_values_ignore_run_identity_and_name() -> None:
     before = _snapshot("100000000001", name="first")
     after = _snapshot("200000000002", name="second").model_copy(
@@ -376,7 +420,9 @@ def _snapshot(
     architecture: str = "64bit",
     machine: str = "test64",
     packages: dict[str, str] | None = None,
+    package_sources: dict[str, PackageSourceSnapshot] | None = None,
     command: str | None = "python train.py",
+    command_argv: tuple[str, ...] | None = None,
     config: object = None,
     config_path: str | None = "configs/train.yaml",
     config_hash: str | None = "f" * 64,
@@ -401,9 +447,13 @@ def _snapshot(
                 machine=machine,
             ),
         ),
-        environment=EnvironmentSnapshot(packages=packages or {}),
+        environment=EnvironmentSnapshot(
+            packages=packages or {},
+            package_sources=package_sources or {},
+        ),
         experiment=ExperimentSnapshot(
             command=command,
+            command_argv=command_argv,
             config_path=config_path,
             config_hash=config_hash,
             config=config,

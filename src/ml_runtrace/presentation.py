@@ -20,7 +20,13 @@ from ml_runtrace.diff import (
     SnapshotComparison,
     SnapshotDifference,
 )
-from ml_runtrace.models import Snapshot
+from ml_runtrace.models import (
+    ArchivePackageSourceSnapshot,
+    DirectoryPackageSourceSnapshot,
+    PackageSourceSnapshot,
+    Snapshot,
+    VcsPackageSourceSnapshot,
+)
 
 _WHITESPACE = re.compile(r"\s+")
 
@@ -167,8 +173,15 @@ def _print_packages(snapshot: Snapshot, console: Console) -> None:
     )
     table.add_column("PACKAGE")
     table.add_column("VERSION")
+    show_sources = bool(snapshot.environment.package_sources)
+    if show_sources:
+        table.add_column("DIRECT SOURCE", overflow="fold")
     for package, version in snapshot.environment.packages.items():
-        table.add_row(Text(package), Text(version))
+        row = [Text(package), Text(version)]
+        if show_sources:
+            source = snapshot.environment.package_sources.get(package)
+            row.append(Text(_package_source_summary(source)))
+        table.add_row(*row)
     console.print(table)
 
 
@@ -194,6 +207,15 @@ def _print_experiment(snapshot: Snapshot, console: Console) -> None:
         "Experiment",
         (
             ("Command", snapshot.experiment.command),
+            (
+                "Arguments",
+                json.dumps(
+                    list(snapshot.experiment.command_argv),
+                    ensure_ascii=False,
+                )
+                if snapshot.experiment.command_argv is not None
+                else None,
+            ),
             ("Config path", snapshot.experiment.config_path),
             ("Config SHA-256", snapshot.experiment.config_hash),
         ),
@@ -211,6 +233,32 @@ def _print_experiment(snapshot: Snapshot, console: Console) -> None:
     )
     console.print("Config values")
     console.print(Syntax(config_json, "json", word_wrap=True))
+
+
+def _package_source_summary(source: PackageSourceSnapshot | None) -> str:
+    if isinstance(source, VcsPackageSourceSnapshot):
+        revision = (
+            f" (requested {source.requested_revision})"
+            if source.requested_revision is not None
+            else ""
+        )
+        subdirectory = (
+            f" [subdirectory={source.subdirectory}]"
+            if source.subdirectory is not None
+            else ""
+        )
+        return f"{source.vcs}+{source.url}@{source.commit_id}{revision}{subdirectory}"
+    if isinstance(source, ArchivePackageSourceSnapshot):
+        archive_hash = f" ({source.hash})" if source.hash is not None else ""
+        subdirectory = (
+            f" [subdirectory={source.subdirectory}]"
+            if source.subdirectory is not None
+            else ""
+        )
+        return f"archive {source.url}{archive_hash}{subdirectory}"
+    if isinstance(source, DirectoryPackageSourceSnapshot):
+        return "editable local directory" if source.editable else "local directory"
+    return "—"
 
 
 def _yes_no(value: bool) -> str:

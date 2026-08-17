@@ -23,6 +23,7 @@ def test_help_describes_runtrace() -> None:
     assert "diff" in result.stdout
     assert "init" in result.stdout
     assert "list" in result.stdout
+    assert "run" in result.stdout
     assert "show" in result.stdout
     assert "snapshot" in result.stdout
 

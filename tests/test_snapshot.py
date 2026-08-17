@@ -263,6 +263,7 @@ def _use_environment(
             machine="test64",
         ),
         packages={"zeta-package": "2.0", "alpha-package": "1.0"},
+        package_sources={},
         gpu=gpu,
     )
     monkeypatch.setattr(

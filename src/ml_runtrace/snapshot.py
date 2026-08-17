@@ -8,17 +8,28 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from ml_runtrace.config import load_yaml_config
-from ml_runtrace.environment import GpuMetadata, collect_environment_metadata
+from ml_runtrace.environment import (
+    ArchivePackageSourceMetadata,
+    DirectoryPackageSourceMetadata,
+    GpuMetadata,
+    PackageSourceMetadata,
+    VcsPackageSourceMetadata,
+    collect_environment_metadata,
+)
 from ml_runtrace.git import collect_git_metadata
 from ml_runtrace.models import (
+    ArchivePackageSourceSnapshot,
+    DirectoryPackageSourceSnapshot,
     EnvironmentSnapshot,
     ExperimentSnapshot,
     GitSnapshot,
     GpuSnapshot,
     HardwareSnapshot,
+    PackageSourceSnapshot,
     PlatformSnapshot,
     RuntimeSnapshot,
     Snapshot,
+    VcsPackageSourceSnapshot,
 )
 from ml_runtrace.project import require_initialized_project
 from ml_runtrace.storage import SnapshotStore
@@ -42,6 +53,7 @@ def create_snapshot(
     name: str | None = None,
     config_path: Path | None = None,
     command: str | None = None,
+    command_argv: tuple[str, ...] | None = None,
 ) -> SavedSnapshot:
     """Capture local metadata, validate it, and persist one snapshot."""
     project_root = require_initialized_project(current_directory)
@@ -80,12 +92,17 @@ def create_snapshot(
             ),
             environment=EnvironmentSnapshot(
                 packages=environment_metadata.packages,
+                package_sources={
+                    name: _package_source_snapshot(source)
+                    for name, source in environment_metadata.package_sources.items()
+                },
             ),
             hardware=HardwareSnapshot(
                 gpu=_gpu_snapshot(environment_metadata.gpu),
             ),
             experiment=ExperimentSnapshot(
                 command=command,
+                command_argv=command_argv,
                 config_path=loaded_config.path if loaded_config is not None else None,
                 config_hash=(
                     loaded_config.sha256 if loaded_config is not None else None
@@ -111,3 +128,25 @@ def _gpu_snapshot(gpu: GpuMetadata | None) -> GpuSnapshot | None:
         driver_versions=gpu.driver_versions,
         cuda_version=gpu.cuda_version,
     )
+
+
+def _package_source_snapshot(
+    source: PackageSourceMetadata,
+) -> PackageSourceSnapshot:
+    if isinstance(source, VcsPackageSourceMetadata):
+        return VcsPackageSourceSnapshot(
+            url=source.url,
+            vcs=source.vcs,
+            commit_id=source.commit_id,
+            requested_revision=source.requested_revision,
+            subdirectory=source.subdirectory,
+        )
+    if isinstance(source, ArchivePackageSourceMetadata):
+        return ArchivePackageSourceSnapshot(
+            url=source.url,
+            hash=source.hash,
+            subdirectory=source.subdirectory,
+        )
+    if isinstance(source, DirectoryPackageSourceMetadata):
+        return DirectoryPackageSourceSnapshot(editable=source.editable)
+    raise TypeError(f"Unsupported package source metadata: {type(source).__name__}")
