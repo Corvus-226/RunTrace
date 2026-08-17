@@ -42,16 +42,17 @@ and PR #23 merged the reviewed migration into `main` as `01fb15d`.
 ## One-time trusted publishing setup
 
 The `ml-runtrace` PyPI JSON and Simple API endpoints returned HTTP 404 during
-the 2026-08-12 release audit. Repeat that check immediately before publication:
+the first-release audit on 2026-08-12. For later releases, query the project
+immediately before publication and confirm that the target version is absent:
 
 ```console
 curl --fail https://pypi.org/pypi/ml-runtrace/json
 curl --fail https://pypi.org/simple/ml-runtrace/
 ```
 
-For an unregistered name, both commands should fail with HTTP 404. This only
-checks current availability. PyPI explicitly states that a pending trusted
-publisher does not create a project or reserve its name until first use.
+Before the first release, both commands were expected to fail with HTTP 404.
+After a project exists, inspect the JSON response and verify that the target
+version does not appear under `releases`. This check does not reserve a version.
 
 Before enabling publishing or pushing a release tag:
 
@@ -134,7 +135,7 @@ repository permissions and no OIDC permission. It:
 3. builds the sdist and wheel once;
 4. runs the offline two-order public-name coexistence audit;
 5. checks package metadata and records SHA-256 values; and
-6. retains the files as a 30-day workflow artifact for review.
+6. retains the files as a 7-day workflow artifact for review.
 
 Download that artifact, verify its hashes and contents, and record the Actions
 run before requesting publication approval.
@@ -158,8 +159,8 @@ a signed tag when signing is configured; otherwise create an annotated tag:
 ```console
 git switch main
 git pull --ff-only origin main
-git tag -s v0.1.0 -m "RunTrace v0.1.0"
-git push origin v0.1.0
+git tag -s v0.2.0 -m "RunTrace v0.2.0"
+git push origin v0.2.0
 ```
 
 If signing is unavailable, replace `-s` with `-a` and record that decision.
@@ -175,7 +176,7 @@ Wait for PyPI's index to expose the files, then use another new environment:
 
 ```console
 python -m venv .venv-release-check
-python -m pip install --no-cache-dir ml-runtrace==0.1.0
+python -m pip install --no-cache-dir ml-runtrace==0.2.0
 ml-runtrace --version
 ml-runtrace --help
 python -m ml_runtrace --version

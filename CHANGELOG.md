@@ -6,6 +6,8 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-17
+
 ### Added
 
 - Added `ml-runtrace run -- COMMAND...`, an opt-in snapshot-before-execution
@@ -67,5 +69,6 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   deployment environment, immutable GitHub Action pins, retained provenance,
   and SHA-256 verification across the artifact handoff.
 
-[Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Corvus-226/RunTrace/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Corvus-226/RunTrace/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Corvus-226/RunTrace/releases/tag/v0.1.0

@@ -13,10 +13,11 @@ configuration, environment, and metadata behind machine-learning experiments.
 It stores transparent YAML snapshots in the current Git repository, without a
 server or account.
 
-> **Project status:** [v0.1.0](https://github.com/Corvus-226/RunTrace/releases/tag/v0.1.0)
-> is the first published release. It is available from
-> [PyPI](https://pypi.org/project/ml-runtrace/0.1.0/) and verified on Windows
-> and Linux with Python 3.10–3.12.
+> **Version:** This source tree and distribution metadata target v0.2.0.
+> Published files and release status are listed on
+> [PyPI](https://pypi.org/project/ml-runtrace/) and
+> [GitHub Releases](https://github.com/Corvus-226/RunTrace/releases).
+> RunTrace supports Windows and Linux with Python 3.10–3.12.
 
 ## Why RunTrace?
 
@@ -99,10 +100,10 @@ ml-runtrace snapshot --name baseline --config configs/train.yaml --command "pyth
 result prints a 12-character run ID and writes one YAML file beneath
 `.runtrace/runs/`.
 
-#### Preview on current `main`: snapshot, then run
+### 4. Snapshot and run atomically
 
-The current development branch adds an opt-in wrapper planned for the next
-release. It is not part of the PyPI v0.1.0 package:
+RunTrace v0.2.0 adds an opt-in wrapper for commands that should always have a
+snapshot captured immediately before execution:
 
 ```console
 ml-runtrace run --name baseline --config configs/train.yaml -- python train.py --config configs/train.yaml
@@ -117,7 +118,7 @@ The child process is started directly, without an implicit shell. Pipes,
 redirection, shell variables, and other shell syntax are therefore not
 interpreted unless you explicitly run a shell as the child command.
 
-### 4. Inspect and compare runs
+### 5. Inspect and compare runs
 
 After recording another run, use either a full ID or a unique abbreviated ID:
 
@@ -158,7 +159,7 @@ entire init → snapshot → list → show → diff workflow and explains each r
 - an explicitly supplied command and YAML config path, SHA-256 hash, and
   parsed values.
 
-On current `main`, snapshots also include the exact argument vector used by
+Snapshots created by v0.2.0 also include the exact argument vector used by
 `ml-runtrace run` and sanitized [PEP 610](https://peps.python.org/pep-0610/)
 origins for direct VCS, archive, and local-directory package installations.
 VCS and archive origins retain a safe relative package subdirectory when one
@@ -170,7 +171,7 @@ is declared.
 | --- | --- |
 | `ml-runtrace init` | Initialize local RunTrace state at the containing Git root. |
 | `ml-runtrace snapshot` | Capture the current reproducibility context. |
-| `ml-runtrace run -- COMMAND...` | On current `main` (next release), snapshot first and then execute an argument vector. |
+| `ml-runtrace run -- COMMAND...` | Snapshot first and then execute an exact argument vector. |
 | `ml-runtrace list` | List recorded runs newest first. |
 | `ml-runtrace show <run-id>` | Display one complete stored snapshot. |
 | `ml-runtrace diff <run-a> <run-b>` | Compare reproducibility-relevant values. |
@@ -183,12 +184,11 @@ RunTrace is local-only by default. It does not upload experiment data, source
 code, credentials, environment variables, or artifacts. Snapshot capture does
 not read those implicit secret sources.
 
-When `--config`, `--command`, or the current-main `run` wrapper is used,
-RunTrace intentionally stores the parsed config values, readable command, and
-exact command arguments in local YAML. Do not put secrets in those explicit
-inputs.
+When `--config`, `--command`, or the `run` wrapper is used, RunTrace
+intentionally stores the parsed config values, readable command, and exact
+command arguments in local YAML. Do not put secrets in those explicit inputs.
 
-For packages installed from a direct source, current `main` reads standardized
+For packages installed from a direct source, v0.2.0 reads standardized
 `direct_url.json` metadata. URL usernames/passwords, queries, fragments, and
 local absolute directory paths are omitted. A remote URL's host and repository
 path, requested revision, and safe relative subdirectory can still reveal

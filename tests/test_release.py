@@ -66,21 +66,22 @@ def test_public_names_are_collision_free() -> None:
         "README.md",
         "docs/getting-started.md",
         "docs/releases/v0.1.0.md",
+        "docs/releases/v0.2.0.md",
     ):
         contents = (_ROOT / relative_path).read_text(encoding="utf-8")
         assert re.search(r"(?m)^(?:uv run )?runtrace(?:\s|$)", contents) is None
 
 
 def test_release_documents_match_package_version() -> None:
-    assert __version__ == "0.1.0"
+    assert __version__ == "0.2.0"
 
     changelog = (_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     readme = (_ROOT / "README.md").read_text(encoding="utf-8")
     release_notes = _ROOT / "docs" / "releases" / f"v{__version__}.md"
 
-    assert f"## [{__version__}] - 2026-08-13" in changelog
-    assert f"[v{__version__}]" in readme
-    assert "is the first published release" in readme
+    assert f"## [{__version__}] - 2026-08-17" in changelog
+    assert f"v{__version__}" in readme
+    assert "distribution metadata target v0.2.0" in readme
     assert "python -m pip install ml-runtrace" in readme
     assert "python -m pip install ." not in readme
     assert release_notes.is_file()
@@ -96,6 +97,7 @@ def test_release_workflow_builds_candidates_without_publishing() -> None:
 
     assert yaml.safe_load(workflow) is not None
     assert "workflow_dispatch:" in workflow
+    assert "default: 0.2.0" in workflow
     assert "contents: read" in workflow
     assert "id-token: write" not in workflow
     assert "gh-action-pypi-publish" not in workflow
@@ -108,6 +110,16 @@ def test_release_workflow_builds_candidates_without_publishing() -> None:
     )
     assert action_references
     assert all(_PINNED_ACTION.fullmatch(reference) for reference in action_references)
+
+
+def test_ci_clean_wheel_uses_the_package_version() -> None:
+    workflow_path = _ROOT / ".github" / "workflows" / "ci.yml"
+    workflow = workflow_path.read_text(encoding="utf-8")
+
+    assert yaml.safe_load(workflow) is not None
+    assert 'expected_version="$(uv run python -c' in workflow
+    assert '"ml-runtrace ${expected_version}"' in workflow
+    assert '"ml-runtrace 0.1.0"' not in workflow
 
 
 def test_publish_workflow_uses_least_privilege_trusted_publishing() -> None:
