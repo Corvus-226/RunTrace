@@ -1751,13 +1751,99 @@ review, CI, or release safety.
   valid PowerShell invocation and the workflow was rerun in a user-owned
   temporary repository without changing global Git safety settings.
 
-### Remaining controlled gates
+### Controlled gates completed after merge
 
-1. Review and merge the release-preparation pull request after Linux CI passes.
-2. Run and inspect the non-publishing Candidate from the exact final `main`
-   commit, including downloaded artifacts and SHA-256 provenance.
-3. Confirm v0.2.0 is still absent from PyPI, create the annotated tag, approve
-   the protected `pypi` deployment, and verify the uploaded files and
-   attestations.
-4. Perform a no-cache install from PyPI, publish the GitHub Release with exact
-   evidence, update this log after publication, and close Issue #36.
+1. ~~Review and merge the release-preparation pull request after Linux CI
+   passes.~~
+2. ~~Run and inspect the non-publishing Candidate from the exact final `main`
+   commit, including downloaded artifacts and SHA-256 provenance.~~
+3. ~~Confirm v0.2.0 is still absent from PyPI, create the annotated tag,
+   approve the protected `pypi` deployment, and verify the uploaded files and
+   attestations.~~
+4. ~~Perform a no-cache install from PyPI, publish the GitHub Release with exact
+   evidence, update this log after publication, and close Issue #36.~~
+
+## 2026-08-17 — v0.2.0 formal publication and acceptance
+
+### Reviewed source and Candidate
+
+- [PR #37](https://github.com/Corvus-226/RunTrace/pull/37) passed four Linux CI
+  jobs and merged through a standard merge commit. Final `main`, `origin/main`,
+  and final-main CI
+  [run 32025979992](https://github.com/Corvus-226/RunTrace/actions/runs/32025979992)
+  all resolved to `aca08ecefb5d630cba1779438d54f818ad719a18`.
+- Non-publishing Candidate
+  [run 32026089457](https://github.com/Corvus-226/RunTrace/actions/runs/32026089457)
+  was dispatched with the full final-main SHA and expected version `0.2.0`.
+  Tests, Ruff, locked installation, version/release-note checks, package build,
+  offline coexistence, Twine metadata, and clean-wheel entry points all passed.
+- Downloaded Candidate artifact `release-candidate-0.2.0` had GitHub artifact
+  SHA-256
+  `12402ca3d47071e77d2dbc8f7e948b785d103dc52e8eccda81275e7f85f44462`.
+  Its recorded hashes matched both extracted files, and local `twine check`
+  passed again. The artifact identified the Linux Candidate wheel as
+  `b0415a8954edacb446cc847781d01db36c06ee8b2f50288ed255d906d919fd0e`
+  and the sdist as
+  `633e52245f466d57fed0c9cd96eaf81f5e5eef04a1b6a40d0834caf253b0426d`.
+
+### Protected Trusted Publishing
+
+- Immediately before tagging, PyPI's official JSON still listed only `0.1.0`;
+  no local or remote `v0.2.0` tag existed. A fresh remote-main fetch confirmed
+  that the audited Candidate commit remained the exact branch tip.
+- Created and pushed annotated tag `v0.2.0`, verified as a tag object resolving
+  to `aca08ecefb5d630cba1779438d54f818ad719a18`. This triggered formal
+  [Publish to PyPI run 32031566429](https://github.com/Corvus-226/RunTrace/actions/runs/32031566429).
+- The read-only build job completed before the separate publishing job entered
+  the protected `pypi` environment. Deployment approval recorded final-main CI,
+  Candidate, commit, and PyPI-absence evidence. Only that publishing job
+  received OIDC permission; no username, password, API token, or repository
+  secret was used.
+- The formal workflow artifact
+  `python-package-distributions-0.2.0` has GitHub artifact SHA-256
+  `7478f3be2ea67f782448a4d8043688ccf3bc7ce18c0207536cd3f755b6b4dc01`.
+  `RELEASE_PROVENANCE` binds tag `v0.2.0`, version `0.2.0`, and commit
+  `aca08ecefb5d630cba1779438d54f818ad719a18`; its SHA-256 is
+  `c6b74ebce096b292827bf26c1dc30081ed9f58ad1070c88dfbfefb27ebdc6f53`.
+  `SHA256SUMS` has SHA-256
+  `b6d7a880a60f7299ea544cf9dd74642ea29f40cdfb44fbe36cac63ff06d50f75`.
+
+### PyPI, attestations, and independent acceptance
+
+- PyPI exposes `ml-runtrace==0.2.0` with `Requires-Python >=3.10`. The published
+  wheel is 27,370 bytes with SHA-256
+  `b0415a8954edacb446cc847781d01db36c06ee8b2f50288ed255d906d919fd0e`;
+  the sdist is 132,912 bytes with SHA-256
+  `633e52245f466d57fed0c9cd96eaf81f5e5eef04a1b6a40d0834caf253b0426d`.
+  These exactly match `SHA256SUMS` and the formal workflow artifact.
+- PyPI's file-detail pages mark both files as Trusted Publishing uploads and
+  expose in-toto publication attestations. The wheel's Sigstore transparency
+  entry is `2498407329`, and the sdist's is `2498407323`; both bind
+  `refs/tags/v0.2.0`, the immutable source commit, `publish.yml`, a GitHub-hosted
+  runner, the push trigger, and the exact subject digest.
+- Installed `ml-runtrace==0.2.0` with `--no-cache-dir` into a newly created
+  Python 3.12.7 environment. `pip check`, `ml-runtrace --version`,
+  `python -m ml_runtrace --version`, and CLI help passed; both version commands
+  returned `ml-runtrace 0.2.0` and help listed the new `run` command.
+- In a separate committed Git repository, the PyPI package passed `init`, an
+  automatic pre-execution `run`, a manual `snapshot`, `list`, `show`, and
+  `diff`. `show` preserved the exact Python argument vector, and `diff`
+  reported command/argument removal, the changed config hash, and learning-rate
+  change from `0.001` to `0.0005`.
+
+### GitHub Release and cleanup
+
+- Published the final
+  [RunTrace v0.2.0 GitHub Release](https://github.com/Corvus-226/RunTrace/releases/tag/v0.2.0)
+  as the latest production release. It links the CI, Candidate, publishing run,
+  PyPI page, versioned notes, hashes, compatibility, and privacy boundary.
+- Attached the exact formal wheel, sdist, `SHA256SUMS`, and
+  `RELEASE_PROVENANCE`. GitHub's Releases API reports the same sizes and
+  SHA-256 values as the retained formal artifact and PyPI; the release is
+  neither a draft nor a prerelease.
+- Removed all validated temporary build, downloaded-artifact, and clean-install
+  environments after recording evidence. The two local planning documents
+  remain untracked and were never staged, packaged, or uploaded.
+- This docs-only follow-up starts from the published `main` commit and closes
+  Issue #36 after review; it does not alter the immutable v0.2.0 tag or any
+  published distribution file.

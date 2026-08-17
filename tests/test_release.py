@@ -80,8 +80,8 @@ def test_release_documents_match_package_version() -> None:
     release_notes = _ROOT / "docs" / "releases" / f"v{__version__}.md"
 
     assert f"## [{__version__}] - 2026-08-17" in changelog
-    assert f"v{__version__}" in readme
-    assert "distribution metadata target v0.2.0" in readme
+    assert f"[v{__version__}]" in readme
+    assert "is the latest published release" in readme
     assert "python -m pip install ml-runtrace" in readme
     assert "python -m pip install ." not in readme
     assert release_notes.is_file()
