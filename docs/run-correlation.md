@@ -1,7 +1,9 @@
 # Correlating RunTrace runs with logs and traces
 
-> **Release status:** this behavior is implemented in the current source tree
-> and is planned for the next release after PyPI v0.2.0.
+This guide describes the run-ID correlation contract targeted by RunTrace
+v0.3.0. Check [PyPI](https://pypi.org/project/ml-runtrace/) and
+[GitHub Releases](https://github.com/Corvus-226/RunTrace/releases) for the
+currently published files.
 
 RunTrace records reproducibility context; observability systems record what an
 application did while it was running. The shared value between those layers is

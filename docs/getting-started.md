@@ -1,6 +1,6 @@
 # Getting Started with RunTrace
 
-This guide takes a Git-based project from installing RunTrace v0.2.0 to its
+This guide takes a Git-based project from installing RunTrace v0.3.0 to its
 first experiment comparison.
 
 ## Before you start
@@ -27,7 +27,7 @@ Activate the environment using the command for your shell, then install the
 documented release from PyPI:
 
 ```console
-python -m pip install ml-runtrace==0.2.0
+python -m pip install ml-runtrace==0.3.0
 ml-runtrace --version
 python -m ml_runtrace --version
 ```
@@ -128,8 +128,8 @@ dependencies, and optional GPU/CUDA metadata.
 
 ## 4. Run with an automatic pre-execution snapshot
 
-RunTrace v0.2.0 provides an opt-in wrapper for commands that should always have
-a snapshot captured immediately before execution:
+RunTrace v0.2.0 introduced an opt-in wrapper for commands that should always
+have a snapshot captured immediately before execution:
 
 ```console
 ml-runtrace run --name baseline --config configs/train.yaml -- python train.py --config configs/train.yaml
@@ -144,17 +144,13 @@ returns the command's exit code.
 syntax such as pipes or redirection is not interpreted. Invoke a shell
 explicitly only when the experiment genuinely requires shell behavior.
 
-### Source preview: correlate a run with observability
+### Correlate a run with observability
 
-This behavior is implemented in the current source tree and is planned for the
-next release after PyPI v0.2.0. The published v0.2.0 command does not inject the
-variable described below.
-
-After saving the snapshot and before starting the command, `run` places the
-same 12-character ID in the child's environment as `RUNTRACE_RUN_ID`. Any child
-processes that preserve their inherited environment receive it too. A stale
-parent value is replaced for the wrapped command, while the parent shell is not
-modified.
+RunTrace v0.3.0 places the same 12-character ID in the child's environment as
+`RUNTRACE_RUN_ID` after saving the snapshot and before starting the command.
+Any child processes that preserve their inherited environment receive it too.
+A stale parent value is replaced for the wrapped command, while the parent
+shell is not modified.
 
 Add that value to a structured log record or observability span using the
 custom field `runtrace.run.id`. When investigating an event later, copy the
@@ -258,7 +254,7 @@ or experiment artifacts.
 RunTrace does store values you explicitly pass with `--config`, `--command`, or
 the `run` wrapper. Keep secrets out of config values and command arguments.
 
-The source-preview correlation feature injects only the generated
+The v0.3.0 correlation feature injects only the generated
 `RUNTRACE_RUN_ID` into the wrapped child process; it does not add the inherited
 environment to the snapshot. The ID is sent to an external observability
 system only when application code or separately configured instrumentation
@@ -301,11 +297,11 @@ installed version.
 
 ## Current maturity
 
-RunTrace v0.2.0 is the latest published PyPI release. It adds atomic
-snapshot-before-execution and sanitized direct dependency provenance to the
-local workflow introduced in v0.1.0. The collision-free public names are tested
-on Windows, covered by a two-order install/uninstall audit, and verified by
-Linux CI on every supported Python version. Snapshot schemas and CLI behavior
-may still evolve during the 0.x series. Track changes in the repository's
-[issues](https://github.com/Corvus-226/RunTrace/issues) and
-[changelog](../CHANGELOG.md).
+This source tree targets RunTrace v0.3.0, adding child-process run-ID
+correlation to the atomic wrapper and sanitized direct dependency provenance
+introduced in v0.2.0. The collision-free public names are tested on Windows,
+covered by a two-order install/uninstall audit, and verified by Linux CI on
+every supported Python version. Snapshot schemas and CLI behavior may still
+evolve during the 0.x series. Check [PyPI](https://pypi.org/project/ml-runtrace/)
+and [GitHub Releases](https://github.com/Corvus-226/RunTrace/releases) for the
+currently published files.
