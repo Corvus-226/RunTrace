@@ -1907,3 +1907,73 @@ review, CI, or release safety.
   second assumed the Windows `py` launcher was installed. The artifact filter
   was restricted to `.whl`/`.tar.gz`, and venv creation was changed to the
   locked uv Python. Neither failed invocation reached product execution.
+
+## 2026-08-20 — Issue #41 v0.3.0 release preparation
+
+### Release decision and reviewed baseline
+
+- [PR #40](https://github.com/Corvus-226/RunTrace/pull/40) passed all four Linux
+  CI jobs and merged through commit
+  `fe80118a1287a611ec17d9522f686d894bc87d6c`. Final feature-main CI
+  [run 32388484972](https://github.com/Corvus-226/RunTrace/actions/runs/32388484972)
+  completed successfully against that exact commit.
+- Opened [Issue #41](https://github.com/Corvus-226/RunTrace/issues/41) and
+  created `codex/issue-41-release-v0.3.0` from the synchronized feature merge.
+  The maintainer authorized implementation, formal release, and PyPI update.
+- Selected v0.3.0 because the child-process `RUNTRACE_RUN_ID` contract is a new
+  user-visible capability in the 0.x series. Snapshot schema v1, existing CLI
+  options, persisted records, dependencies, and public package names remain
+  compatible.
+- PyPI's official project JSON reported latest version `0.2.0` and only the
+  `0.1.0` and `0.2.0` release keys. No v0.3.0 files existed before release
+  preparation.
+
+### Version and release materials
+
+- Updated package metadata, runtime version, uv lockfile, Candidate default,
+  changelog, release guardrails, README, Getting Started guide, and
+  run-correlation guide to target v0.3.0 without prematurely claiming that the
+  files are published.
+- Added `docs/releases/v0.3.0.md` covering the child environment contract,
+  structured logging and optional OpenTelemetry use, compatibility, privacy,
+  remote-worker limits, and controlled Trusted Publishing path.
+- Extended public-name and release tests to include the new versioned notes and
+  correlation guide, and added a guardrail that keeps `RUNTRACE_RUN_ID` and
+  `runtrace.run.id` documentation aligned while preventing an accidental
+  OpenTelemetry runtime dependency.
+
+### Local release validation
+
+- `uv sync --all-groups --locked` installed the editable v0.3.0 source.
+  `uv run pytest -p no:cacheprovider` passed 106 tests on Windows with Python
+  3.12.7. `uv run ruff check . --no-cache`,
+  `uv run ruff format --check . --no-cache`, `uv lock --check`, and
+  `git diff --check` passed.
+- A path-validated temporary source build produced
+  `ml_runtrace-0.3.0-py3-none-any.whl` and `ml_runtrace-0.3.0.tar.gz`; both
+  passed `twine check`. The offline two-order public-name coexistence audit
+  passed, and archive inspection confirmed that v0.3.0 notes and the
+  run-correlation guide are included while the README-only hero and two local
+  planning documents remain excluded.
+- The local release-preparation wheel SHA-256 was
+  `6c3b220864a79645fb835ffe6824ed23f1321002f49001340d1f2f94718507a8`;
+  the sdist SHA-256 was
+  `e221bfe283584e81dfc3e53d54ead77244351440becf123d798baecfe9803a10`.
+  These identify only this pre-merge checkpoint; the exact final-main Candidate
+  and tag workflow will provide authoritative release hashes.
+- Installed the wheel with `--no-cache-dir` in a fresh environment. `pip check`
+  and both version entry points passed and reported `ml-runtrace 0.3.0`. A new
+  committed Git repository completed `init` and an atomic `run`; the child
+  observed ID `a44cdbf61775`, verified the matching snapshot already existed,
+  and completed successfully. All temporary validation paths were removed.
+
+### Controlled gates remaining
+
+1. Review and merge the v0.3.0 release-preparation PR after Linux CI passes.
+2. Run and inspect a non-publishing Candidate from the exact final `main`
+   commit, recording artifact and distribution hashes.
+3. Reconfirm v0.3.0 absence, create the annotated tag, approve the protected
+   `pypi` deployment, and verify Trusted Publishing attestations.
+4. Perform a no-cache install from PyPI, publish the GitHub Release with exact
+   assets and evidence, update documentation after publication, and close
+   Issue #41.

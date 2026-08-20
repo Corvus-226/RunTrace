@@ -13,10 +13,11 @@ configuration, environment, and metadata behind machine-learning experiments.
 It stores transparent YAML snapshots in the current Git repository, without a
 server or account.
 
-> **Project status:** [v0.2.0](https://github.com/Corvus-226/RunTrace/releases/tag/v0.2.0)
-> is the latest published release. It is available from
-> [PyPI](https://pypi.org/project/ml-runtrace/0.2.0/) and verified on Windows
-> and Linux with Python 3.10–3.12.
+> **Version:** This source tree and distribution metadata target v0.3.0.
+> Published files and release status are listed on
+> [PyPI](https://pypi.org/project/ml-runtrace/) and
+> [GitHub Releases](https://github.com/Corvus-226/RunTrace/releases).
+> RunTrace supports Windows and Linux with Python 3.10–3.12.
 
 ## Why RunTrace?
 
@@ -101,8 +102,8 @@ result prints a 12-character run ID and writes one YAML file beneath
 
 ### 4. Snapshot and run atomically
 
-RunTrace v0.2.0 adds an opt-in wrapper for commands that should always have a
-snapshot captured immediately before execution:
+RunTrace v0.2.0 introduced an opt-in wrapper for commands that should always
+have a snapshot captured immediately before execution:
 
 ```console
 ml-runtrace run --name baseline --config configs/train.yaml -- python train.py --config configs/train.yaml
@@ -119,11 +120,8 @@ interpreted unless you explicitly run a shell as the child command.
 
 #### Correlate a run with logs and traces
 
-> **Unreleased:** run-ID correlation is available from the current source tree
-> and is planned for the next release after PyPI v0.2.0.
-
-Before the wrapped command starts, RunTrace exposes the saved snapshot ID to
-that child process and its descendants:
+RunTrace v0.3.0 exposes the saved snapshot ID to the wrapped child process and
+its descendants before the command starts:
 
 ```text
 RUNTRACE_RUN_ID=a31f82000001
@@ -210,7 +208,7 @@ When `--config`, `--command`, or the `run` wrapper is used, RunTrace
 intentionally stores the parsed config values, readable command, and exact
 command arguments in local YAML. Do not put secrets in those explicit inputs.
 
-The unreleased run-correlation behavior copies only the generated
+The v0.3.0 run-correlation behavior copies only the generated
 `RUNTRACE_RUN_ID` into the wrapped child process. It does not read or persist
 the inherited environment. The identifier leaves the machine only if the
 wrapped application or its instrumentation explicitly sends it elsewhere.
@@ -221,6 +219,16 @@ local absolute directory paths are omitted. A remote URL's host and repository
 path, requested revision, and safe relative subdirectory can still reveal
 private project names; review `.runtrace/runs/*.yaml` before sharing or
 committing it, just as you would review any experiment record.
+
+## Current maturity
+
+RunTrace v0.3.0 targets a small, explicit bridge between local provenance and
+external observability through `RUNTRACE_RUN_ID`. It retains the atomic run
+wrapper and direct-dependency provenance introduced in v0.2.0. Snapshot schema
+v1 and the collision-free distribution, import, and command names remain
+unchanged. Check [PyPI](https://pypi.org/project/ml-runtrace/) and
+[GitHub Releases](https://github.com/Corvus-226/RunTrace/releases) for the
+currently published files.
 
 ## Development
 
