@@ -180,8 +180,8 @@ review, CI, or release safety.
   saved YAML and matching `RUNTRACE_RUN_ID`.~~
 - ~~Publish the latest GitHub Release with the exact formal wheel, sdist,
   `SHA256SUMS`, and `RELEASE_PROVENANCE`.~~
-- Record the formal evidence in user documentation and submit the
-  issue-closing maintenance pull request.
+- ~~Record the formal evidence in user documentation and submit
+  issue-closing [PR #43](https://github.com/Corvus-226/RunTrace/pull/43).~~
 
 ## 2026-08-12 — Day 1 repository bootstrap
 
@@ -2038,7 +2038,8 @@ review, CI, or release safety.
    `pypi` deployment, and verify Trusted Publishing attestations.~~
 4. ~~Perform a no-cache install from PyPI, publish the GitHub Release with
    exact assets and evidence, and update documentation after publication.~~
-   Issue #41 is closed by the issue-closing post-release maintenance PR.
+   Issue #41 closes when issue-closing
+   [PR #43](https://github.com/Corvus-226/RunTrace/pull/43) merges.
 
 ## 2026-08-21 — v0.3.0 formal publication and acceptance
 
@@ -2129,8 +2130,9 @@ review, CI, or release safety.
   for `RELEASE_PROVENANCE`.
 - Updated the README, Getting Started guide, run-correlation guide, release
   notes, release guardrails, daily checklist, and this log from candidate
-  wording to the versioned, verified publication state. The issue-closing
-  maintenance PR is the final tracked deliverable for Issue #41.
+  wording to the versioned, verified publication state. Issue-closing
+  [PR #43](https://github.com/Corvus-226/RunTrace/pull/43) is the final tracked
+  deliverable for Issue #41.
 - Removed the path-validated Candidate download, formal artifact download, and
   isolated PyPI acceptance environments after recording evidence. Their
   authoritative files remain recoverable from GitHub Actions, the GitHub
