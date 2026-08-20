@@ -297,11 +297,11 @@ installed version.
 
 ## Current maturity
 
-This source tree targets RunTrace v0.3.0, adding child-process run-ID
+RunTrace v0.3.0 is the latest published release. It adds child-process run-ID
 correlation to the atomic wrapper and sanitized direct dependency provenance
 introduced in v0.2.0. The collision-free public names are tested on Windows,
 covered by a two-order install/uninstall audit, and verified by Linux CI on
 every supported Python version. Snapshot schemas and CLI behavior may still
-evolve during the 0.x series. Check [PyPI](https://pypi.org/project/ml-runtrace/)
-and [GitHub Releases](https://github.com/Corvus-226/RunTrace/releases) for the
-currently published files.
+evolve during the 0.x series. See the versioned
+[PyPI files](https://pypi.org/project/ml-runtrace/0.3.0/) and
+[GitHub Release](https://github.com/Corvus-226/RunTrace/releases/tag/v0.3.0).
