@@ -144,6 +144,31 @@ returns the command's exit code.
 syntax such as pipes or redirection is not interpreted. Invoke a shell
 explicitly only when the experiment genuinely requires shell behavior.
 
+### Source preview: correlate a run with observability
+
+This behavior is implemented in the current source tree and is planned for the
+next release after PyPI v0.2.0. The published v0.2.0 command does not inject the
+variable described below.
+
+After saving the snapshot and before starting the command, `run` places the
+same 12-character ID in the child's environment as `RUNTRACE_RUN_ID`. Any child
+processes that preserve their inherited environment receive it too. A stale
+parent value is replaced for the wrapped command, while the parent shell is not
+modified.
+
+Add that value to a structured log record or observability span using the
+custom field `runtrace.run.id`. When investigating an event later, copy the
+value from the log or trace and run:
+
+```console
+ml-runtrace show <runtrace.run.id>
+```
+
+The detailed [run-correlation guide](run-correlation.md) includes Python and
+OpenTelemetry examples plus the boundary for remote workers. RunTrace does not
+create spans, configure an exporter, read other environment-variable values,
+or send telemetry.
+
 ## 5. Inspect recorded runs
 
 List snapshots newest first:
@@ -232,6 +257,12 @@ or experiment artifacts.
 
 RunTrace does store values you explicitly pass with `--config`, `--command`, or
 the `run` wrapper. Keep secrets out of config values and command arguments.
+
+The source-preview correlation feature injects only the generated
+`RUNTRACE_RUN_ID` into the wrapped child process; it does not add the inherited
+environment to the snapshot. The ID is sent to an external observability
+system only when application code or separately configured instrumentation
+chooses to attach it.
 
 RunTrace v0.2.0 also reads standardized `direct_url.json` metadata for packages
 installed directly from version control, an archive, or a local directory. It

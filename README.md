@@ -117,6 +117,29 @@ The child process is started directly, without an implicit shell. Pipes,
 redirection, shell variables, and other shell syntax are therefore not
 interpreted unless you explicitly run a shell as the child command.
 
+#### Correlate a run with logs and traces
+
+> **Unreleased:** run-ID correlation is available from the current source tree
+> and is planned for the next release after PyPI v0.2.0.
+
+Before the wrapped command starts, RunTrace exposes the saved snapshot ID to
+that child process and its descendants:
+
+```text
+RUNTRACE_RUN_ID=a31f82000001
+```
+
+Application code can add this value to a structured log record, metric label,
+or observability span as the custom attribute `runtrace.run.id`. Copying that
+attribute back into `ml-runtrace show <run-id>` connects an operational signal
+to the exact local commit, config, runtime, and environment snapshot that
+produced it. See the [run-correlation guide](docs/run-correlation.md) for
+dependency-free logging and optional OpenTelemetry examples.
+
+RunTrace only injects its own non-secret identifier. It does not create spans,
+add an observability dependency, modify `OTEL_RESOURCE_ATTRIBUTES`, inspect the
+child's telemetry, or upload anything.
+
 ### 5. Inspect and compare runs
 
 After recording another run, use either a full ID or a unique abbreviated ID:
@@ -186,6 +209,11 @@ not read those implicit secret sources.
 When `--config`, `--command`, or the `run` wrapper is used, RunTrace
 intentionally stores the parsed config values, readable command, and exact
 command arguments in local YAML. Do not put secrets in those explicit inputs.
+
+The unreleased run-correlation behavior copies only the generated
+`RUNTRACE_RUN_ID` into the wrapped child process. It does not read or persist
+the inherited environment. The identifier leaves the machine only if the
+wrapped application or its instrumentation explicitly sends it elsewhere.
 
 For packages installed from a direct source, v0.2.0 reads standardized
 `direct_url.json` metadata. URL usernames/passwords, queries, fragments, and

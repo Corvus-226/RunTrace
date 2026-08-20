@@ -1847,3 +1847,63 @@ review, CI, or release safety.
 - This docs-only follow-up starts from the published `main` commit and closes
   Issue #36 after review; it does not alter the immutable v0.2.0 tag or any
   published distribution file.
+
+## 2026-08-20 — Issue #39 shared run-ID correlation
+
+### Community feedback and boundary
+
+- Opened [Issue #39](https://github.com/Corvus-226/RunTrace/issues/39) and
+  created the scoped `codex/issue-39-run-id-correlation` branch from synchronized
+  `main` commit `cf9848fc2796824a05e51ec5efe72c21bdd3437e`.
+- Community feedback identified a useful boundary between reproducibility and
+  observability: a shared run ID lets an operational span or log point back to
+  the exact commit, config, runtime, dependency, hardware, and command snapshot
+  without making RunTrace an observability platform.
+- Selected `RUNTRACE_RUN_ID` as a small child-process contract for
+  `ml-runtrace run`. The generated ID is already validated, persisted, printed,
+  and used as the YAML filename, so exposing that same value introduces no new
+  identity system or snapshot-schema change.
+- Kept integration deliberately composable. RunTrace does not depend on
+  OpenTelemetry, create spans, rewrite `OTEL_RESOURCE_ATTRIBUTES`, choose an
+  exporter, capture inherited environment-variable values, or send telemetry.
+
+### Implementation and documentation
+
+- Added a deterministic environment builder that copies an explicitly supplied
+  environment, replaces any stale `RUNTRACE_RUN_ID`, and leaves its input
+  mapping unchanged.
+- `ml-runtrace run` now saves the snapshot before building the child
+  environment, prints the injected name and value, and passes that environment
+  to the exact argument-vector subprocess. Snapshot failure, no-implicit-shell,
+  child failure, and portable exit-code behavior remain unchanged.
+- Added an end-to-end test whose child refuses to continue unless the YAML file
+  named by `RUNTRACE_RUN_ID` already exists. The test also proves the observed
+  ID loads the same stored snapshot, replaces a stale value, and does not alter
+  the parent process environment. A focused unit test covers copy and override
+  semantics.
+- Added a dedicated run-correlation guide with dependency-free JSON logging and
+  optional OpenTelemetry span examples. README and Getting Started changes mark
+  the behavior as unreleased relative to PyPI v0.2.0 and document local-child,
+  remote-worker, and privacy boundaries.
+
+### Local verification
+
+- `uv run pytest -p no:cacheprovider`: 105 tests passed on Windows with Python
+  3.12.7, including the two new correlation tests.
+- `uv run ruff check . --no-cache`, `uv run ruff format --check . --no-cache`,
+  `uv lock --check`, and `git diff --check` passed.
+- The first focused Ruff pass identified import ordering and one multiline
+  formatting difference after the behavior tests had passed. Both were fixed,
+  and the focused and complete quality gates then passed without suppression.
+- A clean temporary source build produced the v0.2.0-development-checkpoint
+  wheel and sdist, and both passed `twine check`. The wheel installed with
+  `--no-cache-dir` into a fresh Python 3.12.7 environment, `pip check` reported
+  no broken requirements, and a newly committed Git repository completed
+  `init` plus the wrapped run-ID smoke test. The child observed run ID
+  `7126782d5244`, and the matching snapshot file already existed before the
+  child wrote its marker. The path-validated temporary directory was removed.
+- Two validation-harness problems occurred before the successful clean install:
+  the first Twine invocation included uv's generated `.gitignore`, and the
+  second assumed the Windows `py` launcher was installed. The artifact filter
+  was restricted to `.whl`/`.tar.gz`, and venv creation was changed to the
+  locked uv Python. Neither failed invocation reached product execution.

@@ -18,6 +18,10 @@ from ml_runtrace.environment import (
     PythonRuntimeMetadata,
     VcsPackageSourceMetadata,
 )
+from ml_runtrace.execution import (
+    RUN_ID_ENVIRONMENT_VARIABLE,
+    build_experiment_environment,
+)
 from ml_runtrace.storage import SnapshotStore
 
 runner = CliRunner()
@@ -61,6 +65,58 @@ def test_run_creates_snapshot_before_preserving_exact_arguments(
     assert snapshot.environment.package_sources["research-package"].kind == "vcs"
     assert "Created snapshot" in result.output
     assert "Experiment command completed successfully." in result.output
+
+
+def test_run_exposes_saved_run_id_to_child_and_replaces_stale_value(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repository = _initialized_repository(tmp_path, monkeypatch)
+    _use_environment(monkeypatch)
+    stale_run_id = "000000000000"
+    monkeypatch.setenv(RUN_ID_ENVIRONMENT_VARIABLE, stale_run_id)
+    marker = repository / "observed-run-id.txt"
+    script = (
+        "from pathlib import Path; import os, sys; "
+        f"run_id=os.environ[{RUN_ID_ENVIRONMENT_VARIABLE!r}]; "
+        "snapshot=Path('.runtrace/runs') / f'{run_id}.yaml'; "
+        "sys.exit(24) if not snapshot.is_file() else "
+        "Path(sys.argv[1]).write_text(run_id, encoding='utf-8')"
+    )
+
+    result = runner.invoke(
+        app,
+        ["run", "--", sys.executable, "-c", script, str(marker)],
+    )
+
+    assert result.exit_code == 0, result.output
+    observed_run_id = marker.read_text(encoding="utf-8")
+    snapshot = SnapshotStore(repository).load(observed_run_id)
+    assert observed_run_id == snapshot.run_id
+    assert observed_run_id != stale_run_id
+    assert os.environ[RUN_ID_ENVIRONMENT_VARIABLE] == stale_run_id
+    assert (
+        f"Child environment: {RUN_ID_ENVIRONMENT_VARIABLE}={observed_run_id}"
+        in result.output
+    )
+
+
+def test_build_experiment_environment_does_not_mutate_inherited_values() -> None:
+    inherited = {
+        "EXISTING_SETTING": "preserved",
+        RUN_ID_ENVIRONMENT_VARIABLE: "111111111111",
+    }
+
+    child_environment = build_experiment_environment(
+        inherited,
+        run_id="222222222222",
+    )
+
+    assert child_environment == {
+        "EXISTING_SETTING": "preserved",
+        RUN_ID_ENVIRONMENT_VARIABLE: "222222222222",
+    }
+    assert inherited[RUN_ID_ENVIRONMENT_VARIABLE] == "111111111111"
 
 
 def test_run_does_not_start_command_when_snapshot_capture_fails(
