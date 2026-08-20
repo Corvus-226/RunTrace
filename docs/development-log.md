@@ -122,6 +122,67 @@ review, CI, or release safety.
 - ~~Install from PyPI without a cache and run `pip check`, both entry points,
   and the complete init → snapshot → list → show → diff acceptance flow.~~
 
+### Day 7 — 2026-08-17 — Atomic run wrapper and v0.2.0
+
+- ~~Add `ml-runtrace run -- COMMAND...` with an exact argument vector and no
+  implicit shell.~~
+- ~~Persist the snapshot before execution, preserve snapshot failures, and
+  propagate portable child exit codes.~~
+- ~~Record the exact executed argv without changing the existing readable
+  command field or snapshot schema.~~
+- ~~Capture and sanitize direct dependency origins from PEP 610 metadata,
+  including VCS, archive, and local-directory installs.~~
+- ~~Cover snapshot ordering, argv fidelity, shell metacharacters, child
+  failures, exit codes, and dependency-origin redaction with tests.~~
+- ~~Document snapshot-before-run behavior, direct dependency provenance,
+  privacy boundaries, and compatibility.~~
+- ~~Prepare v0.2.0, pass the complete local and Linux quality gates, and merge
+  the reviewed release change into `main`.~~
+- ~~Build and inspect the exact-main Candidate, publish v0.2.0 with the
+  protected Trusted Publishing workflow, and verify PyPI attestations.~~
+- ~~Install v0.2.0 from PyPI without a cache, run the end-to-end acceptance
+  workflow, and publish the GitHub Release with exact formal assets.~~
+
+### Day 8 — 2026-08-20 — Shared run-ID correlation and v0.3.0 preparation
+
+- ~~Translate community observability feedback into Issue #39 and a minimal,
+  backwards-compatible child-process correlation contract.~~
+- ~~Expose the saved 12-character run ID to the wrapped child as
+  `RUNTRACE_RUN_ID` only after the YAML snapshot exists.~~
+- ~~Replace a stale inherited value for the child while leaving the parent
+  environment unchanged.~~
+- ~~Keep RunTrace independent of OpenTelemetry and avoid automatic exporters,
+  spans, resource rewrites, or telemetry uploads.~~
+- ~~Add unit and end-to-end tests proving copy semantics, stale-value override,
+  atomic snapshot visibility, and exact ID equality.~~
+- ~~Add dependency-free logging and optional OpenTelemetry examples plus local,
+  remote-worker, and privacy boundaries.~~
+- ~~Pass Linux CI and merge feature PR #40 into `main`.~~
+- ~~Open Issue #41, select v0.3.0, update package metadata, lockfile, changelog,
+  release notes, Candidate defaults, documentation, and release guardrails.~~
+- ~~Pass 106 tests, Ruff, formatting, lockfile, package metadata, coexistence,
+  archive inspection, and clean-wheel acceptance checks.~~
+
+### Day 9 — 2026-08-21 — v0.3.0 formal release
+
+- ~~Merge release PR #42 and verify final-main CI against exact commit
+  `7dfa4681ee0214acf1ee5f6a86342318cca134c4`.~~
+- ~~Build the non-publishing Candidate from that exact commit and verify the
+  retained artifact and distribution hashes.~~
+- ~~Reconfirm PyPI has no v0.3.0 files and GitHub has no `v0.3.0` tag before
+  taking the immutable release step.~~
+- ~~Create and push the annotated `v0.3.0` tag on the reviewed commit.~~
+- ~~Approve the protected `pypi` deployment and complete OIDC Trusted
+  Publishing without a long-lived credential.~~
+- ~~Verify the published wheel and sdist sizes, SHA-256 values, Trusted
+  Publishing markers, and Sigstore-backed attestations on PyPI.~~
+- ~~Install v0.3.0 from PyPI without a cache and prove the child sees both its
+  saved YAML and matching `RUNTRACE_RUN_ID`.~~
+- ~~Publish the latest GitHub Release with the exact formal wheel, sdist,
+  `SHA256SUMS`, and `RELEASE_PROVENANCE`.~~
+- ~~Record the formal evidence in user documentation and submit
+  issue-closing [PR #43](https://github.com/Corvus-226/RunTrace/pull/43).~~
+
 ## 2026-08-12 — Day 1 repository bootstrap
 
 ### Scope
@@ -1967,13 +2028,113 @@ review, CI, or release safety.
   observed ID `a44cdbf61775`, verified the matching snapshot already existed,
   and completed successfully. All temporary validation paths were removed.
 
-### Controlled gates remaining
+### Controlled gates completed on 2026-08-21
 
-1. Review and merge the v0.3.0 release-preparation PR after Linux CI passes.
-2. Run and inspect a non-publishing Candidate from the exact final `main`
-   commit, recording artifact and distribution hashes.
-3. Reconfirm v0.3.0 absence, create the annotated tag, approve the protected
-   `pypi` deployment, and verify Trusted Publishing attestations.
-4. Perform a no-cache install from PyPI, publish the GitHub Release with exact
-   assets and evidence, update documentation after publication, and close
-   Issue #41.
+1. ~~Review and merge the v0.3.0 release-preparation PR after Linux CI
+   passes.~~
+2. ~~Run and inspect a non-publishing Candidate from the exact final `main`
+   commit, recording artifact and distribution hashes.~~
+3. ~~Reconfirm v0.3.0 absence, create the annotated tag, approve the protected
+   `pypi` deployment, and verify Trusted Publishing attestations.~~
+4. ~~Perform a no-cache install from PyPI, publish the GitHub Release with
+   exact assets and evidence, and update documentation after publication.~~
+   Issue #41 closes when issue-closing
+   [PR #43](https://github.com/Corvus-226/RunTrace/pull/43) merges.
+
+## 2026-08-21 — v0.3.0 formal publication and acceptance
+
+### Final main and non-publishing Candidate
+
+- Release [PR #42](https://github.com/Corvus-226/RunTrace/pull/42) passed all
+  four Linux CI jobs in
+  [run 32389605084](https://github.com/Corvus-226/RunTrace/actions/runs/32389605084)
+  and merged as final release commit
+  `7dfa4681ee0214acf1ee5f6a86342318cca134c4`. Final-main
+  [CI run 32389686148](https://github.com/Corvus-226/RunTrace/actions/runs/32389686148)
+  passed against that exact commit.
+- Manually dispatched non-publishing
+  [Candidate run 32389981944](https://github.com/Corvus-226/RunTrace/actions/runs/32389981944)
+  with source ref `7dfa4681ee0214acf1ee5f6a86342318cca134c4` and expected
+  version `0.3.0`. Version and notes validation, lint, formatting, 106 tests,
+  build, public-name coexistence, Twine metadata, clean-wheel installation,
+  hash recording, and artifact retention all completed successfully.
+- The Candidate archive was 168,304 bytes with artifact digest
+  `6543bd5196f80b5bb3eff455181e7341529430a989610e4012adce16548a945c`.
+  Its retained `SHA256SUMS` recorded wheel SHA-256
+  `27be4b4ee30ec01d89ce7c564e7608a5b256c30ff09bfd2204a2d13731539c5a`
+  and sdist SHA-256
+  `c44b42e0fc00ecb28603ca55865a679d80b448ac94dfc4e97dd112caa9145d3c`;
+  independent local hashing matched both values.
+
+### Annotated tag and protected Trusted Publishing
+
+- Immediately before tagging, PyPI's official JSON reported latest version
+  `0.2.0`, release keys `0.1.0` and `0.2.0`, and no v0.3.0 files. Local and
+  remote tag checks found no existing `v0.3.0`.
+- Created annotated tag `v0.3.0` on exact commit
+  `7dfa4681ee0214acf1ee5f6a86342318cca134c4` and pushed only that tag. It
+  triggered formal
+  [Publish to PyPI workflow run 32390346994](https://github.com/Corvus-226/RunTrace/actions/runs/32390346994).
+- The read-only build job completed successfully before the separate publish
+  job waited at the protected `pypi` environment. Normal reviewer approval was
+  recorded after checking final-main, Candidate, artifact, version-absence,
+  and tag-absence evidence. Only the publish job received OIDC permission; no
+  username, password, API token, or repository secret was used.
+- The formal workflow artifact was 168,501 bytes with digest
+  `dd497f648a2e85626e54f4f21c5c76ddb808c331bc7dccd4a13e5f2b6bae0304`.
+  Its `RELEASE_PROVENANCE` binds tag `v0.3.0`, exact commit
+  `7dfa4681ee0214acf1ee5f6a86342318cca134c4`, and version `0.3.0`. Formal
+  wheel and sdist hashes match the Candidate byte for byte.
+
+### PyPI, attestations, and independent acceptance
+
+- PyPI exposes `ml-runtrace==0.3.0` as the latest release with
+  `Requires-Python >=3.10`. The wheel is 28,287 bytes with SHA-256
+  `27be4b4ee30ec01d89ce7c564e7608a5b256c30ff09bfd2204a2d13731539c5a`;
+  the sdist is 141,004 bytes with SHA-256
+  `c44b42e0fc00ecb28603ca55865a679d80b448ac94dfc4e97dd112caa9145d3c`.
+  These exactly match `SHA256SUMS` and the retained formal artifact.
+- PyPI's file-detail pages mark both files as Trusted Publishing uploads and
+  expose in-toto publication attestations. The wheel's Sigstore transparency
+  entry is `2534577179`, and the sdist's is `2534577102`; both bind
+  `refs/tags/v0.3.0`, the immutable source commit, the pinned `publish.yml`, a
+  GitHub-hosted runner, and the exact subject digest.
+- Installed `ml-runtrace==0.3.0` from the official PyPI Simple index with cache
+  disabled into a fresh Python 3.12.7 environment. All 15 installed packages
+  passed the dependency check, and both entry points returned
+  `ml-runtrace 0.3.0`.
+- In a separate committed Git repository, `init`, atomic `run`, and `list`
+  passed. Child run `f9f94104ab41` refused to proceed unless
+  `.runtrace/runs/f9f94104ab41.yaml` already existed, then printed the same
+  identifier received through `RUNTRACE_RUN_ID` and exited successfully.
+- Two acceptance-harness iterations failed before the successful product
+  smoke: the first used a sandbox-inaccessible global uv cache and a repository
+  without an initial commit; the second lost quotes in a Windows inline
+  `python -c` argument. A task-local cache, committed fixture repository, and
+  temporary script removed those harness assumptions. Neither failure exposed
+  a package defect.
+
+### GitHub Release and post-publication documentation
+
+- Published the final
+  [RunTrace v0.3.0 GitHub Release](https://github.com/Corvus-226/RunTrace/releases/tag/v0.3.0)
+  as the latest production release. It links the exact source commit,
+  Candidate, publishing run, PyPI release, versioned notes, hashes,
+  compatibility, and privacy boundary.
+- Attached the exact formal wheel, sdist, `SHA256SUMS`, and
+  `RELEASE_PROVENANCE`. GitHub reports the same wheel and sdist hashes as PyPI;
+  it reports SHA-256
+  `eca65bc1e15d23ef3297b5a2c08eb11f8c72692bb696b420ddd1928195f3042d`
+  for `SHA256SUMS` and
+  `0176f5aaa53b33ee7d26140868268224c47ae6a1aa8da4c0932220e7eb34bfe4`
+  for `RELEASE_PROVENANCE`.
+- Updated the README, Getting Started guide, run-correlation guide, release
+  notes, release guardrails, daily checklist, and this log from candidate
+  wording to the versioned, verified publication state. Issue-closing
+  [PR #43](https://github.com/Corvus-226/RunTrace/pull/43) is the final tracked
+  deliverable for Issue #41.
+- Removed the path-validated Candidate download, formal artifact download, and
+  isolated PyPI acceptance environments after recording evidence. Their
+  authoritative files remain recoverable from GitHub Actions, the GitHub
+  Release, and PyPI. The two local untracked maintainer planning documents were
+  preserved and remain outside every commit.

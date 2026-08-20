@@ -13,10 +13,9 @@ configuration, environment, and metadata behind machine-learning experiments.
 It stores transparent YAML snapshots in the current Git repository, without a
 server or account.
 
-> **Version:** This source tree and distribution metadata target v0.3.0.
-> Published files and release status are listed on
-> [PyPI](https://pypi.org/project/ml-runtrace/) and
-> [GitHub Releases](https://github.com/Corvus-226/RunTrace/releases).
+> **Latest release:** RunTrace v0.3.0 is published on
+> [PyPI](https://pypi.org/project/ml-runtrace/0.3.0/) and as a verified
+> [GitHub Release](https://github.com/Corvus-226/RunTrace/releases/tag/v0.3.0).
 > RunTrace supports Windows and Linux with Python 3.10–3.12.
 
 ## Why RunTrace?
@@ -51,7 +50,7 @@ python -m venv .venv
 Then install RunTrace and verify both supported entry points:
 
 ```console
-python -m pip install ml-runtrace
+python -m pip install ml-runtrace==0.3.0
 ml-runtrace --version
 python -m ml_runtrace --version
 ```
@@ -222,13 +221,13 @@ committing it, just as you would review any experiment record.
 
 ## Current maturity
 
-RunTrace v0.3.0 targets a small, explicit bridge between local provenance and
-external observability through `RUNTRACE_RUN_ID`. It retains the atomic run
-wrapper and direct-dependency provenance introduced in v0.2.0. Snapshot schema
-v1 and the collision-free distribution, import, and command names remain
-unchanged. Check [PyPI](https://pypi.org/project/ml-runtrace/) and
-[GitHub Releases](https://github.com/Corvus-226/RunTrace/releases) for the
-currently published files.
+RunTrace v0.3.0 is the latest published release. It provides a small, explicit
+bridge between local provenance and external observability through
+`RUNTRACE_RUN_ID`, while retaining the atomic run wrapper and direct-dependency
+provenance introduced in v0.2.0. Snapshot schema v1 and the collision-free
+distribution, import, and command names remain unchanged. See the versioned
+[PyPI files](https://pypi.org/project/ml-runtrace/0.3.0/) and
+[GitHub Release](https://github.com/Corvus-226/RunTrace/releases/tag/v0.3.0).
 
 ## Development
 
