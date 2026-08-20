@@ -6,6 +6,16 @@ project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- `ml-runtrace run` now exposes the newly saved snapshot ID to its child process
+  as `RUNTRACE_RUN_ID`, making it possible to correlate logs, metrics, and
+  observability spans with exact local provenance. A stale inherited value is
+  replaced for the child without modifying the parent environment.
+- Added a run-correlation guide with dependency-free structured logging and
+  optional OpenTelemetry examples, including privacy and distributed-worker
+  boundaries.
+
 ## [0.2.0] - 2026-08-17
 
 ### Added

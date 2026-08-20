@@ -1,5 +1,6 @@
 """Command-line entry point for RunTrace."""
 
+import os
 from pathlib import Path
 from typing import Annotated
 
@@ -10,7 +11,9 @@ from ml_runtrace import __version__
 from ml_runtrace.config import ConfigLoadError
 from ml_runtrace.diff import compare_snapshots
 from ml_runtrace.execution import (
+    RUN_ID_ENVIRONMENT_VARIABLE,
     ExperimentExecutionError,
+    build_experiment_environment,
     execute_command,
     format_command,
     normalize_exit_code,
@@ -152,10 +155,21 @@ def run_command(
 
     typer.echo(f"Created snapshot {saved.snapshot.run_id}.")
     typer.echo(f"Path: {saved.path}")
+    child_environment = build_experiment_environment(
+        os.environ,
+        run_id=saved.snapshot.run_id,
+    )
+    typer.echo(
+        f"Child environment: {RUN_ID_ENVIRONMENT_VARIABLE}={saved.snapshot.run_id}"
+    )
     typer.echo(f"Running: {display_command}")
 
     try:
-        returncode = execute_command(command, cwd=current_directory)
+        returncode = execute_command(
+            command,
+            cwd=current_directory,
+            environment=child_environment,
+        )
     except ExperimentExecutionError as error:
         typer.echo(f"Error: {error}", err=True)
         raise typer.Exit(code=127) from error

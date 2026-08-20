@@ -5,8 +5,10 @@ from __future__ import annotations
 import os
 import shlex
 import subprocess
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
+
+RUN_ID_ENVIRONMENT_VARIABLE = "RUNTRACE_RUN_ID"
 
 
 class ExperimentExecutionError(RuntimeError):
@@ -25,7 +27,23 @@ def format_command(arguments: Sequence[str]) -> str:
     return shlex.join(values)
 
 
-def execute_command(arguments: Sequence[str], *, cwd: Path) -> int:
+def build_experiment_environment(
+    inherited_environment: Mapping[str, str],
+    *,
+    run_id: str,
+) -> dict[str, str]:
+    """Return an isolated child environment carrying the current run ID."""
+    environment = dict(inherited_environment)
+    environment[RUN_ID_ENVIRONMENT_VARIABLE] = run_id
+    return environment
+
+
+def execute_command(
+    arguments: Sequence[str],
+    *,
+    cwd: Path,
+    environment: Mapping[str, str] | None = None,
+) -> int:
     """Execute an argument vector without a shell and return its process code."""
     if not arguments or not arguments[0].strip():
         raise ExperimentExecutionError(
@@ -36,6 +54,7 @@ def execute_command(arguments: Sequence[str], *, cwd: Path) -> int:
             list(arguments),
             cwd=cwd,
             check=False,
+            env=dict(environment) if environment is not None else None,
             shell=False,
         )
     except (OSError, ValueError) as error:
